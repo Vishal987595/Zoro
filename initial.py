@@ -29,13 +29,18 @@ class UnOp:
 class Variable:
     name: str
 
+@dataclass
+class Mut:
+    name: str
+    value: 'AST'
 
-AST = NumLiteral | BinOp | Variable | If | UnOp
+
+
+AST = NumLiteral | BinOp | Variable | If | UnOp | Mut
 
 Value = Fraction | bool | None
 
 class InvalidProgram(Exception): pass
-
 
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
     if environment is None:
@@ -66,10 +71,33 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             return eval(left, environment) >= eval(right, environment)
         case BinOp("<=", left, right):
             return eval(left, environment) <= eval(right, environment)
+        case BinOp("+", left, right):
+            return eval(left, environment) + eval(right, environment)
+        case BinOp("-", left, right):
+            return eval(left, environment) - eval(right, environment)
+        case BinOp("*", left, right):
+            return eval(left, environment) * eval(right, environment)
+        case BinOp("/", left, right):
+            if eval(right,environment) == 0:
+                print("Division by Zero")
+                raise InvalidProgram()
+            return eval(left, environment) / eval(right, environment)
+        case BinOp("exp", left, right):
+            return eval(left, environment) ** eval(right, environment)
+        case BinOp("%", left, right):
+            if eval(right,environment) == 0:
+                print("Division by Zero")
+                raise InvalidProgram()
+            return eval(left, environment) % eval(right, environment)
+        case BinOp("i/", left, right):
+            if eval(right,environment) == 0:
+                print("Division by Zero")
+                raise InvalidProgram()
+            return eval(left, environment) // eval(right, environment)
         case BinOp("<-", left, right):
             v = eval(right, environment)
             left.value = v
-            environment[left.value] = v
+            environment[left.name] = v
             return None
     raise InvalidProgram()
 
@@ -81,9 +109,6 @@ def test_comp_eval():
 
     assert eval( BinOp (">=", c, c) )
     assert eval( BinOp ("<", a, d) )
-
-    eval(BinOp ("<-", d, NumLiteral(0)))
-    assert (d.value == 0)
     
 def test_unop_if():
     b = NumLiteral(5)
@@ -100,6 +125,30 @@ def test_unop_if():
     g = NumLiteral(2)
     e3 = UnOp("-", g)
     assert eval(e3) == -2
+
+def test_arithop_mut():
+    a = NumLiteral(1)
+    b = NumLiteral(2)
+    c = NumLiteral(3)
+    d = NumLiteral(4)
+    e1 = BinOp("+", a, b)
+    e2 = BinOp("*", c, d)
+    e3 = BinOp("i/", e2, e1)
+    assert eval(e3) == 4
+    i = NumLiteral(1)
+    j = NumLiteral(0)
+    try:
+        e4 = BinOp("/", i, j)
+        x = eval(e4)
+        print("hii")
+    except InvalidProgram:
+        print("An error was raised")
+
+    k = Mut('k', 0)
+    y = eval(BinOp('<-', k, NumLiteral(2)))
+    assert k.value == 2
+
     
 test_comp_eval()
 test_unop_if()
+test_arithop_mut()
