@@ -13,6 +13,12 @@ class BinOp:
     operator: str
     left: 'AST'
     right: 'AST'
+
+@dataclass
+class Let:
+    var: 'AST'
+    e1: 'AST'
+    e2: 'AST'
         
 @dataclass
 class If:
@@ -36,7 +42,7 @@ class Mut:
 
 
 
-AST = NumLiteral | BinOp | Variable | If | UnOp | Mut
+AST = NumLiteral | BinOp | Variable | Let | If | UnOp | Mut
 
 Value = Fraction | bool | None
 
@@ -47,6 +53,16 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
         environment = {}
     match program:
         case NumLiteral(value):
+            return value
+        case Variable(name):
+            if name in environment:
+                return environment[name]
+            raise InvalidProgram()
+        case Let(Variable(name), e1, e2):
+            v1 = eval(e1, environment)
+            return eval(e2, environment | { name: v1 })
+        case Mut(name, value):
+            environment[name] = value
             return value
         case If(e1, c, e2):
             if eval(c, environment):
@@ -99,6 +115,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             left.value = v
             environment[left.name] = v
             return None
+        case BinOp("|", left, right):
+            return eval(left, environment) or eval(right, environment)
+        case BinOp("&", left, right):
+            return eval(left, environment) and eval(right, environment)
     raise InvalidProgram()
 
 def test_comp_eval():
@@ -109,7 +129,23 @@ def test_comp_eval():
 
     assert eval( BinOp (">=", c, c) )
     assert eval( BinOp ("<", a, d) )
-    
+
+def test_let_eval():
+    a  = Variable("a")
+    e1 = NumLiteral(5)
+    e2 = BinOp("+", a, a)
+    e  = Let(a, e1, e2)
+    assert eval(e) == 10
+    e  = Let(a, e1, Let(a, e2, e2))
+    assert eval(e) == 20
+    e  = Let(a, e1, BinOp("+", a, Let(a, e2, e2)))
+    assert eval(e) == 25
+    e  = Let(a, e1, BinOp("+", Let(a, e2, e2), a))
+    assert eval(e) == 25
+    e3 = NumLiteral(6)
+    e  = BinOp("+", Let(a, e1, e2), Let(a, e3, e2))
+    assert eval(e) == 22
+
 def test_unop_if():
     b = NumLiteral(5)
     e1 = NumLiteral(6)
@@ -150,5 +186,6 @@ def test_arithop_mut():
 
     
 test_comp_eval()
+test_let_eval()
 test_unop_if()
 test_arithop_mut()
