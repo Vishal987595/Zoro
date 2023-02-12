@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import List, Mapping, Tuple
+from typing import List
 
 
 
-############################################################# DataTypes
+################################################################## DataTypes ##################################################################
 
 @dataclass
 class Frac:
@@ -36,7 +36,7 @@ class Bool:
     def __init__(self, *args) -> None:
         self.value = bool(*args)
 
-############################################################# Operators
+################################################################## Operators ##################################################################
 
 @dataclass
 class Operator:
@@ -71,13 +71,23 @@ class BitOp:
     right: 'AST'
     left: 'AST'
 
-############################################################# Identifier Classes
+@dataclass
+class Assign:
+    operator: str
+    left: 'AST'
+    right: 'AST'
+
+############################################################# Identifier Classes #############################################################
 
 @dataclass
 class Variable:
     name: str
 
-############################################################# Keywords Constructs
+############################################################ Keywords Constructs #############################################################
+
+@dataclass
+class Sequence:
+    seq: List['AST']
 
 @dataclass
 class Let:
@@ -90,27 +100,7 @@ class If:
     con: List['AST']
     seq: List['AST']
 
-@dataclass
-class While:
-    cond: 'AST'
-    body: 'AST'
-
-@dataclass
-class For:
-    var: Variable
-    list: list()
-
-@dataclass
-class Sequence:
-    seq: List['AST']
-
-@dataclass
-class Assign:
-    operator: str
-    left: 'AST'
-    right: 'AST'
-
-############################################################# Identifier Constructs
+########################################################### Identifier Constructs ############################################################
 
 @dataclass
 class Identifier:
@@ -125,23 +115,26 @@ class Keyword:
 
 
 
-############################################################################################################################
+###############################################################################################################################################
 
 
-AST = Frac | BinOp | Variable | Let | If | UnOp | Assign | Sequence | MathOp | CndOp | BitOp | For
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | Assign     |    Variable | Let | If | Sequence     
 
-Value = Fraction | bool | int | float | None
+Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | Assign     |     Let | If     
 
-Token = Int | Bool | Keyword | Identifier | Operator
-
-
-############################################################################################################################
+Value = Fraction | bool | int | float | str | None 
 
 
-keywords = "if then else end while do done".split()
-symbolic_operators = "+ - × / < > ≤ ≥ = ≠".split()
-word_operators = "and or not quot rem".split()
-whitespace = " \t\n"
+###############################################################################################################################################
 
 
-############################################################################################################################
+keywords = "   if then elif else endif    let    Int Float String Bool Frac   ".split()
+
+symbolic_operators = "  + - * / // % **    < <= => > == !=    >> <<    ~ & | ^     <- ->  ".split()
+
+word_operators = " and or not xor xnor nand nor ".split()           # Logical Operators
+
+whitespace = "\t \n".split() + [' ']
+
+
+###############################################################################################################################################
