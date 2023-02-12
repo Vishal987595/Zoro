@@ -137,12 +137,12 @@ class Lexer:
                                 return Int(n)
                         except EndOfStream:
                             return Int(n)
-                case c if c.isalpha():
+                case c if c.isalpha() or c=='_':
                     s = c
                     while True:
                         try:
                             c = self.stream.next_char()
-                            if c.isalpha():
+                            if c.isalpha() or c=='_':
                                 s = s + c
                             else:
                                 self.stream.unget()
