@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import List, Mapping, Tuple
 
+
+
+############################################################# DataTypes
+
 @dataclass
 class Frac:
     value: Fraction
@@ -19,6 +23,24 @@ class Float:
     value: float
     def __init__(self, *args) -> None:
         self.value = float(*args)
+
+@dataclass
+class Int:
+    value: int
+    def __init__(self, *args) -> None:
+        self.value = int(*args)
+
+@dataclass
+class Bool:
+    value: bool
+    def __init__(self, *args) -> None:
+        self.value = bool(*args)
+
+############################################################# Operators
+
+@dataclass
+class Operator:
+    op: str
 
 @dataclass
 class BinOp:
@@ -49,9 +71,13 @@ class BitOp:
     right: 'AST'
     left: 'AST'
 
+############################################################# Identifier Classes
+
 @dataclass
 class Variable:
     name: str
+
+############################################################# Keywords Constructs
 
 @dataclass
 class Let:
@@ -65,10 +91,9 @@ class If:
     seq: List['AST']
 
 @dataclass
-class Assign:
-    operator: str
-    left: 'AST'
-    right: 'AST'
+class While:
+    cond: 'AST'
+    body: 'AST'
 
 @dataclass
 class For:
@@ -80,33 +105,28 @@ class Sequence:
     seq: List['AST']
 
 @dataclass
-class While:
-    cond: 'AST'
-    body: 'AST'
+class Assign:
+    operator: str
+    left: 'AST'
+    right: 'AST'
 
-@dataclass
-class Int:
-    value: int
-    def __init__(self, *args) -> None:
-        self.value = int(*args)
-
-@dataclass
-class Bool:
-    value: bool
-    def __init__(self, *args) -> None:
-        self.value = bool(*args)
-
-@dataclass
-class Keyword:
-    word: str
+############################################################# Identifier Constructs
 
 @dataclass
 class Identifier:
     word: str
 
 @dataclass
-class Operator:
-    op: str
+class Keyword:
+    word: str
+
+
+
+
+
+
+############################################################################################################################
+
 
 AST = Frac | BinOp | Variable | Let | If | UnOp | Assign | Sequence | MathOp | CndOp | BitOp | For
 
@@ -114,7 +134,14 @@ Value = Fraction | bool | int | float | None
 
 Token = Int | Bool | Keyword | Identifier | Operator
 
+
+############################################################################################################################
+
+
 keywords = "if then else end while do done".split()
 symbolic_operators = "+ - × / < > ≤ ≥ = ≠".split()
 word_operators = "and or not quot rem".split()
 whitespace = " \t\n"
+
+
+############################################################################################################################
