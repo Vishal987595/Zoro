@@ -1,6 +1,6 @@
 from dataTypeDeclaration import *
 from evalAST import *
-from parserLexer import *
+# from parserLexer import *
 from exceptions import *
 
 def test_datatypes():
@@ -81,15 +81,11 @@ def test_ifElse():
     assert evalAST(e8) == 30
 
 def test_assign():
-    e1 = Variable("a")
-    e2 = Int(5)
-    e3 = Assign("<-",e1, e2)
-    evalAST(e3)
-    assert evalAST(e1) == 5
-    e4 = Int(6)
-    e5 = Assign("->",e4, e1)
-    evalAST(e5)
-    assert evalAST(e5) == 6
+    a = Variable("a")
+    b = Variable("b")
+    e1 = Let(b, Int(2), Assign("<-", a, MathOp("+", Get(a), Get(b))))
+    e2 = Let(a, Int(1), Sequence([e1, Get(a)]))
+    assert evalAST(e2) == 3
 
 def test_binOp():
     e1 = Int(5)
@@ -103,6 +99,29 @@ def test_binOp():
     e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
     assert evalAST(e6) == False
 
+def test_seq():
+    e1 = Int(5)
+    e2 = Int(10)
+    e3 = BinOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e4 = BinOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
+    e5 = BinOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
+    assert evalAST(Sequence([e3,e4,e5,e6])) == False
+    e7 = BinOp("+", e1, e2)
+
+def test_for():
+    a = Variable("a")
+    assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([]))) == None
+    e1 = Int(5)
+    e2 = Int(10)
+    e3 = BinOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e4 = BinOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
+    e5 = BinOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
+    assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([e3,e4,e5,e6]))) == False
+
+def test_while():
+    pass
 
 def test():
     test_datatypes()
@@ -114,5 +133,8 @@ def test():
     test_ifElse()
     test_assign()
     test_binOp()
+    test_seq()
+    test_for()
+    test_while()
 
 test()

@@ -36,6 +36,15 @@ class Bool:
     def __init__(self, *args) -> None:
         self.value = bool(*args)
 
+@dataclass
+class Get:
+    var: 'AST'
+
+@dataclass
+class Put:
+    var: 'AST'
+    e1: 'AST'
+
 ################################################################## Operators ##################################################################
 
 @dataclass
@@ -88,6 +97,16 @@ class Variable:
 @dataclass
 class Sequence:
     seq: List['AST']
+
+@dataclass
+class For:
+    var: Variable
+    iter: list()
+    seq: Sequence
+
+class While:
+    cnd: 'AST'
+    seq: Sequence
 
 @dataclass
 class Let:

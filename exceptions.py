@@ -1,0 +1,2 @@
+class InvalidProgram(Exception):
+    pass
