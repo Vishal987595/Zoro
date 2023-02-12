@@ -1,4 +1,5 @@
 from fractions import Fraction
+import re
 from dataclasses import dataclass
 from typing import Optional, NewType
 
@@ -48,6 +49,10 @@ class Identifier:
     word: str
 
 @dataclass
+class UnknownWord:
+    word: str
+
+@dataclass
 class Operator:
     op: str
 
@@ -74,7 +79,22 @@ def word_to_token(word):
         return Bool(True)
     if word == "False":
         return Bool(False)
-    return Identifier(word)
+    a = None
+    try:
+        a = int(word)
+        return Int(a)
+    except ValueError:
+        pass
+    try:
+        a = float(word)
+        return Float(a)
+    except ValueError:
+        pass
+    ptrn = "^[_a-zA-Z][a-zA-Z0-9_]*$"
+    if(re.match(ptrn, word)):
+        return Identifier(word)
+    return UnknownWord(word)
+
 
 
 class TokenError(Exception):
