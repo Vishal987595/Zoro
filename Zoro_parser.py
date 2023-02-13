@@ -1,15 +1,18 @@
 from dataclasses import dataclass
 from dataTypeDeclaration import *
+from lexer import *
 
+class SOMETHING: pass
 
 @dataclass
 class Stream:
     source: str
     pos: int
 
-    def from_string(s): return Stream(s, 0)
+    def from_string(s): 
+        return Stream(s,0)
     def next_char(self): 
-        if self.pos >= len(self.source): raise EndOfStream()
+        if self.pos >= len(self.source): raise SOMETHING()
         self.pos = self.pos + 1
         return self.source[self.pos - 1]
     def unget(self):
@@ -19,40 +22,16 @@ class Stream:
 
 
 @dataclass
-class If:
-    con: list['AST']
-    seq: list['AST']
-@dataclass
-class WHILE:
-    cond: 'AST'
-    do: 'AST'   #Seq
-@dataclass
-class FOR:
-    iter_var: MyMut
-    lst: Mylist
-    do: 'AST'   #Seq
-
-
-
-
-
-
-@dataclass
 class ApnaParser:
-    lexer: Lexer 
+    lexer: Lexer
 
     def from_lexer(lexer): return ApnaParser(lexer)
-    
-    def parse_var(self):
-        pass
+    def parse_var(self): pass
     
     def parse_expr(self):
         match self.lexer.peek_token():
             case Keyword("if"): return self.parse_if()
-            case Keyword("while"): return self.parse_while()
-            case Keyword("for"): return self.parse_for()
-            case Operator("-"): return self.parse_neg()
-            case _: return self.parse_BASE()
+            case _: return self.parse_BASE() 	
 
     def parse_if(self):
         conds=[]; seqs=[]; 
@@ -83,34 +62,14 @@ class ApnaParser:
         """ ############## typecheck ############### """
         return If(conds,seqs)
 
-    def parse_while(self):
-        self.lexer.match(Keyword("while")); 
-        cond = self.parse_expr(); 
-        self.lexer.match(Keyword("do")); 
-        do = self.parse_expr(); 
-        self.lexer.match(Keyword("endwhile")); 
-        """ ############## typecheck ############### """
-        return WHILE(cond,do); 
-
-    def parse_for(self):
-        self.lexer.match(Keyword("for")); 
-        iter_var = self.parse_expr(); 
-        self.lexer.match(Keyword(":")); 
-        lst = self.parse_expr(); 
-        self.lexer.match(Keyword("do")); 
-        do = self.parse_expr(); 
-        self.lexer.match(Keyword("endfor")); 
-        """ ############## typecheck ############### """
-        return FOR(iter_var,lst,do); 
-
     def parse_BASE(self): 
         return self.parse_rassi()
     
     def parse_atom(self):
         match self.lexer.peek_token():
             case Identifier(name):  self.lexer.advance(); return Variable(name); 
-            case Num(value):        self.lexer.advance(); return NumLiteral(value); 
-            case Bool(value):       self.lexer.advance(); return BoolLiteral(value); 
+            case Int(value):        self.lexer.advance(); return Int(value); 
+            case Bool(value):       self.lexer.advance(); return Bool(value); 
 
     def parse_exp(self):
         left = self.parse_atom()
@@ -128,11 +87,9 @@ class ApnaParser:
             match self.lexer.peek_token():
                 case Operator("-"):
                     self.lexer.advance()
-                    return -(self.parse_expr(self))
-                    # return -(self.parse_exp(self))
-                case _:
-                    # break
-                    return -(self.parse_exp(self))
+                    return -(self.parse_expr())
+                case _:	
+                    return self.parse_exp()
 
     def parse_mul(self):
         left = self.parse_neg()
@@ -172,11 +129,9 @@ class ApnaParser:
             match self.lexer.peek_token():
                 case Operator("~"):
                     self.lexer.advance()
-                    return ~(self.parse_expr(self))
-                    # return ~(self.parse_not(self))
-                case _:
-                    # break
-                    return ~(self.parse_shift(self))
+                    return ~(self.parse_expr())	
+                case _:	
+                    return self.parse_shift()
 
     def parse_band(self):
         left = self.parse_bnot()
@@ -313,7 +268,33 @@ class ApnaParser:
                 self.lexer.advance()
                 m = self.parse_var()
                 right = BinOp("->", left, m)
-        return right
+                return right
+        return left
+
+
+
+
+print("\n")
+
+def test_parse():
+    def parse(string): return ApnaParser.parse_expr( ApnaParser.from_lexer( Lexer.from_stream(Stream.from_string(string)) ) )
+
+    # print(parse("a"))
+    # print(parse("m*6*b"))
+    # print(parse("this_vAr1_is_var <= 2"))
+    # print(parse("_this_vAr1_is_var <= 2"))
+    # print(parse("1+2**6-8//4+7/9"))
+    # print(parse("a*5-9<<1^6+~a**6 >= m&6%4/5//8-6+!2"))
+
+test_parse()
+print("\n")
+
+
+
+
+
+
+
 
 
 
@@ -324,10 +305,11 @@ import re
 var_pattern = "^[_a-zA-z][a-zA-Z0-9_]*$" 
 x = re.match(var_pattern, str) 
 
-unary: not - ~ 
+unary: ! - ~ 
 arithmetic: + - * / // % ** 
 comparison: > < >= <= == !=  
-shift: >> << and or ! xor xnor nand nor 
+shift: >> << 
+logical : and or not xor xnor nand nor 
 bitwise: ~ & | ^ 
 assignment: <- -> 
 
