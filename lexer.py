@@ -112,19 +112,18 @@ class Lexer:
         try:
             match self.stream.next_char():
                 case c if c in symbolic_operators: 
-                    op = Operator(c)
+                    s = c
                     while True:
                         try:
                             c = self.stream.next_char()
-                            if c in symbolic_operators:
-                                op = op + Operator(c)
+                            if s+c in symbolic_operators:
+                                s = s + c
                             else:
                                 self.stream.unget()
-                                return Operator(op)
+                                return Operator(s)
                         except EndOfStream:
-                            return Operator(op)
+                            return Operator(s)
 
-                    return Operator(c)
                 case c if c.isdigit():
                     n = int(c)
                     while True:
