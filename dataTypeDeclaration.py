@@ -52,6 +52,11 @@ class Operator:
     op: str
 
 @dataclass
+class UnOp:
+    operator: str
+    right: 'AST'
+
+@dataclass
 class BinOp:
     operator: str
     left: 'AST'
@@ -70,18 +75,19 @@ class CndOp:
     right: 'AST'
 
 @dataclass
-class UnOp:
-    operator: str
-    right: 'AST'
-
-@dataclass
 class BitOp:
     operator: str
     right: 'AST'
     left: 'AST'
 
 @dataclass
-class Assign:
+class LogOp:
+    operator: str
+    right: 'AST'
+    left: 'AST'
+
+@dataclass
+class AssignOp:
     operator: str
     left: 'AST'
     right: 'AST'
@@ -137,9 +143,9 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | Assign     |    Variable | Let | If | Sequence     
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |    Variable | Let | If | Sequence     
 
-Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | Assign     |     Let | If     
+Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |     Let | If     
 
 Value = Fraction | bool | int | float | str | None 
 
