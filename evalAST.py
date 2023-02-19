@@ -79,13 +79,13 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     return evalAST_(seq[i])
             if flag:
                 return evalAST_(seq[-1])
-        case Assign("<-",left, right):
+        case AssignOp("<-",left, right):
             if(not envlocal.find(left.name)):
                 envlocal.add(left.name, evalAST_(right))
             else:
                 envlocal.update(left.name, evalAST_(right))
             return envlocal.get(left.name)
-        case Assign("->",left, right):
+        case AssignOp("->",left, right):
             if(not envlocal.find(right.name)):
                 envlocal.add(right.name, evalAST_(left))
             else:
