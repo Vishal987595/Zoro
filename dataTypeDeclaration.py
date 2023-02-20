@@ -124,6 +124,17 @@ class Let:
 class If:
     con: List['AST']
     seq: List['AST']
+        
+@dataclass
+class Print:
+    contents: List['AST']
+
+@dataclass
+class FuncDec:
+    name: str
+    args: List[Variable]
+    body: Sequence
+    returns: 'AST'
 
 ########################################################### Identifier Constructs ############################################################
 
