@@ -127,9 +127,11 @@ def test_func():
     v = Variable('a')
     f = "myfun"
     expr = Sequence([Binop('+', a, a)])
-    ret = v
+    ret = BinOp("*", v, v)
     fun = FuncDec(f, [v], expr, ret)
-    assert evalAST(fun) == {'args': [v], 'seq': expr, 'ret': v}
+    assert evalAST(fun) == {'args': [v], 'seq': expr, 'ret': BinOp("*", v, v)}
+    fc = FuncCall("myfun", 5)
+    assert evalAST(fc) == 25
     
 def test_print():
     e = Print([String("a"), BinOp('+', Int(1), Int(2))])

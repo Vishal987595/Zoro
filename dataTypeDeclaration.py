@@ -140,6 +140,11 @@ class FuncDec:
     args: List[Variable]
     body: Sequence
     returns: 'AST'
+        
+@dataclass
+class FuncCall:
+    name: str
+    args: List['AST']
 
 ########################################################### Identifier Constructs ############################################################
 
@@ -159,7 +164,7 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec 
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec | FuncCall 
 
 Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
 

@@ -143,3 +143,16 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
             return envlocal[name]
+        case FuncCall(name, args):
+            if envlocal.find(name):
+                vars = envlocal[name]['args']
+                seq = envlocal[name]['seq']
+                ret = envlocal[name]['ret']
+                for i in range(len(vars)):
+                    if not envlocal.find(vars[i].name):
+                        envlocal.add(vars[i].name, evalAST_(args[i]))
+                    else:
+                        envlocal.update(vars[i].name, evalAST_(args[i]))
+                e = evalAST_(seq)
+                return evalAST_(ret)
+                                    
