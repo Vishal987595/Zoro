@@ -65,7 +65,7 @@ Token = Int | Bool | Keyword | Identifier | Operator | Float
 class EndOfTokens(Exception):
     pass
 
-keywords = "Int String Float Bool let if then else elif endif".split()
+keywords = "Int String Float Bool let if then else elif endif fun of is endfun".split()
 symbolic_operators = "+ - * / < > <= >= == != ** % // ~ & | ^ -> <- << >>".split()
 word_operators = "and or not xor xnor nand nor".split()
 whitespace = " \t \n".split() + [' ']
