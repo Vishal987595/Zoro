@@ -22,6 +22,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return value
         case Bool(value):
             return value
+        case String(value):
+            return value
         case MathOp("+", left, right):
             return evalAST_(left) + evalAST_(right)
         case MathOp("-", left, right):
@@ -72,6 +74,10 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             for c in contents:
                 print(evalAST_(c), end=" ")
             print()
+        case StringOp("concat", [left, right]):
+            return evalAST_(left) + evalAST_(right)
+        case StringOp("slice", [string, start, end]):
+            return evalAST_(string)[evalAST_(start): evalAST_(end)+1
         case If(con, seq):
             if(len(seq)==1):
                     if evalAST_(con[0]):

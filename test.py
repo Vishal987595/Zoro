@@ -135,6 +135,16 @@ def test_print():
     e = Print([String("a"), BinOp('+', Int(1), Int(2))])
     evalAST(e)
 
+def test_string():
+    s1 = String("abc")
+    s2 = String("def")
+    n1 = Int(2)
+    n2 = Int(4)
+    assert evalAST(s1) == "abc"
+    assert evalAST("concat", [s1, s2]) == "abcdef"
+    assert evalAST("slice", [evalAST("concat", [s1, s2]), n1, n2]) == "cde"
+
+
 def test():
     test_datatypes()
     test_let()
@@ -150,5 +160,6 @@ def test():
     test_while()
     test_func()
     test_print()
+    test_string()
 
 test()
