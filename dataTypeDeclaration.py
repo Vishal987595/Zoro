@@ -92,6 +92,11 @@ class AssignOp:
     left: 'AST'
     right: 'AST'
 
+@dataclass
+class StringOp:
+    operator: str
+    args: List['AST']
+
 ############################################################# Identifier Classes #############################################################
 
 @dataclass
@@ -143,9 +148,9 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |    Variable | Let | If | Sequence     
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |    Variable | Let | If | Sequence  
 
-Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |     Let | If     
+Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     
 
 Value = Fraction | bool | int | float | str | None 
 
