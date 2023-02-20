@@ -137,12 +137,12 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             for i in seq:
                 val = evalAST_(i)
             return val
-        case Funcdec(name, args, seq, ret):
-            if not envlocal.find(name):
-                envlocal.add(name, {'args': args, 'seq': seq, 'ret': ret})
-            else:
-                envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
-            return envlocal[name]
+        # case Funcdec(name, args, seq, ret):
+        #     if not envlocal.find(name):
+        #         envlocal.add(name, {'args': args, 'seq': seq, 'ret': ret})
+        #     else:
+        #         envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
+        #     return envlocal[name]
         case List_(items):
             for i in range(len(items)):
                 print(items[i])
