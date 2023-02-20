@@ -154,9 +154,9 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |    Variable | Let | If | Sequence     
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |    Variable | Let | If | Sequence    | Print | FuncDec 
 
-Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |     Let | If     
+Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp     |     Let | If     | Print
 
 Value = Fraction | bool | int | float | str | None 
 
