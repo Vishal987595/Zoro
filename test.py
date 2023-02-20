@@ -123,6 +123,18 @@ def test_for():
 def test_while():
     pass
 
+def test_func():
+    v = Variable('a')
+    f = "myfun"
+    expr = Sequence([Binop('+', a, a)])
+    ret = v
+    fun = FuncDec(f, [v], expr, ret)
+    assert evalAST(fun) == {'args': [v], 'seq': expr, 'ret': v}
+    
+def test_print():
+    e = Print([String("a"), BinOp('+', Int(1), Int(2))])
+    evalAST(e)
+
 def test():
     test_datatypes()
     test_let()
@@ -136,5 +148,7 @@ def test():
     test_seq()
     test_for()
     test_while()
+    test_func()
+    test_print()
 
 test()
