@@ -123,6 +123,15 @@ def test_for():
 def test_while():
     pass
 
+def test_string():
+    s1 = String("abc")
+    s2 = String("def")
+    n1 = Int(2)
+    n2 = Int(4)
+    assert evalAST(s1) == "abc"
+    assert evalAST("concat", [s1, s2]) == "abcdef"
+    assert evalAST("slice", [evalAST("concat", [s1, s2]), n1, n2]) == "cde"
+
 def test():
     test_datatypes()
     test_let()
@@ -136,5 +145,6 @@ def test():
     test_seq()
     test_for()
     test_while()
+    test_string()
 
 test()
