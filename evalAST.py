@@ -68,6 +68,10 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) and evalAST_(right)
         case BinOp("or", left, right):
             return evalAST_(left) or evalAST_(right)
+        case Print(contents):
+            for c in contents:
+                print(evalAST_(c), end=" ")
+            print()
         case If(con, seq):
             if(len(seq)==1):
                     if evalAST_(con[0]):
@@ -127,3 +131,9 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             for i in seq:
                 val = evalAST_(i)
             return val
+        case Funcdec(name, args, seq, ret):
+            if not envlocal.find(name):
+                envlocal.add(name, {'args': args, 'seq': seq, 'ret': ret})
+            else:
+                envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
+            return envlocal[name]
