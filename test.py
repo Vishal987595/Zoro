@@ -144,6 +144,26 @@ def test_string():
     assert evalAST("concat", [s1, s2]) == "abcdef"
     assert evalAST("slice", [evalAST("concat", [s1, s2]), n1, n2]) == "cde"
 
+def test_list():
+    e1 = Variable('a')
+    # e2 = Sequence([Assign("<-", e1, List_([])), ListOp("push", e1, item=Int(1), index=None)])
+    e2 = Sequence([Assign("<-", e1, List_([])), ListOp("push", e1, item=Int(1), index = None),
+                                                ListOp("push", e1, item=Int(2), index = None),
+                                                ListOp("push", e1, item=Int(3), index = None),
+                                                ListOp("push", e1, item=Int(4), index = None),
+                                                ListOp("pop", e1, item=None, index = Int(-1)),
+                                                ListOp("push", e1, item=Int(5), index = None),
+                                                ListOp("pop", e1, item=None, index = Int(0)),
+                                                ListOp("insert", e1, item=Int(10), index = Int(1)),
+                                                ListOp("index", e1, item=Int(3), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("count", e1, item=Int(11), index = None),
+                                                # e1
+                                                ])
+    # print(evalAST(e2))
+    assert evalAST(e2) == 3
 
 def test():
     test_datatypes()
@@ -161,5 +181,6 @@ def test():
     test_func()
     test_print()
     test_string()
+    test_list()
 
 test()

@@ -77,7 +77,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case StringOp("concat", [left, right]):
             return evalAST_(left) + evalAST_(right)
         case StringOp("slice", [string, start, end]):
-            return evalAST_(string)[evalAST_(start): evalAST_(end)+1
+            return evalAST_(string)[evalAST_(start): evalAST_(end)+1]
         case If(con, seq):
             if(len(seq)==1):
                     if evalAST_(con[0]):
@@ -143,3 +143,32 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
             return envlocal[name]
+        case List_(items):
+            for i in range(len(items)):
+                print(items[i])
+                items[i] = evalAST_(items[i])
+            return items
+        case ListOp("len", list):
+            return list.__len__()
+        case ListOp("push", list, item):
+            a = evalAST_(list)
+            a.append(evalAST_(item))
+            envlocal.update(list.name, a)
+            return evalAST_(item)
+        case ListOp("pop", list, item, index):
+            a = evalAST_(list)
+            v = evalAST_(a[evalAST_(index)])
+            a.pop(evalAST_(index))
+            envlocal.update(list.name, a)
+            return v
+        case ListOp("insert", list, item, index):
+            a = evalAST_(list)
+            a.insert(evalAST_(index), evalAST_(item))
+            envlocal.update(list.name, a)
+            return evalAST_(item)
+        case ListOp("index", list, item):
+            a = evalAST_(list)
+            return a.index(evalAST_(item))
+        case ListOp("count", list, item):
+            a = evalAST_(list)
+            return a.count(evalAST_(item))

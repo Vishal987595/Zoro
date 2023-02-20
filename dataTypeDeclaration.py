@@ -141,6 +141,21 @@ class FuncDec:
     body: Sequence
     returns: 'AST'
 
+############################################################ Data Structures #############################################################
+
+@dataclass
+class List_:
+    items:  List['AST']
+
+############################################################ Data Structures Operators #############################################################
+
+@dataclass
+class ListOp:
+    operator: str
+    list: List['AST']
+    item: 'AST' 
+    index: 'AST'
+
 ########################################################### Identifier Constructs ############################################################
 
 @dataclass
