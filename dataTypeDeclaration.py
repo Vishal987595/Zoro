@@ -129,6 +129,17 @@ class Let:
 class If:
     con: List['AST']
     seq: List['AST']
+        
+@dataclass
+class Print:
+    contents: List['AST']
+
+@dataclass
+class FuncDec:
+    name: str
+    args: List[Variable]
+    body: Sequence
+    returns: 'AST'
 
 ########################################################### Identifier Constructs ############################################################
 
@@ -148,9 +159,10 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |    Variable | Let | If | Sequence  
+AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec 
 
-Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     
+Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
+
 
 Value = Fraction | bool | int | float | str | None 
 
