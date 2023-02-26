@@ -9,9 +9,9 @@ Name_regex = "^[_a-zA-z][a-zA-Z0-9_]*$"
 
 
 # Exception Classes
-class Invalid_Syntax_VAR_KW: pass
-class Invalid_Variable_Name: pass
-class UnExpected_Token: pass
+class Invalid_Syntax_VAR_KW(Exception): pass # VarN cant be KW name
+class Invalid_Variable_Name(Exception): pass # doesnt satisfy regex
+class UnExpected_Token(Exception): pass # The construct is inapproprite
 
 
 
@@ -34,27 +34,19 @@ class ApnaParser:
     #############################################################################################################################
 
 
-    def parse_BASE(self): 
-        return self.parse_rassi()
-
-    def parse_name(self):
-        name = self.lexer.peek_token(); 
-        if(name in keywords): 
-            raise Invalid_Syntax_VAR_KW
-        elif(re.match(Name_regex, name) == None ):
-            raise Invalid_Variable_Name
-        else:
-            self.lexer.advance(); 
-            return Variable(name); 
-
-    def parse_expr(self):
-        match self.lexer.peek_token():
-            case Operator("-"): return self.parse_neg()
-            case Operator("~"): return self.parse_bnot()
-            case Keyword("not"): return self.parse_lnot()
-            case Keyword("fun"): return self.parse_fun()
-            case Keyword("if"): return self.parse_if()
-            case _: return self.parse_BASE()
+    def parse_name(self,flag_var):
+        name = self.lexer.peek_token()
+        try:
+            if(name.word in keywords): 
+                raise Invalid_Syntax_VAR_KW
+            elif(re.match(Name_regex, name.word) == None ):
+                raise Invalid_Variable_Name
+            else:
+                self.lexer.advance(); 
+                if(flag_var): return Variable(name.word)
+                else: return Function(name.word)
+        except:
+            return self.parse_atom()
 
     def parse_atom(self):
         match self.lexer.peek_token():
@@ -70,13 +62,8 @@ class ApnaParser:
             case Bool(value):       
                 self.lexer.advance(); 
                 return Bool(value); 
-            
-            case Identifier(name): 
-                if(name in keywords): 
-                    self.lexer.advance(); 
-                    return Keyword(name); 
-                else: 
-                    return self.parse_name(); 
+            case _: 
+                return self.parse_name(flag_var=1); 
 
 
     #############################################################################################################################
@@ -84,22 +71,24 @@ class ApnaParser:
 
     def parse_exp(self):
         left = self.parse_atom()
-        while True:
-            match self.lexer.peek_token():
-                case Operator("**"):
-                    self.lexer.advance()
-                    m = self.parse_exp()
-                    # m = self.parse_atom()
-                    left = MathOp("**", left, m)
-                case _: break
-        return left
+        try:
+            while True:
+                match self.lexer.peek_token():
+                    case Operator("**"):
+                        self.lexer.advance()
+                        m = self.parse_exp()
+                        left = MathOp("**", left, m)
+                    case _: 
+                        return left
+        except:
+            print("Program Finished at",left)
+            return left
 
     def parse_neg(self):
         while True:
             match self.lexer.peek_token():
                 case Operator("-"):
                     self.lexer.advance()
-                    # return -(self.parse_expr())
                     return UnOp("-",self.parse_expr())
                 case _:	
                     return self.parse_exp()
@@ -142,7 +131,6 @@ class ApnaParser:
             match self.lexer.peek_token():
                 case Operator("~"):
                     self.lexer.advance()
-                    # return ~(self.parse_expr())
                     return UnOp("~",self.parse_expr())
                 case _:	
                     return self.parse_shift()
@@ -267,7 +255,7 @@ class ApnaParser:
         return left
 
     def parse_lassi(self):
-        left = self.parse_name()
+        left = self.parse_name(flag_var=1)
         match self.lexer.peek_token():
             case Operator("<-"):
                 self.lexer.advance()
@@ -276,14 +264,37 @@ class ApnaParser:
         return left
 
     def parse_rassi(self):
-        left = self.parse_lor()
+        left = self.parse_lassi()
         match self.lexer.peek_token():
             case Operator("->"):
                 self.lexer.advance()
-                m = self.parse_name()
+                m = self.parse_name(flag_var=1)
                 right = AssignOp("->", left, m)
                 return right
         return left
+
+
+    #############################################################################################################################
+
+
+    def parse_BASE(self):
+        return self.parse_rassi()
+        # first_token = self.lexer.peek_token()
+        # try:
+        #     temp_chk_fst_tkn = first_token.word
+        #     return self.parse_lassi()
+        # except:
+        #     return self.parse_rassi()
+    
+    def parse_expr(self):
+        match self.lexer.peek_token():
+            case Operator("-"): return self.parse_neg()
+            case Operator("~"): return self.parse_bnot()
+            case Keyword("not"): return self.parse_lnot()
+            case Keyword("fun"): return self.parse_fun()
+            case Keyword("if"): return self.parse_if()
+            case _: return self.parse_BASE()
+
 
 
     #############################################################################################################################
@@ -295,7 +306,7 @@ class ApnaParser:
         returns = []
 
         self.lexer.match(Keyword("fun"))
-        fun_name = self.parse_name()
+        fun_name = self.parse_name(flag_var=0)
         self.lexer.match(Keyword("of"))
 
         while True:
@@ -303,7 +314,7 @@ class ApnaParser:
                 case Keyword("is"):
                     break
                 case _:
-                    param = self.parse_name()
+                    param = self.parse_name(flag_var=1)
                     params.append(param)
 
         self.lexer.match(Keyword("is"))
@@ -328,7 +339,7 @@ class ApnaParser:
 
         self.lexer.match(Keyword("endfun"))
 
-        return fun_name, params, body, returns
+        return FuncDec(fun_name, params, body, returns)
 
 
     def parse_if(self):
@@ -394,12 +405,52 @@ class ApnaParser:
         return If(conds,bodies)
 
 
-    def parse_while(self): 
-        pass # """TO BE COMPLETED"""
+    def parse_while(self):
+        body = []
+
+        self.lexer.match(Keyword("while"))
+        cond = self.parse_expr()
+        self.lexer.match(Keyword("do"))
+
+        while True:
+            match self.lexer.peek_token():
+                case Keyword("endwhile"):
+                    break
+                case _:
+                    expr = self.parse_expr()
+                    body.append(expr)
+
+        self.lexer.match(Keyword("endwhile"))
+
+        return While(cond, body)
 
 
-    def parse_for(self): 
-        pass # """TO BE COMPLETED"""
+    def parse_for(self):
+        body = []
+
+        self.lexer.match(Keyword("for"))
+        var = self.parse_name()
+        self.lexer.match(Keyword("in"))
+        
+        match self.lexer.peek_token():
+            case Identifier(name):
+                iterable = self.parse_name(flag_var=0)
+            case "coded list":  #################### TO BE DECIDED ####################
+                iterable = None #################### TO BE DECIDED ####################
+        
+        self.lexer.match(Keyword("do"))
+
+        while True:
+            match self.lexer.peek_token():
+                case Keyword("endfor"):
+                    break
+                case _:
+                    expr = self.parse_expr()
+                    body.append(expr)
+
+        self.lexer.match(Keyword("endfor"))
+
+        return For(var, iterable, body)
 
 
 
@@ -418,19 +469,25 @@ print("\n")
 
 def test_parse():
     def parse(string): 
-        return ApnaParser.parse_expr( 
-                    ApnaParser.from_lexer( 
-                            Lexer.from_stream( Stream.from_string(string) ) ) )
+        return ApnaParser.parse_expr( ApnaParser.from_lexer( Lexer.from_stream( Stream.from_string(string) ) ) )
 
-    # print(parse("a"))
-    # print(parse("m*6*b"))
-    # print(parse("this_vAr1_is_var <= 2"))
-    # print(parse("_this_vAr1_is_var <= 2"))
-    # print(parse("1+2**6-8//4+7/9"))
-    # print(parse("a**5-9<<<1^6+~a**6 >= m&6%4/5//8-6+!2"))
+    # print(parse("5"))
+    # print(parse("7.68"))
+    # print(parse("a"))         # This is working fine, just should give error that undefined variable
+    # print(parse("1 -> a"))    # This is working fine
+    # print(parse("a <- 1"))
+
+    # print(parse("2 -> this_vAr1_is_var"))       # Variable lexing stopped when digit encountered
+    # print(parse("2 -> _this_vAr1_is_var"))      # Variable lexing stopped when digit encountered
+
+    """ When all above works then only try to resolve followings """
     # print(parse("a**5**6**k"))
+    # print(parse("m*6*b"))
+    # print(parse("1+2**6-8//4+7/9"))
+    # print(parse("a**5-9<<1^6+~a**6 >= m&6%4/5//8-6+!2"))
+    # print(parse("a**b-c<<d*z-y^e+~f**g >= m&h%k/i//j-m+!n"))
 
-# test_parse()
+test_parse()
 
 print("\n")
 
@@ -447,45 +504,52 @@ print("\n")
 
 '''
 
-import re
-var_pattern = "^[_a-zA-z][a-zA-Z0-9_]*$" 
-x = re.match(var_pattern, str) 
+Our Variable/Function names rules :
 
+    import re
+    var_pattern = "^[_a-zA-z][a-zA-Z0-9_]*$" 
+    x = re.match(var_pattern, str) 
 
-unary: ! - ~ 
-arithmetic: + - * / // % ** 
-comparison: > < >= <= == !=  
-shift: >> << 
-logical : and or not xor xnor nand nor 
-bitwise: ~ & | ^ 
-assignment: <- -> 
+    
 
+Allowed operators and their classes
 
+    unary: ! - ~ 
+    arithmetic: + - * / // % ** 
+    comparison: > < >= <= == !=  
+    shift: >> << 
+    logical : and or not xor xnor nand nor 
+    bitwise: ~ & | ^ 
+    assignment: <- -> 
 
-Literals = dtypes 
-atom = Literals | var_pattern | expr 
+    
 
-exp = atom | atom**exp 
-neg = exp | -neg 
-mul = neg | mul * neg | mul / neg | mul // neg | mul % neg 
-add = mul | add + mul | add - mul 
+Our language's Grammar
 
-shift = add | add >> shift | add << shift 
-bnot = shift | ~bnot 
-band = bnot | bnot & band 
-bxor = band | band ^ bxor 
-bor = bxor | "bxor | bor "
+    Literals = dtypes 
+    atom = Literals | var_pattern | expr 
 
-comp = bor | bor < bor | bor > bor | bor <= bor | bor >= bor | bor == bor | bor != bor  
+    exp = atom | atom**exp 
+    neg = exp | -neg 
+    mul = neg | mul * neg | mul / neg | mul // neg | mul % neg 
+    add = mul | add + mul | add - mul 
 
-lnot = comp | not(lnot) 
-lnand = lnot | lnot "nand" lnand 
-land = lnand | lnand "and" land 
-lxnor = land | land "xnor" lxnor 
-lxor = lxnor | lxnor "xor" lxor 
-lnor = lxor | lxor "nor" lnor 
-lor = lnor | lnor "or" lor 
+    shift = add | add >> shift | add << shift 
+    bnot = shift | ~bnot 
+    band = bnot | bnot & band 
+    bxor = band | band ^ bxor 
+    bor = bxor | "bxor | bor "
 
-assi = var <- lor | lor -> var 
+    comp = bor | bor < bor | bor > bor | bor <= bor | bor >= bor | bor == bor | bor != bor  
+
+    lnot = comp | not(lnot) 
+    lnand = lnot | lnot "nand" lnand 
+    land = lnand | lnand "and" land 
+    lxnor = land | land "xnor" lxnor 
+    lxor = lxnor | lxnor "xor" lxor 
+    lnor = lxor | lxor "nor" lnor 
+    lor = lnor | lnor "or" lor 
+
+    assi = var <- lor | lor -> var 
 
 '''
