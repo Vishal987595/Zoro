@@ -103,6 +103,10 @@ class StringOp:
 class Variable:
     name: str
 
+@dataclass
+class Function:
+    name: str
+
 ############################################################ Keywords Constructs #############################################################
 
 @dataclass
