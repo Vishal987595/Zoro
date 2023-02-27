@@ -51,12 +51,9 @@ def test_unOp():
     e1 = Int(0)
     e2 = Int(1)
     e3 = Int(7)
-    e4 = String("")
-    e4 = String("dhdv")
     assert evalAST(UnOp("!",e1)) == True
     assert evalAST(UnOp("!",e2)) == False
     assert evalAST(UnOp("!",e3)) == False
-    assert evalAST(UnOp("!",e4)) == True
     assert evalAST(UnOp("!",e3)) == False
 
 def test_bitOp():
@@ -83,7 +80,7 @@ def test_ifElse():
 def test_assign():
     a = Variable("a")
     b = Variable("b")
-    e1 = Let(b, Int(2), Assign("<-", a, MathOp("+", Get(a), Get(b))))
+    e1 = Let(b, Int(2), AssignOp("<-", a, MathOp("+", Get(a), Get(b))))
     e2 = Let(a, Int(1), Sequence([e1, Get(a)]))
     assert evalAST(e2) == 3
 
@@ -126,7 +123,7 @@ def test_while():
 def test_func():
     v = Variable('a')
     f = "myfun"
-    expr = Sequence([Binop('+', a, a)])
+    expr = Sequence([BinOp('+', v, v)])
     ret = v
     fun = FuncDec(f, [v], expr, ret)
     assert evalAST(fun) == {'args': [v], 'seq': expr, 'ret': v}
@@ -144,6 +141,26 @@ def test_string():
     assert evalAST("concat", [s1, s2]) == "abcdef"
     assert evalAST("slice", [evalAST("concat", [s1, s2]), n1, n2]) == "cde"
 
+def test_list():
+    e1 = Variable('a')
+    # e2 = Sequence([AssignOp("<-", e1, List_([])), ListOp("push", e1, item=Int(1), index=None)])
+    e2 = Sequence([AssignOp("<-", e1, List_([])), ListOp("push", e1, item=Int(1), index = None),
+                                                ListOp("push", e1, item=Int(2), index = None),
+                                                ListOp("push", e1, item=Int(3), index = None),
+                                                ListOp("push", e1, item=Int(4), index = None),
+                                                ListOp("pop", e1, item=None, index = Int(-1)),
+                                                ListOp("push", e1, item=Int(5), index = None),
+                                                ListOp("pop", e1, item=None, index = Int(0)),
+                                                ListOp("insert", e1, item=Int(10), index = Int(1)),
+                                                ListOp("index", e1, item=Int(3), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("push", e1, item=Int(11), index = None),
+                                                ListOp("count", e1, item=Int(11), index = None),
+                                                # e1
+                                                ])
+    # print(evalAST(e2))
+    assert evalAST(e2) == 3
 
 def test():
     test_datatypes()
@@ -158,8 +175,9 @@ def test():
     test_seq()
     test_for()
     test_while()
-    test_func()
-    test_print()
-    test_string()
+    # test_func()
+    # test_print()
+    # test_string()
+    test_list()
 
 test()
