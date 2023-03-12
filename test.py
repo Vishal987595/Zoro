@@ -1,7 +1,8 @@
 from dataTypeDeclaration import *
 from evalAST import *
+import math
 # from parserLexer import *
-from exceptions import *
+# from exceptions import *
 
 def test_datatypes():
     pass
@@ -51,10 +52,10 @@ def test_unOp():
     e1 = Int(0)
     e2 = Int(1)
     e3 = Int(7)
-    assert evalAST(UnOp("!",e1)) == True
-    assert evalAST(UnOp("!",e2)) == False
-    assert evalAST(UnOp("!",e3)) == False
-    assert evalAST(UnOp("!",e3)) == False
+    assert evalAST(UnOp("-",e1)) == 0
+    assert evalAST(UnOp("~",e2)) == -2
+    assert evalAST(UnOp("-",e3)) == -7
+    assert evalAST(UnOp("~",e3)) == -8
 
 def test_bitOp():
     e1 = Int(74)
@@ -87,22 +88,22 @@ def test_assign():
 def test_binOp():
     e1 = Int(5)
     e2 = Int(10)
-    e3 = BinOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e3 = LogOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
     assert evalAST(e3) == False
-    e4 = BinOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
+    e4 = LogOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
     assert evalAST(e4) == True
-    e5 = BinOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e5 = LogOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
     assert evalAST(e5) == True
-    e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
+    e6 = LogOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
     assert evalAST(e6) == False
 
 def test_seq():
     e1 = Int(5)
     e2 = Int(10)
-    e3 = BinOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
-    e4 = BinOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
-    e5 = BinOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
-    e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
+    e4 = LogOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
+    e3 = LogOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e5 = LogOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e6 = LogOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
     assert evalAST(Sequence([e3,e4,e5,e6])) == False
     e7 = BinOp("+", e1, e2)
 
@@ -111,25 +112,25 @@ def test_for():
     assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([]))) == None
     e1 = Int(5)
     e2 = Int(10)
-    e3 = BinOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
-    e4 = BinOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
-    e5 = BinOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
-    e6 = BinOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
+    e3 = LogOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e4 = LogOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
+    e5 = LogOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
+    e6 = LogOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
     assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([e3,e4,e5,e6]))) == False
 
 def test_while():
     pass
 
-def test_func():
+def test_funcdec():
     v = Variable('a')
     f = "myfun"
     expr = Sequence([BinOp('+', v, v)])
     ret = v
     fun = FuncDec(f, [v], expr, ret)
-    assert evalAST(fun) == {'args': [v], 'seq': expr, 'ret': v}
+    assert evalAST(fun) == {'params': [v], 'seq': expr, 'ret': v}
     
 def test_print():
-    e = Print([String("a"), BinOp('+', Int(1), Int(2))])
+    e = Print([String("a"), MathOp('+', Int(1), Int(2))])
     evalAST(e)
 
 def test_string():
@@ -138,8 +139,8 @@ def test_string():
     n1 = Int(2)
     n2 = Int(4)
     assert evalAST(s1) == "abc"
-    assert evalAST("concat", [s1, s2]) == "abcdef"
-    assert evalAST("slice", [evalAST("concat", [s1, s2]), n1, n2]) == "cde"
+    assert evalAST(StringOp("concat", [s1, s2])) == "abcdef"
+    assert evalAST(StringOp("slice", [StringOp("concat", [s1, s2]), n1, n2])) == "cde"
 
 def test_list():
     e1 = Variable('a')
@@ -163,21 +164,21 @@ def test_list():
     assert evalAST(e2) == 3
 
 def test():
-    test_datatypes()
-    test_let()
-    test_mathOp()
-    test_cndOp()
-    test_unOp()
-    test_bitOp()
-    test_ifElse()
-    test_assign()
-    test_binOp()
-    test_seq()
-    test_for()
-    test_while()
-    # test_func()
-    # test_print()
-    # test_string()
-    test_list()
+    test_datatypes() # Works fine, don't touch
+    test_let() # Works fine, don't touch
+    test_mathOp() # Works fine, don't touch
+    test_cndOp() # Works fine, don't touch
+    test_unOp() # Works fine, don't touch
+    test_bitOp() # Works fine, don't touch
+    test_ifElse() # Works fine, don't touch
+    test_assign() # Works fine, don't touch
+    test_binOp() # Works fine, don't touch
+    test_seq() # Works fine, don't touch
+    test_for() # Works fine, don't touch
+    # test_while() #Complete it first
+    test_funcdec() # Works fine, don't touch
+    test_print() # Works fine, don't touch 
+    test_string() # Works fine, don't touch
+    test_list() # Works fine, don't touch
 
 test()
