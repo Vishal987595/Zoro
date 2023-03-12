@@ -1,12 +1,12 @@
 from dataTypeDeclaration import *
 from exceptions import *
-import math
-from typing import Mapping
 from env import *
 
 envglobal = dict()
 
+
 def evalAST(program: AST, envlocal: Environment = None) -> Value:
+
     if envlocal is None:
         envlocal = Environment()
 
@@ -14,6 +14,11 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         return evalAST(program, envlocal)
     
     match program:
+        
+
+        ########################################################## DataTypes ##########################################################
+
+
         case Frac(value):
             return value
         case Int(value):
@@ -24,38 +29,44 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return value
         case String(value):
             return value
+        
+
+        ########################################################## Operators ##########################################################
+
+
         case MathOp("+", left, right):
             return evalAST_(left) + evalAST_(right)
         case MathOp("-", left, right):
             return evalAST_(left) - evalAST_(right)
         case MathOp("*", left, right):
             return evalAST_(left) * evalAST_(right)
-        case MathOp("%", left, right):
-            return evalAST_(left) % evalAST_(right)
-        case MathOp("//", left, right):
-            return evalAST_(left) // evalAST_(right)
-        case MathOp("**", left, right):
-            return evalAST_(left) ** evalAST_(right)
         case MathOp("/", left, right):
             return evalAST_(left) / evalAST_(right)
+        case MathOp("//", left, right):
+            return evalAST_(left) // evalAST_(right)
+        case MathOp("%", left, right):
+            return evalAST_(left) % evalAST_(right)
+        case MathOp("**", left, right):
+            return evalAST_(left) ** evalAST_(right)
+        
         case CndOp(">", left, right):
             return evalAST_(left) > evalAST_(right)
         case CndOp("<", left, right):
             return evalAST_(left) < evalAST_(right)
-        case CndOp("==", left, right):
-            return evalAST_(left) == evalAST_(right)
-        case CndOp("!=", left, right):
-            return evalAST_(left) != evalAST_(right)
         case CndOp(">=", left, right):
             return evalAST_(left) >= evalAST_(right)
         case CndOp("<=", left, right):
             return evalAST_(left) <= evalAST_(right)
+        case CndOp("==", left, right):
+            return evalAST_(left) == evalAST_(right)
+        case CndOp("!=", left, right):
+            return evalAST_(left) != evalAST_(right)
+        
         case UnOp("-", right):
-            return -1 * evalAST_(right)
-        case UnOp("!", right):
-            return not evalAST_(right)
+            return (-1) * evalAST_(right)
         case UnOp("~", right):
-            return ~evalAST_(right)
+            return ~( evalAST_(right) )
+        
         case BitOp("&", left, right):
             return evalAST_(left) & evalAST_(right)
         case BitOp("|", left, right):
@@ -66,29 +77,35 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) >> evalAST_(right)
         case BitOp("<<", left, right):
             return evalAST_(left) << evalAST_(right)
-        case BinOp("and", left, right):
+        
+
+        ''' ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ################### '''
+
+        case LogOp("not", right):
+            return not evalAST_(right)
+        case LogOp("and", left, right):
             return evalAST_(left) and evalAST_(right)
-        case BinOp("or", left, right):
+        case LogOp("or", left, right):
             return evalAST_(left) or evalAST_(right)
-        case Print(contents):
-            for c in contents:
-                print(evalAST_(c), end=" ")
-            print()
-        case StringOp("concat", [left, right]):
-            return evalAST_(left) + evalAST_(right)
-        case StringOp("slice", [string, start, end]):
-            return evalAST_(string)[evalAST_(start): evalAST_(end)+1]
-        case If(con, seq):
-            if(len(seq)==1):
-                    if evalAST_(con[0]):
-                        return evalAST_(seq[0])
-            flag = 1
-            for i in range(len(seq)-1):
-                if evalAST_(con[i]):
-                    flag = 0
-                    return evalAST_(seq[i])
-            if flag:
-                return evalAST_(seq[-1])
+        case LogOp("xor", left, right):
+            if(left==right):
+                return 0    
+            else:
+                return evalAST_(left) or evalAST_(right)
+        
+        case LogOp("nand", left, right):
+            return not ( evalAST_(left) and evalAST_(right) )
+        case LogOp("nor", left, right):
+            return not ( evalAST_(left) or evalAST_(right) )
+        case LogOp("xnor", left, right):
+            if(left==right):
+                return not (0)
+            else:
+                return not ( evalAST_(left) or evalAST_(right) )
+        
+        ''' ####################################################################################################### '''
+
+
         case AssignOp("<-",left, right):
             if(not envlocal.find(left.name)):
                 envlocal.add(left.name, evalAST_(right))
@@ -101,6 +118,16 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 envlocal.update(right.name, evalAST_(left))
             return envlocal.get(right.name)
+
+        case StringOp("concat", [left, right]):
+            return evalAST_(left) + evalAST_(right)
+        case StringOp("slice", [string, start, end]):
+            return evalAST_(string)[evalAST_(start): evalAST_(end)+1]
+        
+
+        ###################################################### Identifier Constructs ######################################################
+
+
         case Put(Variable(name), e):
             envlocal.add(name, evalAST_(e))
             return envlocal.get(name)
@@ -115,34 +142,13 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             v2 = evalAST_(e2)
             envlocal.exit_scope()
             return v2
-        case For(var, iter, seq):
-            if(not envlocal.find(var.name)):
-                envlocal.add(var.name, evalAST_(iter[0]))
-            else:
-                envlocal.update(var.name, evalAST_(iter[0]))
-            for item in iter:
-                envlocal.update(var.name, evalAST_(item))
-                result = None
-                for stmt in seq.seq:
-                    result = evalAST_(stmt)
-                if result is not None:
-                    return result
-        case While(cnd, seq):
-            val = None
-            while(evalAST_(cnd)):
-                val = evalAST_(seq)
-            return val
+        
         case Sequence(seq):
             val = None
             for i in seq:
                 val = evalAST_(i)
             return val
-        # case Funcdec(name, args, seq, ret):
-        #     if not envlocal.find(name):
-        #         envlocal.add(name, {'args': args, 'seq': seq, 'ret': ret})
-        #     else:
-        #         envlocal.update(name, {'args': args, 'seq': seq, 'ret': ret})
-        #     return envlocal[name]
+        
         case List_(items):
             for i in range(len(items)):
                 print(items[i])
@@ -172,3 +178,57 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case ListOp("count", list, item):
             a = evalAST_(list)
             return a.count(evalAST_(item))
+
+
+        ###################################################### Keywords Constructs ######################################################
+
+
+        # case Func_call(name, args):
+        #   pass
+        #   # TO BE COMPLETED
+
+        # case Func_dec(name, params, seq, ret):
+        #     if not envlocal.find(name):
+        #         envlocal.add(name, {'params': params, 'seq': seq, 'ret': ret})
+        #     else:
+        #         envlocal.update(name, {'params': params, 'seq': seq, 'ret': ret})
+        #     return envlocal[name]
+
+        case If(con, seq):
+            if(len(seq)==1):
+                    if evalAST_(con[0]):
+                        return evalAST_(seq[0])
+            flag = 1
+            for i in range(len(seq)-1):
+                if evalAST_(con[i]):
+                    flag = 0
+                    return evalAST_(seq[i])
+            if flag:
+                return evalAST_(seq[-1])
+        
+        case While(cnd, seq):
+            val = None
+            while(evalAST_(cnd)):
+                val = evalAST_(seq)
+            return val
+        
+        case For(var, iter, seq):
+            if(not envlocal.find(var.name)):
+                envlocal.add(var.name, evalAST_(iter[0]))
+            else:
+                envlocal.update(var.name, evalAST_(iter[0]))
+            for item in iter:
+                envlocal.update(var.name, evalAST_(item))
+                result = None
+                for stmt in seq.seq:
+                    result = evalAST_(stmt)
+                if result is not None:
+                    return result
+        
+        ########################################################## Statements ##########################################################
+
+        case Print(contents):
+            for c in contents:
+                print(evalAST_(c), end=" ")
+            print()
+        

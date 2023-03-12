@@ -1,2 +1,0 @@
-class InvalidProgram(Exception):
-    pass
