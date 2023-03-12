@@ -69,7 +69,7 @@ Token = Int | Bool | Keyword | Identifier | Operator | Float
 class EndOfTokens(Exception): 
     pass
 
-keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile".split()
+keywords = "Int String Float Bool let if then else elif endif fun of is endfun print for endfor while returns".split()
 symbolic_operators = "+ - * / < > <= >= = == != ** % // ~ & | ^ -> <- << >> ( )".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 whitespace = " \t \n".split() + [' ']
