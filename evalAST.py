@@ -1,5 +1,5 @@
 from dataTypeDeclaration import *
-from exceptions import *
+# from exceptions import *
 from env import *
 
 envglobal = dict()
@@ -79,7 +79,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) << evalAST_(right)
         
 
-        ''' ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ################### '''
+        ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ###################
 
         case LogOp("not", right):
             return not evalAST_(right)
@@ -103,7 +103,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 return not ( evalAST_(left) or evalAST_(right) )
         
-        ''' ####################################################################################################### '''
+        #######################################################################################################
 
 
         case AssignOp("<-",left, right):
@@ -182,17 +182,28 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         ###################################################### Keywords Constructs ######################################################
 
+        case FuncDec(name, params, seq, ret):
+            if not envlocal.find(name):
+                envlocal.add(name, {'params': params, 'seq': seq, 'ret': ret})
+            else:
+                envlocal.update(name, {'params': params, 'seq': seq, 'ret': ret})
+            return (envlocal.get(name), envlocal.envs)
 
-        # case Func_call(name, args):
-        #   pass
-        #   # TO BE COMPLETED
-
-        # case Func_dec(name, params, seq, ret):
-        #     if not envlocal.find(name):
-        #         envlocal.add(name, {'params': params, 'seq': seq, 'ret': ret})
-        #     else:
-        #         envlocal.update(name, {'params': params, 'seq': seq, 'ret': ret})
-        #     return envlocal[name]
+        case FuncCall(name, args):
+            if envlocal.find(name):
+                envlocal.enter_scope()
+                vars = envlocal.get(name)['params']
+                seq = envlocal.get(name)['seq']
+                ret = envlocal.get(name)['ret']
+                for i in range(len(vars)):
+                    if not envlocal.find(vars[i].name):
+                        envlocal.add(vars[i].name, evalAST_(args[i]))
+                    else:
+                        envlocal.update(vars[i].name, evalAST_(args[i]))
+                e = evalAST_(seq)
+                r = evalAST_(ret)
+                envlocal.exit_scope()
+                return r
 
         case If(con, seq):
             if(len(seq)==1):
