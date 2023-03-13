@@ -70,7 +70,7 @@ class EndOfTokens(Exception):
     pass
 
 keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile".split()
-symbolic_operators = "+ - * / < > <= >= = == != ** % // ~ & | ^ -> <- << >> ( )".split()
+symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >> ( )".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 whitespace = " \t \n".split() + [' ']
 
@@ -168,6 +168,8 @@ class Lexer:
                                 else:
                                     return Int(n)
                         except EndOfStream:
+                            if(decimal_point):
+                                return Float(n)
                             return Int(n)
                 case c if c =='"':
                     s = c
@@ -239,5 +241,5 @@ with open(file_path, 'r') as file:
 
 
 
-ans = print_tokens('"alpha and beta" and 2')
+ans = print_tokens('a!=-22.38')
 print(ans)
