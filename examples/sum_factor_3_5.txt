@@ -1,0 +1,15 @@
+fun factor_sum of n, p is;
+    var m <- n//p;
+    var total_sum <- m + 1;
+    total_sum <- m*total_sum*p;
+    total_sum <- total_sum/2;
+    returns total_sum;  
+endfun;
+
+var a <- factor_sum of 1000, 3;
+var b <- factor_sum of 1000, 5;
+var c <- factor_sum of 1000, 15;
+
+var ans <- a + b -c;
+
+print ans;
