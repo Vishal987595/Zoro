@@ -30,15 +30,21 @@ class Stream:
 
 @dataclass
 class Int:
-    n: int
+    value: int
+    def __init__(self, *args) -> None:
+        self.value = int(*args)
 
 @dataclass
 class String:
-    s: str
+    value: str
+    def __init__(self, *args) -> None:
+        self.value = str(*args)
 
 @dataclass
 class Bool:
-    b: bool
+    value: bool
+    def __init__(self, *args) -> None:
+        self.value = bool(*args)
 
 @dataclass
 class Keyword:
@@ -58,7 +64,9 @@ class Operator:
 
 @dataclass
 class Float:
-    f: float
+    value: float
+    def __init__(self, *args) -> None:
+        self.value = float(*args)
 
 @dataclass
 class end_of_all_tokens(Exception):
