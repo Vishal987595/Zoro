@@ -1,0 +1,16 @@
+fun fibonacci of n is;
+    var k <- 0;
+    if n == 1 then;
+        k <- 1;
+    else k <- 1 + fibonacci of n - 1;
+    endif;
+    returns k;
+endfun;
+
+fun fib of n is;
+    returns if n == 1 then 1 else 1 + fibonacci of n-1 endif;
+endfun;
+
+var a <- fibonacci of 100;
+
+print a;
