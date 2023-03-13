@@ -69,8 +69,8 @@ Token = Int | Bool | Keyword | Identifier | Operator | Float
 class EndOfTokens(Exception): 
     pass
 
-keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile".split()
-symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >> ( )".split()
+keywords = "Int String Float Bool let if then else elif endif fun of is endfun print for endfor while returns".split()
+symbolic_operators = "+ - * / < > <= >= = == != ** % // ~ & | ^ -> <- << >> ( )".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 whitespace = " \t \n".split() + [' ']
 
@@ -168,8 +168,6 @@ class Lexer:
                                 else:
                                     return Int(n)
                         except EndOfStream:
-                            if(decimal_point):
-                                return Float(n)
                             return Int(n)
                 case c if c =='"':
                     s = c
@@ -232,7 +230,7 @@ def print_tokens(code: str):
     l[i].append(end_of_all_tokens("end_of_tokens"))
     return l
 
-file_path = r"examples/scope.txt"
+file_path = r"C:\Users\dhruv\Downloads\test.txt"
 
 with open(file_path, 'r') as file:
     file_contents = file.read()
@@ -241,5 +239,5 @@ with open(file_path, 'r') as file:
 
 
 
-ans = print_tokens(file_contents)
+ans = print_tokens('"alpha and beta" and 2')
 print(ans)
