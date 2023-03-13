@@ -141,9 +141,14 @@ class Print:
 @dataclass
 class FuncDec:
     name: str
-    args: List[Variable]
+    params: List[Variable]
     body: Sequence
     returns: 'AST'
+
+@dataclass
+class FuncCall:
+    name: str
+    args: List['AST'] 
 
 ############################################################ Data Structures #############################################################
 

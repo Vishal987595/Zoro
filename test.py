@@ -124,11 +124,19 @@ def test_while():
 def test_funcdec():
     v = Variable('a')
     f = "myfun"
-    expr = Sequence([BinOp('+', v, v)])
+    expr = Sequence([MathOp('+', v, v)])
     ret = v
     fun = FuncDec(f, [v], expr, ret)
     assert evalAST(fun) == {'params': [v], 'seq': expr, 'ret': v}
-    
+
+def test_funccall():
+    v = Variable('a')
+    f = "myfun"
+    expr = Sequence([MathOp('+', v, v)])
+    ret = v
+    e = Sequence([FuncDec(f, [v], expr, ret), FuncCall(f, [Int(5)])])
+    assert evalAST(e) == 5
+
 def test_print():
     e = Print([String("a"), MathOp('+', Int(1), Int(2))])
     evalAST(e)
@@ -175,8 +183,9 @@ def test():
     test_binOp() # Works fine, don't touch
     test_seq() # Works fine, don't touch
     test_for() # Works fine, don't touch
-    # test_while() #Complete it first
+    test_while() #Complete it first
     test_funcdec() # Works fine, don't touch
+    test_funccall()
     test_print() # Works fine, don't touch 
     test_string() # Works fine, don't touch
     test_list() # Works fine, don't touch
