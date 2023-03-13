@@ -181,6 +181,13 @@ class Lexer:
                     return String(s)
                 case c if c in whitespace:
                     return self.next_token()
+                case c if c=='#':
+                    s = c
+                    c = self.stream.next_char()
+                    while(c!='#'):
+                        c = self.stream.next_char()
+                    return None
+
                 case _:
                     pass
         
@@ -232,7 +239,7 @@ def print_tokens(code: str):
     l[i].append(end_of_all_tokens("end_of_tokens"))
     return l
 
-file_path = r"examples/scope.txt"
+file_path = r"C:\Users\dhruv\Downloads\test.txt"
 
 with open(file_path, 'r') as file:
     file_contents = file.read()
@@ -241,5 +248,5 @@ with open(file_path, 'r') as file:
 
 
 
-ans = print_tokens(file_contents)
+ans = print_tokens('a!=-22.38 # I am comment# hello "alpha and beta" + 20')
 print(ans)
