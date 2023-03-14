@@ -37,6 +37,10 @@ class Bool:
         self.value = bool(*args)
 
 @dataclass
+class Symbol:
+    sym : str
+
+@dataclass
 class Get:
     var: 'AST'
 
@@ -107,6 +111,12 @@ class Variable:
 class Function:
     name: str
 
+############################################################ Data Structures #############################################################
+
+@dataclass
+class List_:
+    items:  List['AST']
+
 ############################################################ Keywords Constructs #############################################################
 
 @dataclass
@@ -116,9 +126,10 @@ class Sequence:
 @dataclass
 class For:
     var: Variable
-    iter: list()
+    iter: List_
     seq: Sequence
 
+@dataclass
 class While:
     cnd: 'AST'
     seq: Sequence
@@ -150,12 +161,6 @@ class FuncCall:
     name: str
     args: List['AST'] 
 
-############################################################ Data Structures #############################################################
-
-@dataclass
-class List_:
-    items:  List['AST']
-
 ############################################################ Data Structures Operators #############################################################
 
 @dataclass
@@ -183,9 +188,9 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec 
+AST = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec 
 
-Token = Int | Float | Bool | String | Frac    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
+Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
 
 
 Value = Fraction | bool | int | float | str | None 
