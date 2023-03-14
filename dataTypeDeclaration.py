@@ -9,32 +9,32 @@ from typing import List
 @dataclass
 class Frac:
     value: Fraction
-    def __init__(self, *args) -> None:
-        self.value = Fraction(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = Fraction(value)
 
 @dataclass
 class String:
     value: str
-    def __init__(self, *args) -> None:
-        self.value = str(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = str(value)
 
 @dataclass
 class Float:
     value: float
-    def __init__(self, *args) -> None:
-        self.value = float(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = float(value)
 
 @dataclass
 class Int:
     value: int
-    def __init__(self, *args) -> None:
-        self.value = int(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = int(value)
 
 @dataclass
 class Bool:
     value: bool
-    def __init__(self, *args) -> None:
-        self.value = bool(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = bool(value)
 
 @dataclass
 class Symbol:
@@ -143,7 +143,7 @@ class Let:
 @dataclass
 class If:
     con: List['AST']
-    seq: List['AST']
+    seq: List[Sequence]
         
 @dataclass
 class Print:

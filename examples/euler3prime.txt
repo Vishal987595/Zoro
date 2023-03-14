@@ -1,0 +1,11 @@
+fun isPrime of n is
+    a <- True;
+    i <- 2;
+    while i<n and a == True; do
+        if n%i == 0; then
+            a <- False;
+        endif;
+    endwhile;
+    returns a;
+endfun;
+

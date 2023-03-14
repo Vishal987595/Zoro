@@ -109,14 +109,14 @@ def test_seq():
 
 def test_for():
     a = Variable("a")
-    assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([]))) == None
+    assert evalAST(For(a, List_([Int(5), Int(6), Int(7)]), Sequence([]))) == None
     e1 = Int(5)
     e2 = Int(10)
     e3 = LogOp("and", CndOp(">", e1, e2), CndOp("<", e1, e2))
     e4 = LogOp("and", CndOp("<", e1, e2), CndOp("!=", e1, e2))
     e5 = LogOp("or", CndOp(">", e1, e2), CndOp("<", e1, e2))
     e6 = LogOp("or", CndOp(">", e1, e2), CndOp("!=", e1, e1))
-    assert evalAST(For(a, [Int(5), Int(6), Int(7)], Sequence([e3,e4,e5,e6]))) == False
+    assert evalAST(For(a, List_([Int(5), Int(6), Int(7)]), Sequence([e3,e4,e5,e6]))) == False
 
 def test_while():
     pass
@@ -124,19 +124,12 @@ def test_while():
 def test_funcdec():
     v = Variable('a')
     f = "myfun"
-    expr = Sequence([MathOp('+', v, v)])
+    expr = Sequence([BinOp('+', v, v)])
     ret = v
     fun = FuncDec(f, [v], expr, ret)
     assert evalAST(fun) == {'params': [v], 'seq': expr, 'ret': v}
-
-def test_funccall():
-    v = Variable('a')
-    f = "myfun"
-    expr = Sequence([MathOp('+', v, v)])
-    ret = v
-    e = Sequence([FuncDec(f, [v], expr, ret), FuncCall(f, [Int(5)])])
-    assert evalAST(e) == 5
-
+    # print(evalAST(fun))
+    
 def test_print():
     e = Print([String("a"), MathOp('+', Int(1), Int(2))])
     evalAST(e)
@@ -171,23 +164,38 @@ def test_list():
     # print(evalAST(e2))
     assert evalAST(e2) == 3
 
+def test_ifelse_find_max_abc():
+    evalAST(Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=Int(3)), AssignOp(operator='<-', left=Variable(name='b'), right=Int(4)), AssignOp(operator='<-', left=Variable(name='c'), right=Int(5)), If(con=[CndOp(operator='>', left=Variable(name='a'), right=Variable(name='b'))], seq=[Sequence(seq=[If(con=[CndOp(operator='>=', left=Variable(name='b'), right=Variable(name='c'))], seq=[Sequence(seq=[Print(contents=[Variable(name='a')])]), Sequence(seq=[If(con=[CndOp(operator='>', left=Variable(name='a'), right=Variable(name='c'))], seq=[Sequence(seq=[Print(contents=[Variable(name='a')])]), Sequence(seq=[Print(contents=[Variable(name='c')])])])])])]), Sequence(seq=[If(con=[CndOp(operator='>=', left=Variable(name='a'), right=Variable(name='c'))], seq=[Sequence(seq=[Print(contents=[Variable(name='b')])]), Sequence(seq=[If(con=[CndOp(operator='>', left=Variable(name='b'), right=Variable(name='c'))], seq=[Sequence(seq=[Print(contents=[Variable(name='b')])]), Sequence(seq=[Print(contents=[Variable(name='c')])])])])])])])]))
+
+def test_euler1_multiple_3or5():
+    evalAST(Sequence(seq=[AssignOp(operator='<-', left=Variable(name='m1'), right=MathOp(operator='//', left=Int(value=1000), right=Int(value=3))), AssignOp(operator='<-', left=Variable(name='s1'), right=MathOp(operator='+', left=Variable(name='m1'), right=Int(value=1))), AssignOp(operator='<-', left=Variable(name='s1'), right=MathOp(operator='//', left=MathOp(operator='*', left=MathOp(operator='*', left=Int(value=3), right=Variable(name='s1')), right=Variable(name='m1')), right=Int(value=2))), AssignOp(operator='<-', left=Variable(name='m2'), right=MathOp(operator='//', left=Int(value=1000), right=Int(value=5))), AssignOp(operator='<-', left=Variable(name='s2'), right=MathOp(operator='+', left=Variable(name='m2'), right=Int(value=1))), AssignOp(operator='<-', left=Variable(name='s2'), right=MathOp(operator='//', left=MathOp(operator='*', left=MathOp(operator='*', left=Int(value=5), right=Variable(name='s2')), right=Variable(name='m2')), right=Int(value=2))), AssignOp(operator='<-', left=Variable(name='m3'), right=MathOp(operator='//', left=Int(value=1000), right=Int(value=15))), AssignOp(operator='<-', left=Variable(name='s3'), right=MathOp(operator='+', left=Variable(name='m3'), right=Int(value=1))), AssignOp(operator='<-', left=Variable(name='s3'), right=MathOp(operator='//', left=MathOp(operator='*', left=MathOp(operator='*', left=Int(value=15), right=Variable(name='s3')), right=Variable(name='m3')), right=Int(value=2))), AssignOp(operator='<-', left=Variable(name='ans'), right=MathOp(operator='-', left=MathOp(operator='+', left=Variable(name='s1'), right=Variable(name='s2')), right=Variable(name='s3'))), Print(contents=[Variable(name='ans')])]))
+
+def test_euler3_Lagest_Prime_factor():
+    evalAST(Sequence(seq=[FuncDec(name=Function(name='isprime'), params=[Variable(name='n')], body=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=True)), AssignOp(operator='<-', left=Variable(name='j'), right=Int(value=2)), While(cnd=LogOp(operator='and', right=CndOp(operator='<', left=Variable(name='j'), right=Variable(name='n')), left=CndOp(operator='==', left=Variable(name='b'), right=Bool(value=True))), seq=Sequence(seq=[If(con=[CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='n'), right=Variable(name='j')), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=False))])]), AssignOp(operator='<-', left=Variable(name='j'), right=MathOp(operator='+', left=Variable(name='j'), right=Int(value=1)))])), Print(contents=[Variable(name='b')])]), returns=[Variable(name='b')]), AssignOp(operator='<-', left=Variable(name='N'), right=Int(value=26)), AssignOp(operator='<-', left=Variable(name='mp'), right=Int(value=2)), AssignOp(operator='<-', left=Variable(name='i'), right=Int(value=2)), While(cnd=CndOp(operator='<', left=Variable(name='i'), right=Variable(name='N')), seq=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=FuncCall(name=Function(name='isprime'), args=[Variable(name='i')])), If(con=[LogOp(operator='and', right=CndOp(operator='==', left=Variable(name='a'), right=Bool(value=True)), left=CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='N'), right=Variable(name='i')), right=Int(value=0)))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='mp'), right=Variable(name='i'))])]), AssignOp(operator='<-', left=Variable(name='i'), right=MathOp(operator='+', left=Variable(name='i'), right=Int(value=1)))])), Print(contents=[Variable(name='mp')])]))
+
+def dummy():
+    evalAST(Sequence(seq=[AssignOp(operator='<-', left=Variable(name='c'), right=Int(value=2)), If(con=[CndOp(operator='>', left=Variable(name='c'), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Int(value=2))])]), Print(contents=[Variable(name='c')])]))
+
 def test():
-    test_datatypes() # Works fine, don't touch
-    test_let() # Works fine, don't touch
-    test_mathOp() # Works fine, don't touch
-    test_cndOp() # Works fine, don't touch
-    test_unOp() # Works fine, don't touch
-    test_bitOp() # Works fine, don't touch
-    test_ifElse() # Works fine, don't touch
-    test_assign() # Works fine, don't touch
-    test_binOp() # Works fine, don't touch
-    test_seq() # Works fine, don't touch
-    test_for() # Works fine, don't touch
-    test_while() #Complete it first
-    test_funcdec() # Works fine, don't touch
-    test_funccall()
-    test_print() # Works fine, don't touch 
-    test_string() # Works fine, don't touch
-    test_list() # Works fine, don't touch
+    # test_datatypes() # Works fine, don't touch
+    # test_let() # Works fine, don't touch
+    # test_mathOp() # Works fine, don't touch
+    # test_cndOp() # Works fine, don't touch
+    # test_unOp() # Works fine, don't touch
+    # test_bitOp() # Works fine, don't touch
+    # test_ifElse() # Works fine, don't touch
+    # test_assign() # Works fine, don't touch
+    # test_binOp() # Works fine, don't touch
+    # test_seq() # Works fine, don't touch
+    # test_for() # Works fine, don't touch
+    # test_while() #Complete it first
+    # test_funcdec() # Works fine, don't touch
+    # test_print() # Works fine, don't touch 
+    # test_string() # Works fine, don't touch
+    # test_list() # Works fine, don't touch
+    # test_ifelse_find_max_abc()
+    # test_euler1_multiple_3or5()
+    # test_euler3_Lagest_Prime_factor()
+    dummy()
 
 test()

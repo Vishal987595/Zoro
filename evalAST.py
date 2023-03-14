@@ -79,7 +79,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) << evalAST_(right)
         
 
-        ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ###################
+        ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ##################
 
         case LogOp("not", right):
             return not evalAST_(right)
@@ -103,7 +103,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 return not ( evalAST_(left) or evalAST_(right) )
         
-        #######################################################################################################
+        ####################################################################################################### 
 
 
         case AssignOp("<-",left, right):
@@ -151,7 +151,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         
         case List_(items):
             for i in range(len(items)):
-                print(items[i])
                 items[i] = evalAST_(items[i])
             return items
         case ListOp("len", list):
@@ -183,13 +182,15 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         ###################################################### Keywords Constructs ######################################################
 
         case FuncDec(name, params, seq, ret):
+            name = evalAST_(name)
             if not envlocal.find(name):
                 envlocal.add(name, {'params': params, 'seq': seq, 'ret': ret})
             else:
                 envlocal.update(name, {'params': params, 'seq': seq, 'ret': ret})
-            return (envlocal.get(name), envlocal.envs)
+            return envlocal.get(name)
 
         case FuncCall(name, args):
+            name = evalAST_(name)
             if envlocal.find(name):
                 envlocal.enter_scope()
                 vars = envlocal.get(name)['params']
@@ -204,37 +205,51 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 r = evalAST_(ret)
                 envlocal.exit_scope()
                 return r
+        
+        case Function(name):
+            return name
 
         case If(con, seq):
+            envlocal.enter_scope()
+            r = None
             if(len(seq)==1):
                     if evalAST_(con[0]):
-                        return evalAST_(seq[0])
+                        r = evalAST_(seq[0])
+                        envlocal.exit_scope()
+                        return r
             flag = 1
             for i in range(len(seq)-1):
                 if evalAST_(con[i]):
                     flag = 0
-                    return evalAST_(seq[i])
+                    r = evalAST_(seq[i])
+                    envlocal.exit_scope()
+                    return r
             if flag:
-                return evalAST_(seq[-1])
+                r = evalAST_(seq[-1])
+                envlocal.exit_scope()
+                return r
         
         case While(cnd, seq):
+            envlocal.enter_scope()
             val = None
             while(evalAST_(cnd)):
                 val = evalAST_(seq)
+            envlocal.exit_scope()
             return val
         
         case For(var, iter, seq):
+            envlocal.enter_scope()
+            iter = evalAST_(iter)
             if(not envlocal.find(var.name)):
                 envlocal.add(var.name, evalAST_(iter[0]))
             else:
                 envlocal.update(var.name, evalAST_(iter[0]))
+            result = None
             for item in iter:
                 envlocal.update(var.name, evalAST_(item))
-                result = None
-                for stmt in seq.seq:
-                    result = evalAST_(stmt)
-                if result is not None:
-                    return result
+                result = evalAST_(seq)
+            envlocal.exit_scope()
+            return result
         
         ########################################################## Statements ##########################################################
 
