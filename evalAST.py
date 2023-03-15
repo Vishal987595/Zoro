@@ -2,7 +2,7 @@ from dataTypeDeclaration import *
 # from exceptions import *
 from env import *
 
-envglobal = dict()
+# envglobal = dict()
 
 
 def evalAST(program: AST, envlocal: Environment = None) -> Value:
@@ -217,18 +217,19 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                         r = evalAST_(seq[0])
                         envlocal.exit_scope()
                         return r
-            flag = 1
-            for i in range(len(seq)-1):
-                if evalAST_(con[i]):
-                    flag = 0
-                    r = evalAST_(seq[i])
+            else:
+                flag = 1
+                for i in range(len(seq)-1):
+                    if evalAST_(con[i]):
+                        flag = 0
+                        r = evalAST_(seq[i])
+                        envlocal.exit_scope()
+                        return r
+                if flag:
+                    r = evalAST_(seq[-1])
                     envlocal.exit_scope()
                     return r
-            if flag:
-                r = evalAST_(seq[-1])
-                envlocal.exit_scope()
-                return r
-        
+            
         case While(cnd, seq):
             envlocal.enter_scope()
             val = None
