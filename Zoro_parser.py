@@ -459,7 +459,7 @@ class ZoroParser:
 
     def parse_Program(self):
         final_instrs=[]; 
-        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); # print("\n\n",Sequence(final_instrs),"\n\n")
+        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); #print("\n\n",Sequence(final_instrs),"\n\n")
         return Sequence(final_instrs); 
 
 
@@ -502,7 +502,7 @@ class ZoroParser:
                         self.parse_bracket()
                     case (Symbol(")")):
                         return; 
-                    case Symbol(";"):
+                    case (Symbol(";")):
                         break
                     case _:
                         if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
@@ -515,7 +515,7 @@ class ZoroParser:
     def parse_fun_def(self):
         params = []
         body = []
-        returns = []
+        # returns = []
 
         self.consume_token(Keyword("fun"))
         fn_name = self.parse_name(name_flag=1)
@@ -564,24 +564,24 @@ class ZoroParser:
                 pass    # SHOULD RETURN NIL 
             else:
                 returnable = self.parse_Expr()
-                returns.append(returnable)
-                while True:
-                    match self.next_token():
-                        case (Symbol("(")):
-                            self.parse_bracket()
-                        case (Symbol(")")):
-                            return; 
-                        case Keyword("endfun"):
-                            break
-                        case _:
-                            if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
-                            returnable = self.parse_Expr()
-                            returns.append(returnable)
+                # returns.append(returnable)
+                # while True:
+                #     match self.next_token():
+                #         case (Symbol("(")):
+                #             self.parse_bracket()
+                #         case (Symbol(")")):
+                #             return; 
+                #         case Keyword("endfun"):
+                #             break
+                #         case _:
+                #             if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
+                #             returnable = self.parse_Expr()
+                #             returns.append(returnable)
         
         self.consume_token(Keyword("endfun"))
         self.consume_token(Symbol(";"))
 
-        return FuncDec(fn_name, params, Sequence(body), returns)
+        return FuncDec(fn_name, params, Sequence(body), returnable)
 
     def parse_if(self):
         conds=[]
@@ -733,8 +733,10 @@ def test_parse():
 
     """ Valid Programs """
     if(1):  # APNE PROGRAMS
-        ZoroParser("sum <- 0;  i <- 0;  while i<1000; do      if     i%3 == 0 or i%5 == 0;    then          sum <- sum + i;      endif;      i <- i + 1;  endwhile;  print sum;;")
-        # ZoroParser("fun isprime of n is b<-True; j<-2; while   j<n and b==True;   do if n%j==0; then b<-False; endif; j<-j+1; endwhile; print b;; returns b; endfun;     N<-26; mp<-2; i<-2; while i<N; do   a<-isprime of i;;;    if     a==True and N%i==0;    then mp<-i; endif; i<-i+1; endwhile; print mp;; ")
+        # ZoroParser("fun fib of n is  a <- 0;  if n > 1;   then n1 <- n - 1;  b <- fib of n1;;;  n2 <- n - 2;  c <- fib of n2;;;  a <- b + c;  else a <- n;  endif;  returns a;  endfun;  print fib of 5;;;;")
+        # ZoroParser(" fun f of n is if n>1; then b<-f of n-1;;; c<-b*n; else c<-1; endif; returns c; endfun;   print f of 4;;;; ")
+        # ZoroParser("sum <- 0;  i <- 0;  while i<1000; do      if     i%3 == 0 or i%5 == 0;    then          sum <- sum + i;      endif;      i <- i + 1; print i; sum; ; endwhile;  print sum;;")
+        # ZoroParser("fun isprime of n is b<-True; j<-2; while   j<n and b==True;   do if n%j==0; then b<-False; endif; j<-j+1; endwhile; print b;; returns b; endfun; print isprime of 13;;;;")     #N<-26; mp<-2; i<-2; while i<N; do   a<-isprime of i;;;    if     a==True and N%i==0;    then mp<-i; endif; i<-i+1; endwhile; print mp;; ")
         # ZoroParser("fun fib of n is a<-0; if n>1; then n1<-n-1; cc<-fib of n-1;;; dd<-fib of n-2;;; c ; a<-b+c; else a<-n; endif; returns a; endfun; y<-fib of 5; ; ; print y;; ")
         # ZoroParser("fun double of x is a<-2*x; returns a; endfun; a<-5; y <- double of a; ; ; ")
         # (ZoroParser("m1 <- 1000//3; s1 <- m1+1; s1 <- 3*s1*m1//2;  m2 <- 1000//5; s2 <- m2+1; s2 <- 5*s2*m2//2;  m3 <- 1000//15; s3 <- m3+1; s3 <- 15*s3*m3//2;  ans <- s1 + s2 - s3; print ans; ;"))
