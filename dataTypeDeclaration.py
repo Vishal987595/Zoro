@@ -205,11 +205,13 @@ Value = Fraction | bool | int | float | str | None
 ###############################################################################################################################################
 
 
-keywords = "   if then elif else endif    let    Int Float String Bool Frac   ".split()
+keywords = " Int Float Frac Bool String    let var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor   concat ".split()
 
 symbolic_operators = "  + - * / // % **    < <= => > == !=    >> <<    ~ & | ^     <- ->  ".split()
 
 word_operators = " and or not xor xnor nand nor ".split()           # Logical Operators
+
+brackets = " ( ) [ ] ".split()
 
 whitespace = "\t \n".split() + [' ']
 
