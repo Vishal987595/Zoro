@@ -97,6 +97,12 @@ class AssignOp:
     right: 'AST'
 
 @dataclass
+class UpdateOp:
+    operator: str
+    left: 'AST'
+    right: 'AST'
+
+@dataclass
 class StringOp:
     operator: str
     args: List['AST']
