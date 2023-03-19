@@ -577,7 +577,7 @@ class ZoroParser:
     def parse_fun_def(self):
         params = []
         body = []
-        returns = []
+        # returns = []
 
         self.consume_token(Keyword("fun"))
         fn_name = self.parse_name(name_flag=1)
@@ -623,27 +623,27 @@ class ZoroParser:
             self.consume_token(Keyword("returns"))
             
             if self.next_token()==Keyword("endfun"):
-                pass    # SHOULD RETURN NIL 
+                returnable = None 
             else:
                 returnable = self.parse_Expr(real_expr_flag=False)
-                returns.append(returnable)
-                while True:
-                    match self.next_token():
-                        case (Symbol("(")):
-                            return self.parse_bracket()
-                        case (Symbol(")")):
-                            return None
-                        case Keyword("endfun"):
-                            break
-                        case _:
-                            if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
-                            returnable = self.parse_Expr(real_expr_flag=False)
-                            returns.append(returnable)
+                # returns.append(returnable)
+                # while True:
+                #     match self.next_token():
+                #         case (Symbol("(")):
+                #             return self.parse_bracket()
+                #         case (Symbol(")")):
+                #             return None
+                #         case Keyword("endfun"):
+                #             break
+                #         case _:
+                #             if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
+                #             returnable = self.parse_Expr(real_expr_flag=False)
+                #             returns.append(returnable)
         
         self.consume_token(Keyword("endfun"))
         self.consume_token(Symbol(";"))
 
-        return FuncDec(fn_name, params, Sequence(body), returns)
+        return FuncDec(fn_name, params, Sequence(body), returnable)
 
     def parse_if(self):
         conds=[]
@@ -881,7 +881,11 @@ def test_parse():
         # (ZoroParser('_a.n'))
         # (ZoroParser(' 59.54 ^ invalid"This is abra kadabra string !  lOl ;) "    Dont%This '))
         pass
-
+    if(1):  # APNE PROGRAMS 2 - EULER 1 3 7
+        # (ZoroParser("sum <- 0; i <- 0; while i<10 do if i%3 == 0 or i%5 == 0 then sum <- sum + i; endif; i <- i + 1; endwhile; print sum;  "))
+        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
+        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
+        pass
     print("\n")
 test_parse()
 
