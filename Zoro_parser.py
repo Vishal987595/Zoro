@@ -405,8 +405,7 @@ class ZoroParser:
                         case _:
                             break
                 return left
-                
-      def parse_assis_upds(self):
+    def parse_assis_upds(self):
         assign_flag = False
         if(self.next_token()==Keyword("var")):
             self.consume_token(Keyword("var"))
@@ -446,7 +445,8 @@ class ZoroParser:
                 elif(assign_flag==False):
                     return UpdateOp("->", left, right)
             
-            return left
+            return left
+
 
     
     #############################################################################################################################
