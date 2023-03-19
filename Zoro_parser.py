@@ -84,12 +84,12 @@ class ZoroParser:
         for i in self.Parsed_AST.seq: pprint(i); 
     
     def advance(self):                          # Moves the pointer to the immidiate next token
-        # print("advancing", self.next_token()); 
+        print("advancing", self.next_token()); 
         self.pos += 1
         return
     
     def retreat(self):                          # Moves the pointer to the immidiate previous token
-        # print("retreating", self.next_token()); 
+        print("retreating", self.next_token()); 
         self.pos-=1
         return
 
@@ -121,6 +121,7 @@ class ZoroParser:
 
     def parse_name(self,name_flag):       # name_flag = {0:variable , 1:fun_dec_name , 2:fun_call}
         identifier = self.next_token();   # Identifier(word="actual_word")
+        print("---> INSIDE PARSE NAME",end=' '); self.debug_print(); 
         
         try: 
             name = identifier.word; 
@@ -404,44 +405,54 @@ class ZoroParser:
                         case _:
                             break
                 return left
-    
-    def parse_lassi(self):          # TO BE DONE : ONLY WHEN "var" is used : Add a while loop 
-        left = self.parse_lor() 
-        match self.next_token():
-            case Operator("<-"):
-                if(type(left)!=Variable):
+                
+      def parse_assis_upds(self):
+        assign_flag = False
+        if(self.next_token()==Keyword("var")):
+            self.consume_token(Keyword("var"))
+            assign_flag = True
+        
+        if(assign_flag==True):
+            left = self.parse_lor()
+            if(type(left)!=Variable): 
+                raise Cannot_Assign_to_an_Expr
+            self.consume_token(Operator("<-"))
+            right = self.parse_lor()
+            return AssignOp("<-", left, right)
+
+        elif(assign_flag==False):
+            left = self.parse_lor()
+
+            if(self.next_token()==Operator("<-")):
+                if(type(left)!=Variable): 
                     raise Cannot_Assign_to_an_Expr
-                self.advance()
+                self.consume_token(Operator("<-"))
                 right = self.parse_lor()
-                left = AssignOp("<-", left, right)
-            case (Symbol("[")):
-                right = self.parse_list()
-                return right
-            case (Symbol("(")):
-                return self.parse_bracket()
-            case (Symbol(")")):
-                return None
-        return left
+                return UpdateOp("<-", left, right)
+            
+            elif(self.next_token()==Operator("->")):
+                self.consume_token(Operator("->"))
 
-    def parse_rassi(self):          # TO BE DONE : ONLY WHEN "var" is used : Add a while loop
-        left = self.parse_lassi(); 
-        match self.next_token():
-            case (Symbol("(")):
-                return self.parse_bracket()
-            case (Symbol(")")):
-                return None
-            case Operator("->"):
-                self.advance()
-                right = self.parse_lassi()
-                if(type(right)!=Variable): raise Cannot_Assign_to_an_Expr
-                right = AssignOp("->", left, right)
-                return right
-        return left
+                if(self.next_token()==Keyword("var")):
+                    self.consume_token(Keyword("var"))
+                    assign_flag = True
 
+                right = self.parse_lor()
+                if(type(right)!=Variable): 
+                    raise Cannot_Assign_to_an_Expr
+                
+                if(assign_flag==True):
+                    return AssignOp("->", left, right)
+                elif(assign_flag==False):
+                    return UpdateOp("->", left, right)
+            
+            return left
+
+    
     #############################################################################################################################
 
     def parse_Base(self):
-        return self.parse_rassi(); 
+        return self.parse_assis_upds(); 
     
     def parse_Expr(self, real_expr_flag = True):
         print("-> Inside PARSE_EXPR")
@@ -785,8 +796,7 @@ def test_parse():
     """ Valid Programs """
     if(1):
         # (ZoroParser("print a,b,c;"))
-        ZoroParser("print(a , b, c);")
-        # ZoroParser("print(fib of 5);")      ######### TO DOOOOOOOOOOOOOO
+        # ZoroParser("print fib of 5;;")      ######### TO DOOOOOOOOOOOOOO
         pass
     if(1):
         # ZoroParser("()")
@@ -807,6 +817,8 @@ def test_parse():
         # (ZoroParser("____this_vAr1_is_var ;"))
         pass
     if(1):
+        # (ZoroParser("var _a <- 2 ;"))
+        # (ZoroParser("1 -> var _b ;"))
         # (ZoroParser("_a <- 2 ;"))
         # (ZoroParser("1 -> _b ;"))
         pass
@@ -825,6 +837,7 @@ def test_parse():
         # (ZoroParser("if c>0; then b<-2; elif k<k; then l>5 endif ;"))
         # (ZoroParser("if c>0; then b<-2; elif k<k; then l>l; elif pl^u; then I_5; endif ;"))
         # (ZoroParser("if c>0; then b<-2;  elif    m % n >= k ^ l ;   then pika else c->d; endif ;"))
+        # (ZoroParser("if c>0; then b<-2; elif k<k then l>l; elif pl^u; then I_5; else c->d; endif ;"))
         pass
     if(1):
         # (ZoroParser("while c>=0 do a<-2; b<-5; endwhile ;"))
@@ -844,7 +857,6 @@ def test_parse():
         pass
     if(1):
         # (ZoroParser("a<2; b<-5; c->3; "))
-        # (ZoroParser("if () then a<-2 ; b<5; else I_have<6; endif;"))
         pass
 
     if(1):  # APNE PROGRAMS
