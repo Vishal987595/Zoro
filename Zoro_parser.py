@@ -886,6 +886,7 @@ def test_parse():
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
         pass
+    ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while (i<n and a == True) do if (n%i == 0) then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; var p <- 2; print p; var cnt <- 0; var j <- 2; while (cnt <= 10001) do if (isPrime of j;) then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p;")
     print("\n")
 test_parse()
 

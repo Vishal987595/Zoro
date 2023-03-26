@@ -31,8 +31,8 @@ class Stream:
 @dataclass
 class Int:
     value: int
-    def __init__(self, *args) -> None:
-        self.value = int(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = int(value)
 
 @dataclass
 class String:
@@ -79,7 +79,7 @@ Token = Int | Bool | Keyword | Identifier | Operator | Float
 class EndOfTokens(Exception): 
     pass
 
-keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat".split()
+keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat var".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
