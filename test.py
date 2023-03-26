@@ -1,8 +1,6 @@
 from dataTypeDeclaration import *
 from evalAST import *
 import math
-# from parserLexer import *
-# from exceptions import *
 
 def test_datatypes():
     pass
@@ -174,7 +172,10 @@ def test_euler3_Lagest_Prime_factor():
     evalAST(Sequence(seq=[FuncDec(name=Function(name='isprime'), params=[Variable(name='n')], body=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=True)), AssignOp(operator='<-', left=Variable(name='j'), right=Int(value=2)), While(cnd=LogOp(operator='and', right=CndOp(operator='<', left=Variable(name='j'), right=Variable(name='n')), left=CndOp(operator='==', left=Variable(name='b'), right=Bool(value=True))), seq=Sequence(seq=[If(con=[CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='n'), right=Variable(name='j')), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=False))])]), AssignOp(operator='<-', left=Variable(name='j'), right=MathOp(operator='+', left=Variable(name='j'), right=Int(value=1)))])), Print(contents=[Variable(name='b')])]), returns=[Variable(name='b')]), AssignOp(operator='<-', left=Variable(name='N'), right=Int(value=26)), AssignOp(operator='<-', left=Variable(name='mp'), right=Int(value=2)), AssignOp(operator='<-', left=Variable(name='i'), right=Int(value=2)), While(cnd=CndOp(operator='<', left=Variable(name='i'), right=Variable(name='N')), seq=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=FuncCall(name=Function(name='isprime'), args=[Variable(name='i')])), If(con=[LogOp(operator='and', right=CndOp(operator='==', left=Variable(name='a'), right=Bool(value=True)), left=CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='N'), right=Variable(name='i')), right=Int(value=0)))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='mp'), right=Variable(name='i'))])]), AssignOp(operator='<-', left=Variable(name='i'), right=MathOp(operator='+', left=Variable(name='i'), right=Int(value=1)))])), Print(contents=[Variable(name='mp')])]))
 
 def dummy():
-    evalAST(Sequence(seq=[AssignOp(operator='<-', left=Variable(name='c'), right=Int(value=2)), If(con=[CndOp(operator='>', left=Variable(name='c'), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Int(value=2))])]), Print(contents=[Variable(name='c')])]))
+    a = Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"global a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"global b"')), AssignOp(operator='<-', left=Variable(name='c'), right=String(value='"global c"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"outer a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"outer b"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"inner a"')), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])
+    print(a)
+    print("lll")
+    evalAST(a)
 
 def test():
     # test_datatypes() # Works fine, don't touch

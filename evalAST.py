@@ -1,4 +1,5 @@
 from dataTypeDeclaration import *
+from lexer import *
 # from exceptions import *
 from env import *
 
@@ -107,17 +108,43 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
 
         case AssignOp("<-",left, right):
-            if(not envlocal.find(left.name)):
-                envlocal.add(left.name, evalAST_(right))
-            else:
-                envlocal.update(left.name, evalAST_(right))
+            envlocal.add(left.name, evalAST_(right))
             return envlocal.get(left.name)
         case AssignOp("->",left, right):
-            if(not envlocal.find(right.name)):
-                envlocal.add(right.name, evalAST_(left))
-            else:
-                envlocal.update(right.name, evalAST_(left))
+            envlocal.add(right.name, evalAST_(left))
             return envlocal.get(right.name)
+        case UpdateOp("<-",left, right):
+            envlocal.update(left.name, evalAST_(right))
+            return envlocal.get(left.name)
+        case UpdateOp("->",left, right):
+            envlocal.update(right.name, evalAST_(left))
+            return envlocal.get(right.name)
+        # case AssignOp("<-",left, right):
+        #     if(not envlocal.find(left.name)):
+        #         envlocal.add(left.name, evalAST_(right))
+        #     else:
+        #         envlocal.update(left.name, evalAST_(right))
+        #     return envlocal.get(left.name)
+        # case AssignOp("->",left, right):
+        #     if(not envlocal.find(right.name)):
+        #         envlocal.add(right.name, evalAST_(left))
+        #     else:
+        #         envlocal.update(right.name, evalAST_(left))
+        #     return envlocal.get(right.name)
+        # case UpdateOp("<-",left, right):
+        #     if(not envlocal.find(left.name)):
+        #         envlocal.add(left.name, evalAST_(right))
+        #     else:
+        #         envlocal.update(left.name, evalAST_(right))
+        #     return envlocal.get(left.name)
+        # case UpdateOp("->",left, right):
+        #     if(not envlocal.find(right.name)):
+        #         envlocal.add(right.name, evalAST_(left))
+        #     else:
+        #         envlocal.update(right.name, evalAST_(left))
+        #     return envlocal.get(right.name)
+        
+
 
         case StringOp("concat", [left, right]):
             return evalAST_(left) + evalAST_(right)
@@ -258,4 +285,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             for c in contents:
                 print(evalAST_(c), end=" ")
             print()
+
+        case other:
+            print("writing AST is out of your scope!")
         
