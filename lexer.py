@@ -31,8 +31,8 @@ class Stream:
 @dataclass
 class Int:
     value: int
-    def __init__(self, value, *args) -> None:
-        self.value = int(value)
+    def __init__(self, *args) -> None:
+        self.value = int(*args)
 
 @dataclass
 class String:
@@ -79,7 +79,7 @@ Token = Int | Bool | Keyword | Identifier | Operator | Float
 class EndOfTokens(Exception): 
     pass
 
-keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat var".split()
+keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat var push pop delete len insert count".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
@@ -132,6 +132,8 @@ class Lexer:
                     return Symbol(',')
                 case ';':
                     return Symbol(';')
+                case '.':
+                    return Symbol('.')
                 case '(':
                     return Symbol('(')
                 case '[':
@@ -265,14 +267,8 @@ def print_tokens(code: str):
     # return l
         return tokens
 
-# file_path = r"C:\Users\dhruv\Downloads\test.txt"
-
-# with open(file_path, 'r') as file:
-#     file_contents = file.read()
-
-# # print(file_contents)
 
 
 
-# ans = print_tokens(file_contents)
+# ans = print_tokens("a+b = 2;3+3=6")
 # print(ans)
