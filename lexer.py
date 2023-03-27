@@ -5,8 +5,10 @@ from typing import List
 
 # A minimal example to illustrate typechecking.
 
-class EndOfStream(Exception):
-    pass
+class EndOfStream(Exception): pass
+class EndOfTokens(Exception): pass
+class TokenError(Exception): pass
+
 
 @dataclass
 class Stream:
@@ -26,13 +28,25 @@ class Stream:
         assert self.pos > 0
         self.pos = self.pos - 1
 
-# Define the token types.
 
+# Token Classes
 @dataclass
 class Int:
     value: int
     def __init__(self, *args) -> None:
         self.value = int(*args)
+
+@dataclass
+class Float:
+    value: float
+    def __init__(self, *args) -> None:
+        self.value = float(*args)
+
+@dataclass
+class Frac:
+    value: Fraction
+    def __init__(self, value, *args) -> None:
+        self.value = Fraction(value)
 
 @dataclass
 class String:
@@ -46,6 +60,7 @@ class Bool:
     def __init__(self, *args) -> None:
         self.value = bool(*args)
 
+
 @dataclass
 class Keyword:
     word: str
@@ -55,35 +70,32 @@ class Identifier:
     word: str
 
 @dataclass
-class UnknownWord:
-    word: str
-
-@dataclass
 class Operator:
     op: str
 
 @dataclass
-class Float:
-    value: float
-    def __init__(self, *args) -> None:
-        self.value = float(*args)
-@dataclass
 class Symbol:
     sym: str
+
+@dataclass
+class UnknownWord:
+    word: str
+
 @dataclass
 class end_of_all_tokens(Exception):
     e: str
 
-Token = Int | Bool | Keyword | Identifier | Operator | Float
 
-class EndOfTokens(Exception): 
-    pass
 
-keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat var push pop delete len insert count".split()
+Token = Int | Float | Frac | String | Bool | Keyword | Identifier | Operator | UnknownWord | Symbol | end_of_all_tokens
+
+keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile    for in endfor    concat     push pop len insert count index ".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
 whitespace = " \t \n".split() + [' ']
+
+
 
 def word_to_token(word):
     if word in keywords:
@@ -113,9 +125,6 @@ def word_to_token(word):
     return UnknownWord(word)
 
 
-
-class TokenError(Exception):
-    pass
 
 @dataclass
 class Lexer:
@@ -215,10 +224,10 @@ class Lexer:
                     return None
                 case _:
                     pass
-        
                 
         except EndOfStream:
            raise EndOfTokens
+
 
     def peek_token(self) -> Token:
         if self.save is not None:
@@ -243,6 +252,10 @@ class Lexer:
             return self.next_token()
         except EndOfTokens:
             raise StopIteration
+
+
+
+
 def print_tokens(code: str):
     # strs = code.split(';')
     # l= []
