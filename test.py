@@ -171,11 +171,30 @@ def test_euler1_multiple_3or5():
 def test_euler3_Lagest_Prime_factor():
     evalAST(Sequence(seq=[FuncDec(name=Function(name='isprime'), params=[Variable(name='n')], body=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=True)), AssignOp(operator='<-', left=Variable(name='j'), right=Int(value=2)), While(cnd=LogOp(operator='and', right=CndOp(operator='<', left=Variable(name='j'), right=Variable(name='n')), left=CndOp(operator='==', left=Variable(name='b'), right=Bool(value=True))), seq=Sequence(seq=[If(con=[CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='n'), right=Variable(name='j')), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Bool(value=False))])]), AssignOp(operator='<-', left=Variable(name='j'), right=MathOp(operator='+', left=Variable(name='j'), right=Int(value=1)))])), Print(contents=[Variable(name='b')])]), returns=[Variable(name='b')]), AssignOp(operator='<-', left=Variable(name='N'), right=Int(value=26)), AssignOp(operator='<-', left=Variable(name='mp'), right=Int(value=2)), AssignOp(operator='<-', left=Variable(name='i'), right=Int(value=2)), While(cnd=CndOp(operator='<', left=Variable(name='i'), right=Variable(name='N')), seq=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=FuncCall(name=Function(name='isprime'), args=[Variable(name='i')])), If(con=[LogOp(operator='and', right=CndOp(operator='==', left=Variable(name='a'), right=Bool(value=True)), left=CndOp(operator='==', left=MathOp(operator='%', left=Variable(name='N'), right=Variable(name='i')), right=Int(value=0)))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='mp'), right=Variable(name='i'))])]), AssignOp(operator='<-', left=Variable(name='i'), right=MathOp(operator='+', left=Variable(name='i'), right=Int(value=1)))])), Print(contents=[Variable(name='mp')])]))
 
+def test_range():
+    # evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(0), num2 = Int(10), jmp = Int(2)), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+    # evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(0), num2 = Int(10), jmp = NULL), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+    # evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(-5), num2 = Int(10), jmp = Int(2)), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+    # evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(-5), num2 = Int(-20), jmp = Int(2)), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+    # evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(-20), num2 = Int(-5), jmp = Int(2)), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+    evalAST(Sequence(seq=[For(var=Variable(name='i'), iter=Range(num1 = Int(20), num2 = Int(-5), jmp = Int(2)), seq=Sequence(seq=[Print(contents=[Variable(name='i')])]))]) )
+
+def test_listops():
+    evalAST(Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=List_(items=[Int(value=14), Int(value=15), Int(value=16), Int(value=17), Int(value=18), Int(value=19), Int(value=20)])), Print(contents=[Variable(name='a')]), AssignOp(operator='<-', left=Variable(name='b'), right=ListOp(list=Variable(name='a'), operator='len', item=Null(value=None), index=Null(value=None))), Print(contents=[Variable(name='b')]), 
+ 
+ ListOp(list=Variable(name='a'), operator='push', item=Int(value=6), index=Null(value=None)), Print(contents=[Variable(name='a')]), 
+ ListOp(list=Variable(name='a'), operator='pop', item=Null(value=None), index=Int(value=0)), Print(contents=[Variable(name='a')]), 
+ ListOp(list=Variable(name='a'), operator='insert', item=Int(value=7), index=Int(value=3)), Print(contents=[Variable(name='a')]), 
+ AssignOp(operator='<-', left=Variable(name='c'), right=ListOp(list=Variable(name='a'), operator='index', item=Int(value=5), index=Null(value=None))), Print(contents=[Variable(name='c')]), 
+ AssignOp(operator='<-', left=Variable(name='d'), right=ListOp(list=Variable(name='a'), operator='count', item=Int(value=5), index=Null(value=None))), Print(contents=[Variable(name='d')]), Print(contents=[Variable(name='a')])]))
+
+def test_printdebug():
+    evalAST( Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=Int(value=2)), Print(contents=[Variable(name='a')])]))
+
 def dummy():
     a = Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"global a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"global b"')), AssignOp(operator='<-', left=Variable(name='c'), right=String(value='"global c"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"outer a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"outer b"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"inner a"')), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])
-    print(a)
-    print("lll")
-    evalAST(a)
+
+
 
 def test():
     # test_datatypes() # Works fine, don't touch
@@ -197,6 +216,9 @@ def test():
     # test_ifelse_find_max_abc()
     # test_euler1_multiple_3or5()
     # test_euler3_Lagest_Prime_factor()
-    dummy()
+    # test_range()
+    test_listops()
+    # test_printdebug()
+    # dummy()
 
 test()

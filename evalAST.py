@@ -30,6 +30,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return value
         case String(value):
             return value
+        case Null(value):
+            return value
         
 
         ########################################################## Operators ##########################################################
@@ -108,41 +110,17 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
 
         case AssignOp("<-",left, right):
-            envlocal.add(left.name, evalAST_(right))
+            envlocal.add(left.name, right)
             return envlocal.get(left.name)
         case AssignOp("->",left, right):
-            envlocal.add(right.name, evalAST_(left))
+            envlocal.add(right.name, right)
             return envlocal.get(right.name)
         case UpdateOp("<-",left, right):
-            envlocal.update(left.name, evalAST_(right))
+            envlocal.update(left.name, right)
             return envlocal.get(left.name)
         case UpdateOp("->",left, right):
-            envlocal.update(right.name, evalAST_(left))
+            envlocal.update(right.name, left)
             return envlocal.get(right.name)
-        # case AssignOp("<-",left, right):
-        #     if(not envlocal.find(left.name)):
-        #         envlocal.add(left.name, evalAST_(right))
-        #     else:
-        #         envlocal.update(left.name, evalAST_(right))
-        #     return envlocal.get(left.name)
-        # case AssignOp("->",left, right):
-        #     if(not envlocal.find(right.name)):
-        #         envlocal.add(right.name, evalAST_(left))
-        #     else:
-        #         envlocal.update(right.name, evalAST_(left))
-        #     return envlocal.get(right.name)
-        # case UpdateOp("<-",left, right):
-        #     if(not envlocal.find(left.name)):
-        #         envlocal.add(left.name, evalAST_(right))
-        #     else:
-        #         envlocal.update(left.name, evalAST_(right))
-        #     return envlocal.get(left.name)
-        # case UpdateOp("->",left, right):
-        #     if(not envlocal.find(right.name)):
-        #         envlocal.add(right.name, evalAST_(left))
-        #     else:
-        #         envlocal.update(right.name, evalAST_(left))
-        #     return envlocal.get(right.name)
         
 
 
@@ -150,6 +128,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) + evalAST_(right)
         case StringOp("slice", [string, start, end]):
             return evalAST_(string)[evalAST_(start): evalAST_(end)+1]
+        case StringOp("len", string):
+            return len(evalAST_(string))
         
 
         ###################################################### Identifier Constructs ######################################################
@@ -176,34 +156,55 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 val = evalAST_(i)
             return val
         
+        #######################################################################################################################################
+
         case List_(items):
             for i in range(len(items)):
                 items[i] = evalAST_(items[i])
             return items
-        case ListOp("len", list):
-            return list.__len__()
-        case ListOp("push", list, item):
-            a = evalAST_(list)
-            a.append(evalAST_(item))
+        case ListOp(list, "len"):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+            return a.items.__len__()
+        
+        case ListOp(list, "push", item):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+
+            a.items.append(item)
             envlocal.update(list.name, a)
             return evalAST_(item)
-        case ListOp("pop", list, item, index):
-            a = evalAST_(list)
-            v = evalAST_(a[evalAST_(index)])
-            a.pop(evalAST_(index))
+        case ListOp(list, "pop", item, index):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+
+            v = evalAST_(a.items[evalAST_(index)])
+            a.items.pop(evalAST_(index))
+
             envlocal.update(list.name, a)
             return v
-        case ListOp("insert", list, item, index):
-            a = evalAST_(list)
-            a.insert(evalAST_(index), evalAST_(item))
+        case ListOp(list, "insert", item, index):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+
+            a.items.insert(evalAST_(index), item)
             envlocal.update(list.name, a)
             return evalAST_(item)
-        case ListOp("index", list, item):
-            a = evalAST_(list)
-            return a.index(evalAST_(item))
-        case ListOp("count", list, item):
-            a = evalAST_(list)
-            return a.count(evalAST_(item))
+        case ListOp(list, "index", item):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+
+            return a.items.index(item)
+        case ListOp(list, "count", item):
+            a = list
+            if type(list) == Variable:
+                a = evalAST_(a)
+            return a.items.count(item)
 
 
         ###################################################### Keywords Constructs ######################################################
@@ -267,22 +268,49 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         
         case For(var, iter, seq):
             envlocal.enter_scope()
-            iter = evalAST_(iter)
+            # iter = evalAST_(iter)
+            # if(not envlocal.find(var.name)):
+            #     envlocal.add(var.name, evalAST_(iter[0]))
+            # else:
+            #     envlocal.update(var.name, evalAST_(iter[0]))
             if(not envlocal.find(var.name)):
-                envlocal.add(var.name, evalAST_(iter[0]))
+                envlocal.add(var.name, iter)
             else:
-                envlocal.update(var.name, evalAST_(iter[0]))
+                envlocal.update(var.name, iter)
             result = None
-            for item in iter:
+            if type(iter) == Range:
+                iter = evalAST_(iter)
+            for item in iter.items:
                 envlocal.update(var.name, evalAST_(item))
                 result = evalAST_(seq)
             envlocal.exit_scope()
             return result
         
+        case Range(num1, num2, jmp):
+            num1 = evalAST_(num1)
+            num2 = evalAST_(num2)
+            jmp = evalAST_(jmp)
+            if jmp == None:
+                jmp = 1
+            ret = List_
+            list: List[Int] = []
+            if num1 < num2:
+                while num1 < num2:
+                    list.append(Int(num1))
+                    num1 = num1 + jmp
+            else:
+                while num1 > num2:
+                    list.append(Int(num1))
+                    num1 = num1 - jmp
+            ret.items = list
+            return ret
+        
         ########################################################## Statements ##########################################################
 
         case Print(contents):
             for c in contents:
+                if(type(c)==Variable):
+                    c = evalAST_(c)
                 print(evalAST_(c), end=" ")
             print()
 

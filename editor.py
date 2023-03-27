@@ -34,7 +34,7 @@ class TextLineNumbers(Canvas):
 
 class CustomText(Text):
     def __init__(self, *args, **kwargs):
-        Text.__init__(self, *args, **kwargs)
+        Text.__init__(self, *args, **kwargs, undo=True)
 
         # create a proxy for the underlying widget
         self._orig = self._w + "_orig"
@@ -106,6 +106,9 @@ def change_theme():
         code_output.config(bg='white', fg='black')
         current_theme = 'light'
 
+def save_file(event):
+    save_as()
+
 
 menu_bar = Menu(compiler)
 
@@ -146,6 +149,8 @@ def _on_change(event):
 
 editor.bind("<<Change>>", _on_change)
 editor.bind("<Configure>", _on_change)
+editor.bind("<Control-s>", save_file)
+editor.bind("<Control-r>", run)
 editor.pack(side=TOP, fill=BOTH, expand=True)
 
 

@@ -37,6 +37,10 @@ class Bool:
         self.value = bool(value)
 
 @dataclass
+class Null:
+    value: None
+
+@dataclass
 class Symbol:
     sym : str
 
@@ -136,6 +140,12 @@ class For:
     seq: Sequence
 
 @dataclass
+class Range:
+    num1: Int
+    num2: Int
+    jmp: Int | Null
+
+@dataclass
 class While:
     cnd: 'AST'
     seq: Sequence
@@ -171,8 +181,8 @@ class FuncCall:
 
 @dataclass
 class ListOp:
+    list: List_ | Variable
     operator: str
-    list: List['AST']
     item: 'AST' 
     index: 'AST'
 
@@ -191,10 +201,12 @@ class Keyword:
 
 
 
+
+
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp    |    Variable | Let | If | Sequence    | Print | FuncDec 
+AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Variable | Let | If | While | For | Range | List_ | Sequence    | Print | FuncDec | FuncCall    |       Identifier | Keyword
 
 Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
 
@@ -205,7 +217,7 @@ Value = Fraction | bool | int | float | str | None
 ###############################################################################################################################################
 
 
-keywords = " Int Float Frac Bool String    let var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor   concat ".split()
+keywords = " Int Float Frac Bool String    var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor   concat   len push pop insert count ".split()
 
 symbolic_operators = "  + - * / // % **    < <= => > == !=    >> <<    ~ & | ^     <- ->  ".split()
 
