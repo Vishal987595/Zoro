@@ -121,7 +121,7 @@ class ZoroParser:
 
     def parse_name(self,name_flag):       # name_flag = {0:variable , 1:fun_dec_name , 2:fun_call}
         identifier = self.next_token();   # Identifier(word="actual_word")
-        print("---> INSIDE PARSE NAME",end=' '); self.debug_print(); 
+        # print("---> INSIDE PARSE NAME",end=' '); self.debug_print(); 
         
         try: 
             name = identifier.word; 
@@ -142,7 +142,11 @@ class ZoroParser:
                     self.retreat(); 
                     return self.parse_fun_call(); 
                 else:
-                    return Variable(name); 
+                    if(self.next_token()==Symbol(".")):
+                        r1,r2,r3 = self.parse_list_fx()
+                        return ListOp(Variable(name) , r1,r2,r3)
+                    else:
+                        return Variable(name); 
             elif(name_flag==1):
                 self.advance(); 
                 return Function(name); 
@@ -455,7 +459,7 @@ class ZoroParser:
         return self.parse_assis_upds(); 
     
     def parse_Expr(self, real_expr_flag = True):
-        print("-> Inside PARSE_EXPR")
+        # print("-> Inside PARSE_EXPR")
         match self.next_token():
             case Keyword("fun"): return self.parse_fun_def(); 
             case Keyword("if"): return self.parse_if(); 
@@ -524,7 +528,44 @@ class ZoroParser:
                     args.append(arg)
         
         self.consume_token(Symbol("]"))
+        if(self.next_token()==Symbol(".")): 
+            r1,r2,r3 = self.parse_list_fx()
+            return ListOp(List_(args) , r1,r2,r3)
+
         return List_(args)
+
+    def parse_list_fx(self):    # operator, item, index
+        self.consume_token(Symbol("."))
+        match self.next_token():
+            case Keyword("len"):
+                self.consume_token(Keyword("len"))
+                return "len", Null(None), Null(None)
+            case Keyword("push"):
+                self.consume_token(Keyword("push"))
+                return "push", self.parse_Expr(real_expr_flag=False), Null(None)
+            case Keyword("pop"):
+                self.consume_token(Keyword("pop"))
+                index = self.parse_Expr(real_expr_flag=False)
+                if(type(index) != Int):
+                    raise ########## TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                return "pop", Null(None), index
+            case Keyword("insert"):
+                self.consume_token(Keyword("insert"))
+                item = self.parse_Expr(real_expr_flag=False)
+                index = self.parse_Expr(real_expr_flag=False)
+                if(type(index) != Int):
+                    raise ########## TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                return "insert", item, index
+            case Keyword("index"):
+                self.consume_token(Keyword("index"))
+                return "index", self.parse_Expr(real_expr_flag=False), Null(None)
+            case Keyword("count"):
+                self.consume_token(Keyword("count"))
+                return "count", self.parse_Expr(real_expr_flag=False), Null(None)
+            case _:
+                raise UnExpected_Token
+
+
 
     #############################################################################################################################
 
@@ -795,8 +836,17 @@ def test_parse():
 
     """ Valid Programs """
     if(1):
+        # ZoroParser('var a <- [14,15,16,17,18,19,20] ; print a; var b<-a.len; print b; a.push 6 ; print a; a.pop 0 ;print a; a.insert 7 3 ;print a; var c<-a.index 5 ; print c; var d<-a.count 5 ; print d; print a; a<-[101,102,101,103,104]; var e<-a.len; print e; ')
+        # ZoroParser("a.len;")
+        # ZoroParser('a.push "MY_STR" ;')
+        # ZoroParser("a.pop 0 ;")
+        # ZoroParser('a.insert "MY_STR" 0 ;')
+        # ZoroParser("a.index 5 ;")
+        # ZoroParser("a.count 5 ;")
+        pass
+    if(1):
         # (ZoroParser("print a,b,c;"))
-        # ZoroParser("print fib of 5;;")      ######### TO DOOOOOOOOOOOOOO
+        # (ZoroParser("print fib of 5;;"))      ######### TO DOOOOOOOOOOOOOO
         pass
     if(1):
         # ZoroParser("()")
@@ -866,8 +916,8 @@ def test_parse():
         # ZoroParser("fun isprime of n is b<-True; j<-2; while   j<n and b==True;   do if n%j==0; then b<-False; endif; j<-j+1; endwhile; print b;; returns b; endfun; print isprime of 13;;;;")     #N<-26; mp<-2; i<-2; while i<N; do   a<-isprime of i;;;    if     a==True and N%i==0;    then mp<-i; endif; i<-i+1; endwhile; print mp;; ")
         # ZoroParser("fun fib of n is a<-0; if n>1; then n1<-n-1; cc<-fib of n-1;;; dd<-fib of n-2;;; c ; a<-b+c; else a<-n; endif; returns a; endfun; y<-fib of 5; ; ; print y;; ")
         # ZoroParser("fun double of x is a<-2*x; returns a; endfun; a<-5; y <- double of a; ; ; ")
-        # (ZoroParser("m1 <- 1000//3; s1 <- m1+1; s1 <- 3*s1*m1//2;  m2 <- 1000//5; s2 <- m2+1; s2 <- 5*s2*m2//2;  m3 <- 1000//15; s3 <- m3+1; s3 <- 15*s3*m3//2;  ans <- s1 + s2 - s3; print ans; ;"))
-        # (ZoroParser("fun fib of n is a<-0; if n>1; then a<- ((fib of (n-1;)) + (fib of n-2;)) ; else a<-n; endif; returns a; endfun; print fib of 5; "))
+        # ZoroParser("m1 <- 1000//3; s1 <- m1+1; s1 <- 3*s1*m1//2;  m2 <- 1000//5; s2 <- m2+1; s2 <- 5*s2*m2//2;  m3 <- 1000//15; s3 <- m3+1; s3 <- 15*s3*m3//2;  ans <- s1 + s2 - s3; print ans; ;")
+        # ZoroParser("fun fib of n is a<-0; if n>1; then a<- ((fib of (n-1;)) + (fib of n-2;)) ; else a<-n; endif; returns a; endfun; print fib of 5; ")
         # ZoroParser(" list_name <- [1; 2; 5;] ; for i in list_name do k<-2; endfor; ")
         # ZoroParser("(a<-2;)")
         pass
@@ -886,7 +936,6 @@ def test_parse():
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
         pass
-    ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while (i<n and a == True) do if (n%i == 0) then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; var p <- 2; print p; var cnt <- 0; var j <- 2; while (cnt <= 10001) do if (isPrime of j;) then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p;")
     print("\n")
 test_parse()
 
