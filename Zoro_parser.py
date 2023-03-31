@@ -160,7 +160,6 @@ class ZoroParser:
             case Bool(value):
                 self.advance(); 
                 return Bool(value); 
-            
             case String(value):
                 self.advance(); 
                 if(self.next_token()==Symbol(".")):
@@ -479,8 +478,6 @@ class ZoroParser:
         while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
         return Sequence(final_instrs)
-
-
 
     #############################################################################################################################
 
