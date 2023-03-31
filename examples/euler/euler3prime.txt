@@ -1,0 +1,26 @@
+fun isPrime of n is 
+    var a <- True; 
+    var i <- 2; 
+    while (i<n and a == True) do 
+        if (n%i == 0) then 
+            a <- False; 
+        endif; 
+        i <- i + 1; 
+    endwhile; 
+    returns a 
+endfun; 
+
+print isPrime of 13;; 
+
+var k <- 45; 
+var j <- 2; 
+var mp <- 2; 
+while (j <= k) do 
+    var p <- isPrime of j;; 
+    if (k%p == 0) then 
+        mp <- j; 
+    endif;
+    j <- j + 1; 
+endwhile; 
+
+print mp; 

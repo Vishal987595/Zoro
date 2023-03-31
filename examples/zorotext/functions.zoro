@@ -1,0 +1,8 @@
+fun greet of name is
+    returns "hello" + name
+endfun;
+
+var s <- greet of "Rishi";;
+
+print s;
+
