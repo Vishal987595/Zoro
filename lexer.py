@@ -33,14 +33,14 @@ class Stream:
 @dataclass
 class Int:
     value: int
-    def __init__(self, *args) -> None:
-        self.value = int(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = int(value)
 
 @dataclass
 class Float:
     value: float
-    def __init__(self, *args) -> None:
-        self.value = float(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = float(value)
 
 @dataclass
 class Frac:
@@ -51,14 +51,14 @@ class Frac:
 @dataclass
 class String:
     value: str
-    def __init__(self, *args) -> None:
-        self.value = str(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = str(value)
 
 @dataclass
 class Bool:
     value: bool
-    def __init__(self, *args) -> None:
-        self.value = bool(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = bool(value)
 
 
 @dataclass
@@ -89,7 +89,7 @@ class end_of_all_tokens(Exception):
 
 Token = Int | Float | Frac | String | Bool | Keyword | Identifier | Operator | UnknownWord | Symbol | end_of_all_tokens
 
-keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile    for in endfor    concat     push pop len insert count index ".split()
+keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile    for in endfor    concat     push pop len insert count index at update ".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
@@ -213,7 +213,7 @@ class Lexer:
                         s = s+c
                         c = self.stream.next_char()
                     s = s+c
-                    return String(s)
+                    return String(s[1:-1])
                 case c if c in whitespace:
                     return self.next_token()
                 case c if c=='#':

@@ -19,7 +19,7 @@ class Expected_A_Semicolon(Exception): pass # Missing Semicolon to end the stmt
 class Invalid_Bracket_Character(Exception): pass # The encountered character cannot start a bracket type 
 class Incorrect_Bracket_Sequence(Exception): pass # Paranthesis pairs are not matching
 class Not_Enough_Closing_Brackets(Exception): pass # Add missing closing brackets properly
-
+class Inappropriate_Type_of_Token(Exception): pass # if(type(var)!=Token_Type)
 
 #############################################################################################################################
 #############################################################################################################################
@@ -63,7 +63,6 @@ EOF = EndOfFile()
 
 @dataclass
 class ZoroParser:
-    
 
 
     def __init__(self, Program_Stream):
@@ -82,31 +81,26 @@ class ZoroParser:
         self.Parsed_AST = self.parse_Program()
 
         for i in self.Parsed_AST.seq: pprint(i); 
-    
     def advance(self):                          # Moves the pointer to the immidiate next token
         print("advancing", self.next_token()); 
         self.pos += 1
         return
-    
     def retreat(self):                          # Moves the pointer to the immidiate previous token
         print("retreating", self.next_token()); 
         self.pos-=1
         return
-
     def next_token(self):                       # Returns : First Upcoming Not-consumed token
         if(self.pos>=self.nn): 
             return EOF
         else: 
             return self.Token_Seq[self.pos]
         # Peeking at the beginning should return the first token
-
-    # def prev_token(self):                       # Returns : The last (most recent) consumed token
-    #     if(self.pos==0): 
-    #         return None
-    #     else: 
-    #         return self.Token_Seq[self.pos-1]
-    #     # Peeking at the beginning should return the first token
-
+    def prev_token(self):                       # Returns : The last (most recent) consumed token
+        if(self.pos==0): 
+            return None
+        else: 
+            return self.Token_Seq[self.pos-1]
+        # Peeking at the beginning should return the first token
     def consume_token(self,expected_token):     # Consumes the next_token if it is the expected one
         if(self.next_token()==expected_token): 
             return self.advance()
@@ -166,8 +160,12 @@ class ZoroParser:
             case Bool(value):
                 self.advance(); 
                 return Bool(value); 
+            
             case String(value):
                 self.advance(); 
+                if(self.next_token()==Symbol(".")):
+                    r1,r2 = self.parse_String_fx()
+                    return StringOp(String(value)),r1,r2
                 return String(value); 
             case _:
                 return self.parse_name(name_flag=0); 
@@ -466,6 +464,7 @@ class ZoroParser:
             case Keyword("for"): return self.parse_for(); 
             case Keyword("while"): return self.parse_while(); 
             case Keyword("print"): return self.parse_print(); 
+            case Keyword("range"): return self.parse_range(); 
             case (Symbol("[")): return self.parse_list(); 
             case (Symbol("(")): return self.parse_bracket(); 
             case (Symbol(")")): return None; 
@@ -480,6 +479,8 @@ class ZoroParser:
         while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
         return Sequence(final_instrs)
+
+
 
     #############################################################################################################################
 
@@ -508,6 +509,15 @@ class ZoroParser:
             case _: 
                 raise Invalid_Bracket_Character
 
+    def parse_range(self):
+        self.consume_token(Keyword("range")); 
+        r1 = self.parse_Expr(real_expr_flag=False); 
+        self.consume_token(Symbol(",")); 
+        r2 = self.parse_Expr(real_expr_flag=False); 
+        self.consume_token(Symbol(",")); 
+        r3 = self.parse_Expr(real_expr_flag=False); 
+        return Range(r1,r2,r3); 
+
     def parse_list(self):
         self.consume_token(Symbol("["))
         args = []
@@ -534,7 +544,7 @@ class ZoroParser:
 
         return List_(args)
 
-    def parse_list_fx(self):    # operator, item, index
+    def parse_list_fx(self):    # -> operator:str , item:AST, index:Int
         self.consume_token(Symbol("."))
         match self.next_token():
             case Keyword("len"):
@@ -547,21 +557,54 @@ class ZoroParser:
                 self.consume_token(Keyword("pop"))
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
-                    raise ########## TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                    raise Inappropriate_Type_of_Token
                 return "pop", Null(None), index
             case Keyword("insert"):
                 self.consume_token(Keyword("insert"))
                 item = self.parse_Expr(real_expr_flag=False)
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
-                    raise ########## TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                    raise Inappropriate_Type_of_Token
                 return "insert", item, index
+            case Keyword("update"):
+                self.consume_token(Keyword("update"))
+                item = self.parse_Expr(real_expr_flag=False)
+                index = self.parse_Expr(real_expr_flag=False)
+                if(type(index) != Int):
+                    raise Inappropriate_Type_of_Token
+                return "update", item, index
             case Keyword("index"):
                 self.consume_token(Keyword("index"))
                 return "index", self.parse_Expr(real_expr_flag=False), Null(None)
+            case Keyword("at"):
+                self.consume_token(Keyword("at"))
+                return "at", Null(None), self.parse_Expr(real_expr_flag=False)
             case Keyword("count"):
                 self.consume_token(Keyword("count"))
                 return "count", self.parse_Expr(real_expr_flag=False), Null(None)
+            case _:
+                raise UnExpected_Token
+
+    def parse_String_fx(self):    # operator:str, item:AST
+        self.consume_token(Symbol("."))
+        match self.next_token():
+            case Keyword("length"):
+                self.consume_token(Keyword("length"))
+                return "length", Null(None)
+            case Keyword("concat"):
+                self.consume_token(Keyword("concat"))
+                arg = self.parse_Expr(real_expr_flag=False)
+                if(type(arg)!=String):
+                    raise Inappropriate_Type_of_Token
+                return "concat", arg
+            case Keyword("index"):
+                self.consume_token(Keyword("index"))
+                arg = self.parse_Expr(real_expr_flag=False)
+                return "index", arg
+            case Keyword("count"):
+                self.consume_token(Keyword("count"))
+                arg = self.parse_Expr(real_expr_flag=False)
+                return "count", arg
             case _:
                 raise UnExpected_Token
 
@@ -619,6 +662,7 @@ class ZoroParser:
         params = []
         body = []
         # returns = []
+        returnable = Null(None)     # Default return value
 
         self.consume_token(Keyword("fun"))
         fn_name = self.parse_name(name_flag=1)
@@ -836,13 +880,14 @@ def test_parse():
 
     """ Valid Programs """
     if(1):
-        # ZoroParser('var a <- [14,15,16,17,18,19,20] ; print a; var b<-a.len; print b; a.push 6 ; print a; a.pop 0 ;print a; a.insert 7 3 ;print a; var c<-a.index 5 ; print c; var d<-a.count 5 ; print d; print a; a<-[101,102,101,103,104]; var e<-a.len; print e; ')
         # ZoroParser("a.len;")
         # ZoroParser('a.push "MY_STR" ;')
         # ZoroParser("a.pop 0 ;")
         # ZoroParser('a.insert "MY_STR" 0 ;')
         # ZoroParser("a.index 5 ;")
         # ZoroParser("a.count 5 ;")
+        # ZoroParser("a.at 3;")
+        # ZoroParser('var a <- [14,15,16,17,18,19,20] ; print a; var b<-a.len; print b; a.push 6 ; print a; a.pop 0 ;print a; a.insert 7 3 ;print a; var c<-a.index 5 ; print c; var d<-a.count 5 ; print d; print a; a<-[101,102,101,103,104]; var e<-a.len; print e; ')
         pass
     if(1):
         # (ZoroParser("print a,b,c;"))
@@ -853,9 +898,9 @@ def test_parse():
         # ZoroParser("(((())))")
         # ZoroParser("((())())")    ######### TO DOOOOOOOOOOOOOOOOOOOOOOO : Should we allow this? or modify if we allow? 
 
-        # ZoroParser(" if (1+2>(3;);) then 5+(6 * 8 or 5;); else d<-5; endif; ")
-        # ZoroParser(" 2 * (3+5 or 9;) xor 5 ** 6 + 4 * ~ (i +- 5 ^ 8;) ; ") ######### TO DOOOOOOO  Debug to omit semicolons
-        # ZoroParser("(1;)+(a;);")  ######### TO DOOOOOOO : It parses 1st '()' as expr then expects another expr, but gets '+'
+        # ZoroParser(" if (1+2>(3)) then 5+(6 * 8 or 5); else d<-5; endif; ")
+        # ZoroParser(" 2 * (3+5 or 9) xor 5 ** 6 + 4 * ~ (i +- 5 ^ 8) ; ")
+        # ZoroParser("(1)+(a);")
         pass
     if(1):
         # (ZoroParser("True;"))
@@ -882,34 +927,29 @@ def test_parse():
         # (ZoroParser("a**b-c<<d*z-y^e+f**g >= m&h%k/i//j-m+n ;"))
         pass
     if(1):
-        # (ZoroParser("if c>0; then b<-2; endif ;"))
-        # (ZoroParser("if c>0; then b<-2; else c->d; endif ;"))
-        # (ZoroParser("if c>0; then b<-2; elif k<k; then l>5 endif ;"))
-        # (ZoroParser("if c>0; then b<-2; elif k<k; then l>l; elif pl^u; then I_5; endif ;"))
-        # (ZoroParser("if c>0; then b<-2;  elif    m % n >= k ^ l ;   then pika else c->d; endif ;"))
-        # (ZoroParser("if c>0; then b<-2; elif k<k then l>l; elif pl^u; then I_5; else c->d; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; else c->d; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; elif k<k then l>5; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; elif k<k then l>l; elif pl^u then I_5; endif ;"))
+        # (ZoroParser("if c>0 then b<-2;  elif    m % n >= k ^ l    then pika; else c->d; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; elif k<k then l>l; elif pl^u then I_5; else c->d; endif ;"))
         pass
     if(1):
         # (ZoroParser("while c>=0 do a<-2; b<-5; endwhile ;"))
-        pass
-    if(1):
         # (ZoroParser("for i in list_name do k<-2; a<-a+1; endfor ;"))
         # (ZoroParser("for i in [ 2 , 6 , alpha ] do k<-2;a<-a+1; endfor ;"))      ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
         pass
     if(1):
         # (ZoroParser("fun myfun is a<-2; endfun ;"))
-        # (ZoroParser("fun myfun is a<-2; returns b endfun ;"))
+        # (ZoroParser("fun myfun is a<-2; returns b; endfun ;"))
         # (ZoroParser("fun myfun of a,b is a<-2; endfun ;"))
-        # (ZoroParser("fun myfun of a,b is a<-2; returns b endfun ;"))
-        # (ZoroParser("fun fn_nm of a,b c is a<-b+c; returns a b,c endfun ;"))
+        # (ZoroParser("fun myfun of a,b is a<-2; returns b; endfun ;"))
+        # (ZoroParser("fun fn_nm of a,b,c is a<-b+c; returns a,b,c; endfun ;"))
 
-        # (ZoroParser("myfun of myvar_one myvar_two,myvar_three ;"))
-        pass
-    if(1):
-        # (ZoroParser("a<2; b<-5; c->3; "))
+        # (ZoroParser("myfun of myvar_one,myvar_two,myvar_three ;"))
         pass
 
-    if(1):  # APNE PROGRAMS
+    if(1):  # APNE PROGRAMS : Old Version
         # ZoroParser("fun fib of n is  a <- 0;  if n > 1;   then n1 <- n - 1;  b <- fib of n1;;;  n2 <- n - 2;  c <- fib of n2;;;  a <- b + c;  else a <- n;  endif;  returns a;  endfun;  print fib of 5;;;;")
         # ZoroParser(" fun f of n is if n>1; then b<-f of n-1;;; c<-b*n; else c<-1; endif; returns c; endfun;   print f of 4;;;; ")
         # ZoroParser("sum <- 0;  i <- 0;  while i<1000; do      if     i%3 == 0 or i%5 == 0;    then          sum <- sum + i;      endif;      i <- i + 1; print i; sum; ; endwhile;  print sum;;")
@@ -921,6 +961,11 @@ def test_parse():
         # ZoroParser(" list_name <- [1; 2; 5;] ; for i in list_name do k<-2; endfor; ")
         # ZoroParser("(a<-2;)")
         pass
+    if(1):  # APNE PROGRAMS 2 - EULER 1 3 7
+        # (ZoroParser("sum <- 0; i <- 0; while i<10 do if i%3 == 0 or i%5 == 0 then sum <- sum + i; endif; i <- i + 1; endwhile; print sum;  "))
+        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
+        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
+        pass
 
     """ Invalid Programs """    ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
     if(1):
@@ -931,11 +976,7 @@ def test_parse():
         # (ZoroParser('_a.n'))
         # (ZoroParser(' 59.54 ^ invalid"This is abra kadabra string !  lOl ;) "    Dont%This '))
         pass
-    if(1):  # APNE PROGRAMS 2 - EULER 1 3 7
-        # (ZoroParser("sum <- 0; i <- 0; while i<10 do if i%3 == 0 or i%5 == 0 then sum <- sum + i; endif; i <- i + 1; endwhile; print sum;  "))
-        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
-        # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
-        pass
+    
     print("\n")
 test_parse()
 
