@@ -195,7 +195,21 @@ def dummy():
     a = Sequence(seq=[UpdateOp(operator='<-', left=Variable(name='a'), right=List_(items=[Int(value=1), Int(value=2), Int(value=5), Int(value=4)])), Print(contents=[ListOp(list=Variable(name='a'), operator='at', item=Null(value=None), index=Int(value=2))])]) 
     evalAST(a)
 
+def test_immutable():
 
+    print('immutable variable, starts with an underscore')
+    e1 = AssignOp(operator='<-', left=Variable(name='_a'), right=Int(value=3))
+    e2 = UpdateOp(operator='<-', left=Variable(name='_a'), right=Int(value=4))
+    e3 = Print(contents=[Variable(name='_a')])
+    e = Sequence(seq=[e1, e3, e2, e3])
+    evalAST(e)
+    print()
+    print('mutable variable must not start with an underscore')
+    e1 = AssignOp(operator='<-', left=Variable(name='a'), right=Int(value=3))
+    e2 = UpdateOp(operator='<-', left=Variable(name='a'), right=Int(value=4))
+    e3 = Print(contents=[Variable(name='a')])
+    e = Sequence(seq=[e1, e3, e2, e3])
+    evalAST(e)
 
 def test():
     # test_datatypes() # Works fine, don't touch
@@ -220,6 +234,7 @@ def test():
     # test_range()
     # test_listops()
     # test_printdebug()
+    # test_immutable()
     dummy()
 
 test()
