@@ -1,0 +1,5 @@
+var a <- [1,2,5,4];
+var b <- a.at 2;
+print a.at 2;
+print b;
+

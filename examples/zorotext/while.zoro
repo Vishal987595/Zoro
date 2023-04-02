@@ -1,0 +1,13 @@
+var i <-0;
+var flag <- True;
+
+while i<12 and flag do
+    print i;
+    i <- i + 1;
+    if i>10 then
+        flag <- False;
+    endif;
+endwhile;
+
+
+
