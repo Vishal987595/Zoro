@@ -1,4 +1,4 @@
-var a <- [14,15,16,17,18,19,20] ; 
+var a <- [14,15,16,17,18,19,20]; 
 print a; 
 var b<-a.len; 
 print b; 
@@ -13,6 +13,7 @@ print c;
 var d<-a.count 18; 
 print d; 
 print a; 
-a<-[101,102,101,103,104]; 
-var e<-a.len; 
-print e;
+print a.at 1;
+a.update 96 1;
+print a.at 1;
+print a;
