@@ -132,6 +132,8 @@ class List_:
 @dataclass
 class Sequence:
     seq: List['AST']
+    inloop : bool = False
+
 
 @dataclass
 class For:
@@ -149,6 +151,7 @@ class Range:
 class While:
     cnd: 'AST'
     seq: Sequence
+
 
 @dataclass
 class Let:
@@ -217,7 +220,7 @@ Value = Fraction | bool | int | float | str | None
 ###############################################################################################################################################
 
 
-keywords = " Int Float Frac Bool String    var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor   concat   len push pop insert count ".split()
+keywords = " Int Float Frac Bool String    var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor break  concat   len push pop insert count ".split()
 
 symbolic_operators = "  + - * / // % **    < <= => > == !=    >> <<    ~ & | ^     <- ->  ".split()
 
