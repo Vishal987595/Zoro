@@ -1,0 +1,33 @@
+fun fib of num is
+	var a <- num;
+	if num<=1 then
+		a <- 1;
+	else
+		a <- fib of num-1;;
+		var b <- fib of num-2;;
+		a <- a + b;
+	endif;
+	returns a
+endfun;
+
+fun fib2 of num is
+	var a <- num;
+	if num<=1 then
+		a <- 1;
+	else
+		a <- fib of num-1;;
+		var b <- fib of num-2;;
+		a <- a + b;
+	endif;
+	returns a
+endfun;
+
+
+
+print fib2 of 5;;
+
+
+
+
+
+

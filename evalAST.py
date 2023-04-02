@@ -220,7 +220,22 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             val = None
             for i in seq:
                 val = evalAST_(i)
+                if(type(val) == Returns):
+                    break
             return val
+        
+        case Returns(value):
+            if(type(value) != Int and type(value) != Float and type(value) != Frac and type(value) != Bool and type(value) != String and type(value) != Null and type(value) != List_):
+                value = evalAST_(value)
+                if(isinstance(value, int)):
+                    value = Int(value=value)
+                elif(isinstance(value, float)):
+                    value = Float(value=value)
+                elif(isinstance(value, bool)):
+                    value = Bool(value=value)
+                elif(isinstance(value, str)):
+                    value = String(value=value)    
+            return program
         
         #######################################################################################################################################
 
@@ -310,14 +325,59 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 seq = envlocal.get(name)['seq']
                 ret = envlocal.get(name)['ret']
                 for i in range(len(vars)):
-                    if not envlocal.find(vars[i].name):
-                        envlocal.add(vars[i].name, args[i])
-                    else:
-                        envlocal.update(vars[i].name, args[i])
+                    right = args[i]
+                    if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
+                        right = evalAST_(right)
+                        if(isinstance(right, int)):
+                            right = Int(value=right)
+                        elif(isinstance(right, float)):
+                            right = Float(value=right)
+                        elif(isinstance(right, bool)):
+                            right = Bool(value=right)
+                        elif(isinstance(right, str)):
+                            right = String(value=right)  
+                    # if not envlocal.find(vars[i].name):
+                        
+                    #     envlocal.add(vars[i].name, right)
+                    # else:
+                    #     envlocal.update(vars[i].name, right)
+                    envlocal.add(vars[i].name, right)
                 e = evalAST_(seq)
                 r = evalAST_(ret)
                 envlocal.exit_scope()
                 return r
+        # case FuncCall(name, args):
+        #     name = evalAST_(name)
+        #     if envlocal.find(name):
+        #         envlocal.enter_scope()
+        #         vars = envlocal.get(name)['params']
+        #         seq = envlocal.get(name)['seq']
+        #         ret = envlocal.get(name)['ret']
+        #         for i in range(len(vars)):
+        #             right = args[i]
+        #             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
+        #                 right = evalAST_(right)
+        #                 if(isinstance(right, int)):
+        #                     right = Int(value=right)
+        #                 elif(isinstance(right, float)):
+        #                     right = Float(value=right)
+        #                 elif(isinstance(right, bool)):
+        #                     right = Bool(value=right)
+        #                 elif(isinstance(right, str)):
+        #                     right = String(value=right)  
+        #             # if not envlocal.find(vars[i].name):
+                        
+        #             #     envlocal.add(vars[i].name, right)
+        #             # else:
+        #             #     envlocal.update(vars[i].name, right)
+        #             envlocal.add(vars[i].name, right)
+        #         e = evalAST_(seq)
+        #         r = None
+        #         if type(e) == Returns:
+        #             r = evalAST_(e.value)
+        #         # r = evalAST_(ret)
+        #         envlocal.exit_scope()
+        #         return r
         
         case Function(name):
             return name
@@ -338,7 +398,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                         r = evalAST_(seq[i])
                         envlocal.exit_scope()
                         return r
-                if flag:
+                if flag and (len(seq) != len(con)):
                     r = evalAST_(seq[-1])
                     envlocal.exit_scope()
                     return r
@@ -353,11 +413,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         
         case For(var, iter, seq):
             envlocal.enter_scope()
-            # iter = evalAST_(iter)
-            # if(not envlocal.find(var.name)):
-            #     envlocal.add(var.name, evalAST_(iter[0]))
-            # else:
-            #     envlocal.update(var.name, evalAST_(iter[0]))
             if(not envlocal.find(var.name)):
                 envlocal.add(var.name, iter)
             else:
@@ -366,9 +421,16 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             if type(iter) == Range:
                 iter = evalAST_(iter)
             for item in iter.items:
-                if(type(item) != Int and type(item) != Float and type(item) != Frac and type(item) != Bool and type(item) != String and type(item) != Null):
+                if(type(item) != Int and type(item) != Float and type(item) != Frac and type(item) != Bool and type(item) != String and type(item) != Null and type(item) != List_):
                     item = evalAST_(item)
-                    item = Int(value=item)
+                    if(isinstance(item, int)):
+                        item = Int(value=item)
+                    elif(isinstance(item, float)):
+                        item = Float(value=item)
+                    elif(isinstance(item, bool)):
+                        item = Bool(value=item)
+                    elif(isinstance(item, str)):
+                        item = String(value=item)  
                 envlocal.update(var.name, item)
                 result = evalAST_(seq)
             envlocal.exit_scope()
@@ -409,3 +471,12 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         case other:
             print("writing AST is out of your scope!")
+
+
+
+
+# FuncCall : fib of n-1 #you should also allow fib of (n-1)
+# FuncCall: fib of n-1 + fib of n-2 # you should also allow fib of (n-1) + fib of (n-2)
+# add Returns
+# Optional Pass
+# Comments (single line and multi line)

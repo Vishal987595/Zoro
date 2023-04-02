@@ -1,0 +1,27 @@
+fun odd of num is
+	var r <- True;
+	if num == 1 then
+		r <- True;
+	elif num == 0 then
+		r <- False;
+	else
+		r <- even of num-1;;
+	endif;
+	returns r
+endfun;
+
+fun even of num is
+	var r <- True;
+	if num == 0 then
+		r <- True;
+	elif num == 1 then
+		r <- False;
+	else
+		r <- odd of num-1;;
+	endif;
+	returns r
+endfun;
+
+print even of 98;;
+
+

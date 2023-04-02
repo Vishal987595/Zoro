@@ -93,7 +93,7 @@ keywords = " Int Float Frac Bool String    var    if then elif else endif    pri
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
-whitespace = " \t \n".split() + [' ']
+whitespace = ["\t","\n"," "]
 
 
 

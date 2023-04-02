@@ -175,6 +175,12 @@ class FuncDec:
     body: Sequence
     returns: 'AST'
 
+# @dataclass
+# class FuncDec:
+#     name: str
+#     params: List[Variable]
+#     body: Sequence
+
 @dataclass
 class FuncCall:
     name: str
@@ -201,7 +207,11 @@ class Keyword:
 
 
 
+####### MAGIC ########
 
+@dataclass
+class Returns:
+    value: 'AST'
 
 
 
@@ -209,7 +219,7 @@ class Keyword:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Variable | Let | If | While | For | Range | List_ | Sequence    | Print | FuncDec | FuncCall    |       Identifier | Keyword
+AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Variable | Let | If | While | For | Range | List_ | Sequence    | Print | FuncDec | FuncCall    |       Identifier | Keyword    |    Returns
 
 Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
 
