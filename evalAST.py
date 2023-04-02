@@ -161,9 +161,14 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     right = Bool(value=right)
                 elif(isinstance(right, str)):
                     right = String(value=right)   
-
-            envlocal.update(left.name, right)
-            return envlocal.get(left.name)
+            if left.name[0] != '_':
+                envlocal.update(left.name, right)
+                return envlocal.get(left.name)
+            else:
+                #Raise error here
+                # print(f"Patthar ki lakeer hai \"{left.name}\", Janaab, badlegi nahi")
+                print(f"\"{left.name[1:]}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
+                # return envlocal.get(left.name)
         case UpdateOp("->",left, right):
             if(type(left) != Int and type(left) != Float and type(left) != Frac and type(left) != Bool and type(left) != String and type(left) != Null and type(left) != List_):
                 left = evalAST_(left)
@@ -175,8 +180,13 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     left = Bool(value=left)
                 elif(isinstance(left, str)):
                     left = String(value=left)
-            envlocal.update(right.name, left)
-            return envlocal.get(right.name)
+            if right.name[0] != '_':
+                envlocal.update(right.name, left)
+                return envlocal.get(right.name)
+            else:
+                # raise error here
+                print(f"\"{right.name[1:]}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
+                # return envlocal.get(right.name)
         
 
 

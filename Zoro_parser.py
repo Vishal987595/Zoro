@@ -455,17 +455,17 @@ class ZoroParser:
     def parse_Base(self):
         return self.parse_assis_upds(); 
     
-    def parse_Expr(self, real_expr_flag = True):
+    def parse_Expr(self, real_expr_flag = True, inloop=False):
         # print("-> Inside PARSE_EXPR")
         match self.next_token():
             case Keyword("fun"): return self.parse_fun_def(); 
-            case Keyword("if"): return self.parse_if(); 
+            case Keyword("if"): return self.parse_if(inloop=inloop); 
             case Keyword("for"): return self.parse_for(); 
             case Keyword("while"): return self.parse_while(); 
             case Keyword("print"): return self.parse_print(); 
             case Keyword("range"): return self.parse_range(); 
             case (Symbol("[")): return self.parse_list(); 
-            case (Symbol("(")): return self.parse_bracket(); 
+            case (Symbol("(")): return self.parse_bracket();
             case (Symbol(")")): return None; 
             case _:
                 expr_only = self.parse_Base(); self.debug_print(); 
@@ -717,7 +717,7 @@ class ZoroParser:
 
         return FuncDec(fn_name, params, Sequence(body), returnable)
 
-    def parse_if(self):
+    def parse_if(self, inloop=False):
         conds=[]
         bodies=[]
         
@@ -739,10 +739,14 @@ class ZoroParser:
                     break
                 case Keyword("endif"):
                     break
+                case Keyword('break'):
+                    curr_seq.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
                     expr = self.parse_Expr()
                     curr_seq.append(expr)
-        bodies.append(Sequence(curr_seq))
+        bodies.append(Sequence(curr_seq, inloop=inloop))
         
         if(self.next_token()==Keyword("elif")):
             while True:
@@ -774,10 +778,14 @@ class ZoroParser:
                                     break
                                 case Keyword("else"):
                                     break
+                                case Keyword('break'):
+                                    curr_seq.append(Keyword('break'))
+                                    self.consume_token(Keyword('break'))
+                                    self.consume_token(Symbol(';'))
                                 case _:
                                     expr = self.parse_Expr()
                                     curr_seq.append(expr)
-                        bodies.append(Sequence(curr_seq))
+                        bodies.append(Sequence(curr_seq, inloop=inloop))
         
         if(self.next_token()==Keyword("else")):
             self.consume_token(Keyword("else"))
@@ -791,10 +799,14 @@ class ZoroParser:
                         return None
                     case Keyword("endif"):
                         break
+                    case Keyword('break'):
+                        curr_seq.append(Keyword('break'))
+                        self.consume_token(Keyword('break'))
+                        self.consume_token(Symbol(';'))
                     case _:
                         expr = self.parse_Expr()
                         curr_seq.append(expr)
-            bodies.append(Sequence(curr_seq))
+            bodies.append(Sequence(curr_seq, inloop=inloop))
 
         self.consume_token(Keyword("endif"))
         self.consume_token(Symbol(";"))
@@ -804,7 +816,7 @@ class ZoroParser:
         body = []
 
         self.consume_token(Keyword("while"))
-        cond = self.parse_Expr(real_expr_flag=False)
+        cond = self.parse_Expr(real_expr_flag=False, inloop=True)
         self.consume_token(Keyword("do"))
 
         while True:
@@ -815,13 +827,17 @@ class ZoroParser:
                     return None
                 case Keyword("endwhile"):
                     break
+                case Keyword('break'):
+                    body.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
-                    expr = self.parse_Expr()
+                    expr = self.parse_Expr(inloop=True)
                     body.append(expr)
 
         self.consume_token(Keyword("endwhile"))
         self.consume_token(Symbol(";"))
-        return While(cond,Sequence(body))
+        return While(cond,Sequence(body, inloop=True))
 
     def parse_for(self):    # Only uni var iterates are allowed
         body = []
@@ -845,13 +861,17 @@ class ZoroParser:
                     return None
                 case Keyword("endfor"):
                     break
+                case Keyword('break'):
+                    body.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
-                    expr = self.parse_Expr()
+                    expr = self.parse_Expr(inloop=True)
                     body.append(expr)
 
         self.consume_token(Keyword("endfor"))
         self.consume_token(Symbol(";"))
-        return For(var,iterable,Sequence(body))
+        return For(var,iterable,Sequence(body, inloop=True))
 
     def debug_print(self): print(f"(Pos , Next_Token)     =     ({self.pos} , {self.next_token()})")
 
@@ -901,7 +921,9 @@ def test_parse():
     if(1):      # while & for - loops statements
         # (ZoroParser("while c>=0 do a<-2; b<-5; endwhile ;"))
         # (ZoroParser("for i in list_name do k<-2; a<-a+1; endfor ;"))
-        # (ZoroParser("for i in [ 2 , 6 , alpha ] do k<-2;a<-a+1; endfor ;"))      ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        # (ZoroParser("for i in [ 2 , 6 , alpha ] do k<-2;a<-a+1; endfor ;"))      
+        # (ZoroParser("while a > 0 do if a>5 then break; else a <- a+1; endif; endwhile;")) ##Uncomment this line to see the AST
+        # ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
         pass
     if(1):      # fun_def statement
         # (ZoroParser("fun myfun is a<-2; endfun ;"))
