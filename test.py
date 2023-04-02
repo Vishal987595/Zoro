@@ -192,8 +192,7 @@ def test_printdebug():
     evalAST( Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=Int(value=2)), Print(contents=[Variable(name='a')])]))
 
 def dummy():
-    a = Sequence(seq=[UpdateOp(operator='<-', left=Variable(name='a'), right=List_(items=[Int(value=1), Int(value=2), Int(value=5), Int(value=4)])), Print(contents=[ListOp(list=Variable(name='a'), operator='at', item=Null(value=None), index=Int(value=2))])]) 
-    evalAST(a)
+    a = Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"global a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"global b"')), AssignOp(operator='<-', left=Variable(name='c'), right=String(value='"global c"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"outer a"')), AssignOp(operator='<-', left=Variable(name='b'), right=String(value='"outer b"')), If(con=[Bool(value=True)], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='a'), right=String(value='"inner a"')), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])]), Print(contents=[Variable(name='a')]), Print(contents=[Variable(name='b')]), Print(contents=[Variable(name='c')])])
 
 
 
@@ -218,8 +217,8 @@ def test():
     # test_euler1_multiple_3or5()
     # test_euler3_Lagest_Prime_factor()
     # test_range()
-    # test_listops()
+    test_listops()
     # test_printdebug()
-    dummy()
+    # dummy()
 
 test()

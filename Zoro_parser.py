@@ -566,19 +566,9 @@ class ZoroParser:
                 if(type(index) != Int):
                     raise Inappropriate_Type_of_Token
                 return "insert", item, index
-            case Keyword("update"):
-                self.consume_token(Keyword("update"))
-                item = self.parse_Expr(real_expr_flag=False)
-                index = self.parse_Expr(real_expr_flag=False)
-                if(type(index) != Int):
-                    raise Inappropriate_Type_of_Token
-                return "update", item, index
             case Keyword("index"):
                 self.consume_token(Keyword("index"))
                 return "index", self.parse_Expr(real_expr_flag=False), Null(None)
-            case Keyword("at"):
-                self.consume_token(Keyword("at"))
-                return "at", Null(None), self.parse_Expr(real_expr_flag=False)
             case Keyword("count"):
                 self.consume_token(Keyword("count"))
                 return "count", self.parse_Expr(real_expr_flag=False), Null(None)
@@ -886,7 +876,6 @@ def test_parse():
         # ZoroParser('a.insert "MY_STR" 0 ;')
         # ZoroParser("a.index 5 ;")
         # ZoroParser("a.count 5 ;")
-        # ZoroParser("a.at 3;")
         # ZoroParser('var a <- [14,15,16,17,18,19,20] ; print a; var b<-a.len; print b; a.push 6 ; print a; a.pop 0 ;print a; a.insert 7 3 ;print a; var c<-a.index 5 ; print c; var d<-a.count 5 ; print d; print a; a<-[101,102,101,103,104]; var e<-a.len; print e; ')
         pass
     if(1):
