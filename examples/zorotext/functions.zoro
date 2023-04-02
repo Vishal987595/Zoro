@@ -1,0 +1,31 @@
+fun greet of name is
+    returns "hello" + name
+endfun;
+
+fun series of num is
+    while num >= 0 do
+        print num;
+        num <- num - 1;
+    endwhile;
+endfun;
+
+fun series2 of num1, num2 is
+    while num1 <= num2 do
+        print num1;
+        num1 <- num1 + 1;;
+    endwhile;
+endfun;
+
+series of 10;;
+
+series2 of 5, 10;;
+
+var s <- greet of " Rishi";;
+
+print s;
+
+
+
+
+
+
