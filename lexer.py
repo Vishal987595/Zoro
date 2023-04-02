@@ -33,14 +33,14 @@ class Stream:
 @dataclass
 class Int:
     value: int
-    def __init__(self, *args) -> None:
-        self.value = int(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = int(value)
 
 @dataclass
 class Float:
     value: float
-    def __init__(self, *args) -> None:
-        self.value = float(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = float(value)
 
 @dataclass
 class Frac:
@@ -51,14 +51,14 @@ class Frac:
 @dataclass
 class String:
     value: str
-    def __init__(self, *args) -> None:
-        self.value = str(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = str(value)
 
 @dataclass
 class Bool:
     value: bool
-    def __init__(self, *args) -> None:
-        self.value = bool(*args)
+    def __init__(self, value, *args) -> None:
+        self.value = bool(value)
 
 
 @dataclass
@@ -213,7 +213,7 @@ class Lexer:
                         s = s+c
                         c = self.stream.next_char()
                     s = s+c
-                    return String(s)
+                    return String(s[1:-1])
                 case c if c in whitespace:
                     return self.next_token()
                 case c if c=='#':
