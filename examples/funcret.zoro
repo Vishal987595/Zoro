@@ -1,0 +1,20 @@
+
+fun fib of num is
+	if num<=1 then
+		returns 1
+	else
+		a <- fib of num-1;;
+		var b <- fib of num-2;;
+		a <- a + b;
+	endif;
+	returns a
+endfun;
+
+
+
+print fib of 5;;
+
+
+
+
+

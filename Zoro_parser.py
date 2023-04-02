@@ -96,9 +96,11 @@ class ZoroParser:
             return self.Token_Seq[self.pos-1]
         # Peeking at the beginning should return the first token
     def consume_token(self,expected_token):     # Consumes the next_token if it is the expected one
-        if(self.next_token()==expected_token): 
+        current_token = self.next_token()
+        if(current_token==expected_token): 
             return self.advance()
         else: 
+            print("Expected : ",expected_token," but got : ", current_token)
             raise UnExpected_Token
     
 
@@ -476,7 +478,8 @@ class ZoroParser:
     def parse_Program(self):    # Program refers to the sequence of instuctions, must followed by an EOF token! 
         final_instrs=[]; self.brkt_stk_obj = Brkt_Stk_Cls(); 
         while(self.next_token()!=EOF): 
-            final_instrs.append(self.parse_Expr()); #print("\n\n",Sequence(final_instrs),"\n\n")
+            final_instrs.append(self.parse_Expr()); 
+            print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
         return Sequence(final_instrs)
 
@@ -710,12 +713,70 @@ class ZoroParser:
                 returnable = None 
             else:
                 returnable = self.parse_Expr(real_expr_flag=False)
-            self.consume_token(Symbol(";"))
         
         self.consume_token(Keyword("endfun"))
         self.consume_token(Symbol(";"))
 
         return FuncDec(fn_name, params, Sequence(body), returnable)
+
+        # def parse_fun_def(self):
+    #     params = []
+    #     body = []
+    #     # returnable = Null(None)
+
+    #     self.consume_token(Keyword("fun"))
+    #     fn_name = self.parse_name(name_flag=1)
+
+    #     if(self.next_token()==Keyword("of")):
+    #         self.consume_token(Keyword("of"))
+            
+    #         if(self.next_token()==Keyword("is")): 
+    #             raise Expected_ParamsArgs_After_OF
+    #         else:
+    #             param = self.parse_name(name_flag=0)
+    #             params.append(param)
+    #             while True:
+    #                 match self.next_token():
+    #                     case (Symbol("(")):
+    #                         return self.parse_bracket()
+    #                     case (Symbol(")")):
+    #                         return None
+    #                     case Keyword("is"):
+    #                         break
+    #                     case _:
+    #                         if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
+    #                         param = self.parse_name(name_flag=0)
+    #                         params.append(param)
+        
+    #     self.consume_token(Keyword("is"))
+
+    #     while True:
+    #         match self.next_token():
+    #             case (Symbol("(")):
+    #                 return self.parse_bracket()
+    #             case (Symbol(")")):
+    #                 return None
+    #             # case Keyword("returns"):
+    #             #     break
+    #             case Keyword("endfun"):
+    #                 break
+    #             case _:
+    #                 expr = self.parse_Expr()
+    #                 body.append(expr)
+ 
+    #     if(self.next_token()==Keyword("returns")):
+    #         self.consume_token(Keyword("returns"))
+            
+    #         if self.next_token()==Keyword("endfun"):
+    #             returnable = None 
+    #         else:
+    #             returnable = self.parse_Expr(real_expr_flag=False)
+    #         # self.consume_token(Symbol(";"))
+        
+    #     self.consume_token(Keyword("endfun"))
+    #     self.consume_token(Symbol(";"))
+
+    #     return FuncDec(fn_name, params, Sequence(body), returnable)
 
     def parse_if(self, inloop=False):
         conds=[]
