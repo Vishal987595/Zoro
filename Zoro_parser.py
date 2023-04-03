@@ -100,7 +100,7 @@ class ZoroParser:
         if(current_token==expected_token): 
             return self.advance()
         else: 
-            print("Expected : ",expected_token," but got : ", current_token)
+            print(f"Expected : {expected_token}   , but got : {current_token}  //")
             raise UnExpected_Token
     
 
@@ -180,8 +180,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("**"):
                     self.advance()
                     right = self.parse_power()
@@ -193,8 +191,6 @@ class ZoroParser:
         match self.next_token():
             case (Symbol("(")):
                 return self.parse_bracket()
-            case (Symbol(")")):
-                return None
             case Operator(op) if op in ("- ~ not".split()):
                 self.advance()
                 right = self.parse_neg_bnot_lnot()
@@ -209,8 +205,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator(op) if op in (" * / // % ".split()):
                     self.advance()
                     right = self.parse_neg_bnot_lnot()
@@ -224,8 +218,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator(op) if op in (" + - ".split()):
                     self.advance()
                     right = self.parse_mul()
@@ -239,8 +231,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator(op) if op in (" >> << ".split()):
                     self.advance()
                     right = self.parse_add()
@@ -254,8 +244,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("&"):
                     self.advance()
                     right = self.parse_shift()
@@ -269,8 +257,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("^"):
                     self.advance()
                     right = self.parse_band()
@@ -284,8 +270,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("|"):
                     self.advance()
                     right = self.parse_bxor()
@@ -299,8 +283,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator(op) if op in (" < > <= >= == != ".split()):
                     self.advance()
                     right = self.parse_bor()
@@ -314,8 +296,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("nand"):
                     self.advance()
                     right = self.parse_cmp()
@@ -329,8 +309,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("and"):
                     self.advance()
                     right = self.parse_lnand()
@@ -344,8 +322,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("xnor"):
                     self.advance()
                     right = self.parse_land()
@@ -359,8 +335,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("xor"):
                     self.advance()
                     right = self.parse_lxnor()
@@ -374,8 +348,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Operator("nor"):
                     self.advance()
                     right = self.parse_lxor()
@@ -387,8 +359,6 @@ class ZoroParser:
         match self.next_token():
             case (Symbol("(")):
                 return self.parse_bracket()
-            case (Symbol(")")):
-                return None
             case (Symbol("[")):
                 right = self.parse_list()
                 return right
@@ -398,8 +368,6 @@ class ZoroParser:
                     match self.next_token():
                         case (Symbol("(")):
                             return self.parse_bracket()
-                        case (Symbol(")")):
-                            return None
                         case Operator("or"):
                             self.advance()
                             right = self.parse_lnor()
@@ -457,7 +425,7 @@ class ZoroParser:
     def parse_Base(self):
         return self.parse_assis_upds(); 
     
-    def parse_Expr(self, real_expr_flag = True, inloop=False):
+    def parse_Expr(self, real_expr_flag=True, inloop=False):
         # print("-> Inside PARSE_EXPR")
         match self.next_token():
             case Keyword("fun"): return self.parse_fun_def(); 
@@ -467,19 +435,17 @@ class ZoroParser:
             case Keyword("print"): return self.parse_print(); 
             case Keyword("range"): return self.parse_range(); 
             case (Symbol("[")): return self.parse_list(); 
-            case (Symbol("(")): return self.parse_bracket();
+            case (Symbol("(")): return self.parse_bracket(); 
             case (Symbol(")")): return None; 
             case _:
                 expr_only = self.parse_Base(); self.debug_print(); 
-                if real_expr_flag ==True:
+                if(real_expr_flag==True):
                     self.consume_token(Symbol(";")); 
                 return expr_only
 
     def parse_Program(self):    # Program refers to the sequence of instuctions, must followed by an EOF token! 
         final_instrs=[]; self.brkt_stk_obj = Brkt_Stk_Cls(); 
-        while(self.next_token()!=EOF): 
-            final_instrs.append(self.parse_Expr()); 
-            print("\n\n",Sequence(final_instrs),"\n\n")
+        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
         return Sequence(final_instrs)
 
@@ -488,11 +454,11 @@ class ZoroParser:
     #############################################################################################################################
 
     def parse_bracket(self):
-        print("--> Inside parse_bracket"); self.debug_print(); 
+        #print("--> Inside parse_bracket"); self.debug_print(); 
         match self.next_token():
             case Symbol("("):
                 sub_seq=[]
-                self.consume_token(Symbol("(")); self.brkt_stk_obj.push(Symbol("(")); print("Consumed OPENING BRACKET"); 
+                self.consume_token(Symbol("(")); self.brkt_stk_obj.push(Symbol("(")); #print("Consumed OPENING BRACKET"); 
                 expr = self.parse_Expr(real_expr_flag=False); sub_seq.append(expr); 
                 while(True):
                     match self.next_token():
@@ -503,7 +469,7 @@ class ZoroParser:
                             expr = self.parse_Expr(real_expr_flag=False); sub_seq.append(expr); 
                         case _ :
                             print("INSIDE WHILE INVALID CASE")
-                self.consume_token(Symbol(")")); self.brkt_stk_obj.pop(Symbol(")")); print("Consumed CLOSING BRACKET"); print("sub_seq",sub_seq); 
+                self.consume_token(Symbol(")")); self.brkt_stk_obj.pop(Symbol(")")); #print("Consumed CLOSING BRACKET"); print("sub_seq",sub_seq); 
 
                 if(len(sub_seq)==1): 
                     return sub_seq[0]; 
@@ -531,8 +497,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Symbol("]"):
                     break
                 case _:
@@ -624,8 +588,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case (Symbol(";")):
                     break
                 case _:
@@ -649,8 +611,6 @@ class ZoroParser:
                 match self.next_token():
                     case (Symbol("(")):
                         return self.parse_bracket()
-                    case (Symbol(")")):
-                        return None
                     case (Symbol(";")):
                         break
                     case _:
@@ -681,8 +641,6 @@ class ZoroParser:
                     match self.next_token():
                         case (Symbol("(")):
                             return self.parse_bracket()
-                        case (Symbol(")")):
-                            return None
                         case Keyword("is"):
                             break
                         case _:
@@ -696,8 +654,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Keyword("returns"):
                     break
                 case Keyword("endfun"):
@@ -708,75 +664,15 @@ class ZoroParser:
  
         if(self.next_token()==Keyword("returns")):
             self.consume_token(Keyword("returns"))
-            
-            if self.next_token()==Keyword("endfun"):
-                returnable = None 
-            else:
+
+            if(self.next_token()!=Symbol(";")):
                 returnable = self.parse_Expr(real_expr_flag=False)
+            self.consume_token(Symbol(";"))
         
         self.consume_token(Keyword("endfun"))
         self.consume_token(Symbol(";"))
 
         return FuncDec(fn_name, params, Sequence(body), returnable)
-
-        # def parse_fun_def(self):
-    #     params = []
-    #     body = []
-    #     # returnable = Null(None)
-
-    #     self.consume_token(Keyword("fun"))
-    #     fn_name = self.parse_name(name_flag=1)
-
-    #     if(self.next_token()==Keyword("of")):
-    #         self.consume_token(Keyword("of"))
-            
-    #         if(self.next_token()==Keyword("is")): 
-    #             raise Expected_ParamsArgs_After_OF
-    #         else:
-    #             param = self.parse_name(name_flag=0)
-    #             params.append(param)
-    #             while True:
-    #                 match self.next_token():
-    #                     case (Symbol("(")):
-    #                         return self.parse_bracket()
-    #                     case (Symbol(")")):
-    #                         return None
-    #                     case Keyword("is"):
-    #                         break
-    #                     case _:
-    #                         if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
-    #                         param = self.parse_name(name_flag=0)
-    #                         params.append(param)
-        
-    #     self.consume_token(Keyword("is"))
-
-    #     while True:
-    #         match self.next_token():
-    #             case (Symbol("(")):
-    #                 return self.parse_bracket()
-    #             case (Symbol(")")):
-    #                 return None
-    #             # case Keyword("returns"):
-    #             #     break
-    #             case Keyword("endfun"):
-    #                 break
-    #             case _:
-    #                 expr = self.parse_Expr()
-    #                 body.append(expr)
- 
-    #     if(self.next_token()==Keyword("returns")):
-    #         self.consume_token(Keyword("returns"))
-            
-    #         if self.next_token()==Keyword("endfun"):
-    #             returnable = None 
-    #         else:
-    #             returnable = self.parse_Expr(real_expr_flag=False)
-    #         # self.consume_token(Symbol(";"))
-        
-    #     self.consume_token(Keyword("endfun"))
-    #     self.consume_token(Symbol(";"))
-
-    #     return FuncDec(fn_name, params, Sequence(body), returnable)
 
     def parse_if(self, inloop=False):
         conds=[]
@@ -792,8 +688,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Keyword("elif"):
                     break
                 case Keyword("else"):
@@ -814,8 +708,6 @@ class ZoroParser:
                 match self.next_token():
                     case (Symbol("(")):
                         return self.parse_bracket()
-                    case (Symbol(")")):
-                        return None
                     case Keyword("endif"): 
                         break
                     case Keyword("else"): 
@@ -831,8 +723,6 @@ class ZoroParser:
                             match self.next_token():
                                 case (Symbol("(")):
                                     return self.parse_bracket()
-                                case (Symbol(")")):
-                                    return None
                                 case Keyword("endif"): 
                                     break
                                 case Keyword("elif"):
@@ -856,8 +746,6 @@ class ZoroParser:
                 match self.next_token():
                     case (Symbol("(")):
                         return self.parse_bracket()
-                    case (Symbol(")")):
-                        return None
                     case Keyword("endif"):
                         break
                     case Keyword('break'):
@@ -884,8 +772,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Keyword("endwhile"):
                     break
                 case Keyword('break'):
@@ -918,8 +804,6 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
-                case (Symbol(")")):
-                    return None
                 case Keyword("endfor"):
                     break
                 case Keyword('break'):
@@ -976,7 +860,7 @@ def test_parse():
         # (ZoroParser("if c>0 then b<-2; else c->d; endif ;"))
         # (ZoroParser("if c>0 then b<-2; elif k<k then l>5; endif ;"))
         # (ZoroParser("if c>0 then b<-2; elif k<k then l>l; elif pl^u then I_5; endif ;"))
-        # (ZoroParser("if c>0 then b<-2;  elif    m % n >= k ^ l    then pika; else c->d; endif ;"))
+        # (ZoroParser("if c>0 then b<-2; elif k<k then pka; else c->d; endif ;"))
         # (ZoroParser("if c>0 then b<-2; elif k<k then l>l; elif pl^u then I_5; else c->d; endif ;"))
         pass
     if(1):      # while & for - loops statements
@@ -988,9 +872,13 @@ def test_parse():
         pass
     if(1):      # fun_def statement
         # (ZoroParser("fun myfun is a<-2; endfun ;"))
-        # (ZoroParser("fun myfun is a<-2; returns b; endfun ;"))
+        # (ZoroParser("fun myfun is returns; endfun ;"))
+        # (ZoroParser("fun myfun is returns 3; endfun ;"))
+        # (ZoroParser("fun myfun is a<-2; returns ; endfun ;"))
+        # (ZoroParser("fun myfun is a<-2; returns 3; endfun ;"))
         # (ZoroParser("fun myfun of a,b is a<-2; endfun ;"))
-        # (ZoroParser("fun myfun of a,b is a<-2; returns b; endfun ;"))
+        # (ZoroParser("fun myfun of a,b is a<-2; returns ; endfun ;"))
+        # (ZoroParser("fun myfun of a,b is a<-2; returns 3; endfun ;"))
         pass
     if(1):      # fun_call statement
         # (ZoroParser("myfun of a1,a2,a3 ;"))
@@ -1027,7 +915,9 @@ def test_parse():
         # (ZoroParser(' "My_str" . count _ ; '))
         # (ZoroParser(' "My_str" . count m ; '))
         pass
-
+    if(1):      # BREAK statement := TO BE ADDED LATER
+        pass
+    
     if(1):  # APNE PROGRAMS : Old Version
         # ZoroParser("fun fib of n is  a <- 0;  if n > 1;   then n1 <- n - 1;  b <- fib of n1;;;  n2 <- n - 2;  c <- fib of n2;;;  a <- b + c;  else a <- n;  endif;  returns a;  endfun;  print fib of 5;;;;")
         # ZoroParser(" fun f of n is if n>1; then b<-f of n-1;;; c<-b*n; else c<-1; endif; returns c; endfun;   print f of 4;;;; ")
