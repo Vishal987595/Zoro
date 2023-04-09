@@ -53,6 +53,7 @@ class Put:
     var: 'AST'
     e1: 'AST'
 
+
 ################################################################## Operators ##################################################################
 
 @dataclass
@@ -85,14 +86,14 @@ class CndOp:
 @dataclass
 class BitOp:
     operator: str
-    right: 'AST'
     left: 'AST'
+    right: 'AST'
 
 @dataclass
 class LogOp:
     operator: str
-    right: 'AST'
     left: 'AST'
+    right: 'AST'
 
 @dataclass
 class AssignOp:
@@ -111,15 +112,21 @@ class StringOp:
     operator: str
     args: List['AST']
 
+
 ############################################################# Identifier Classes #############################################################
+
+@dataclass
+class Identifier:
+    word: str
+
+@dataclass
+class Keyword:
+    word: str
 
 @dataclass
 class Variable:
     name: str
 
-@dataclass
-class Function:
-    name: str
 
 ############################################################ Data Structures #############################################################
 
@@ -127,13 +134,35 @@ class Function:
 class List_:
     items:  List['AST']
 
-############################################################ Keywords Constructs #############################################################
+@dataclass
+class ListOp:
+    list: List_ | Variable
+    operator: str
+    item: 'AST' 
+    index: 'AST'
+
+
+############################################################ Keyword Statements #############################################################
+
+@dataclass
+class Print:
+    contents: List['AST']
 
 @dataclass
 class Sequence:
     seq: List['AST']
     inloop : bool = False
 
+
+@dataclass
+class If:
+    con: List['AST']
+    seq: List[Sequence]
+
+@dataclass
+class While:
+    cnd: 'AST'
+    seq: Sequence
 
 @dataclass
 class For:
@@ -147,67 +176,21 @@ class Range:
     num2: Int
     jmp: Int | Null
 
-@dataclass
-class While:
-    cnd: 'AST'
-    seq: Sequence
-
-
-@dataclass
-class Let:
-    var: 'AST'
-    e1: 'AST'
-    e2: 'AST'
-
-@dataclass
-class If:
-    con: List['AST']
-    seq: List[Sequence]
-        
-@dataclass
-class Print:
-    contents: List['AST']
 
 @dataclass
 class FuncDec:
     name: str
     params: List[Variable]
     body: Sequence
-    returns: 'AST'
-
-# @dataclass
-# class FuncDec:
-#     name: str
-#     params: List[Variable]
-#     body: Sequence
 
 @dataclass
 class FuncCall:
     name: str
     args: List['AST'] 
 
-############################################################ Data Structures Operators #############################################################
-
 @dataclass
-class ListOp:
-    list: List_ | Variable
-    operator: str
-    item: 'AST' 
-    index: 'AST'
-
-########################################################### Identifier Constructs ############################################################
-
-@dataclass
-class Identifier:
-    word: str
-
-@dataclass
-class Keyword:
-    word: str
-
-
-
-####### MAGIC ########
+class Function:
+    name: str
 
 @dataclass
 class Returns:
@@ -219,9 +202,9 @@ class Returns:
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Variable | Let | If | While | For | Range | List_ | Sequence    | Print | FuncDec | FuncCall    |       Identifier | Keyword    |    Returns
+AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Returns | FuncDec | FuncCall | If | While | For | List_ | Range | Print | Sequence    |    Variable | Identifier | Keyword
 
-Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     Let | If     | Print
+Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     If | Print
 
 
 Value = Fraction | bool | int | float | str | None 
