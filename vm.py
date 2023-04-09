@@ -47,8 +47,113 @@ class VM:
                     self.ip = to.label
                 case Operator(op):
                     match op:
-                      # REMOVE THE PASS STATEMENT AND ADD YOUR CASES HERE
-                      pass
+                        case '+':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left+right)
+                            self.ip += 1
+                        case '-':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left-right)
+                            self.ip += 1
+                        case '*':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left*right)
+                            self.ip += 1
+                        case '/':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left/right)
+                            self.ip += 1
+                        case '//':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left//right)
+                            self.ip += 1
+                        case '**':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left**right)
+                            self.ip += 1
+                        case '%':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left%right)
+                            self.ip += 1
+                        
+                        case '>':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left>right)
+                            self.ip += 1
+                        case '<':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left<right)
+                            self.ip += 1
+                        case '>=':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left>=right)
+                            self.ip += 1
+                        case '<=':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left<=right)
+                            self.ip += 1
+                        case '==':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left==right)
+                            self.ip += 1
+                        case '!=':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left!=right)
+                            self.ip += 1
+                        
+                        case 'not':
+                            right = self.data.pop()
+                            self.data.append(not right)
+                            self.ip += 1
+                        case '-':
+                            right = self.data.pop()
+                            self.data.append(-right)
+                            self.ip += 1
+                        case '~':
+                            right = self.data.pop()
+                            self.data.append(~right)
+                            self.ip += 1
+                        
+                        case '&':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left&right)
+                            self.ip += 1
+                        case '|':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left|right)
+                            self.ip += 1
+                        case '^':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left^right)
+                            self.ip += 1
+                        case '<<':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left<<right)
+                            self.ip += 1
+                        case '>>':
+                            right = self.data.pop()
+                            left = self.data.pop()
+                            self.data.append(left>>right)
+                            self.ip += 1
+            
+
                 case HALT():
                     return self.data.pop()
                   

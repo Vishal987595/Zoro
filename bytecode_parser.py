@@ -68,6 +68,93 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
 
     def parse_(ast):
         parseAST_(ast, code)
+
+    match ast:
+
+        case MathOp("+", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('+'))
+        case MathOp("-", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('-'))
+        case MathOp("*", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('*'))
+        case MathOp("/", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('/'))
+        case MathOp("//", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('//'))
+        case MathOp("**", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('**'))
+        case MathOp("%", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('%'))
+
+        case CndOp(">", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('>'))
+        case CndOp("<", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('<'))
+        case CndOp(">=", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('>='))
+        case CndOp("<=", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('<='))
+        case CndOp("==", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('=='))
+        case CndOp("!=", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('!='))
+
+        case UnOp("-", right):
+            parse_(right)
+            code.emit(Operator('u-'))
+        case UnOp("~", right):
+            parse_(right)
+            code.emit(Operator('u~'))
+        case UnOp("not", right):
+            parse_(right)
+            code.emit(Operator('not'))
+
+        case BitOp("&", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('&'))
+        case BitOp("|", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('|'))
+        case BitOp("^", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('^'))
+        case BitOp("<<", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('<<'))
+        case BitOp(">>", left, right):
+            parse_(left)
+            parse_(right)
+            code.emit(Operator('>>'))
         
 def pprint(l):
     c = 0
