@@ -183,6 +183,12 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
         case LogOp("xnor", left, right):
             parse_(LogOp("xor", left, right))
             code.emit(Operator('not'))
+        case Sequence(seq):
+            for s in seq:
+                parse_(s)
+                code.emit(POP())
+            code.instructions.pop()
+
         case If(con, seq):
             endlab = LABEL()
             l = len(con)
@@ -196,6 +202,20 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
             if len(seq) > l:
                 parse_(seq[l])
             code.emit_label(endlab)
+
+        case While(cnd, seq):
+            looplab = LABEL()
+            endlab = LABEL()
+            parse_(cnd)
+            code.emit(JMP_IF_FALSE(endlab))
+            code.emit_label(looplab)
+            parse_(seq)
+            parse_(cnd)
+            code.emit(JMP_IF_FALSE(endlab))
+            code.emit(POP())
+            code.emit(JMP(looplab))
+            code.emit_label(endlab)
+
         
 def pprint(l):
     c = 0
