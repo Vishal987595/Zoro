@@ -10,9 +10,9 @@ if len(sys.argv) != 2:
 
 file_path = sys.argv[1]
 with open(file_path, 'r') as file:
-    file_contents = file.read().replace('\n', ' ')
+    file_contents = file.read()
 
-ans_to_parser = print_tokens(file_contents)
+ans_to_parser,line_numbers = print_tokens(file_contents)
 
 ans_to_eval = ZoroParser(file_contents).Parsed_AST
 
