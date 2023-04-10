@@ -127,6 +127,12 @@ class Keyword:
 class Variable:
     name: str
 
+@dataclass
+class Let:
+    var: 'AST'
+    e1: 'AST'
+    e2: 'AST'
+
 
 ############################################################ Data Structures #############################################################
 
