@@ -5,10 +5,8 @@ from typing import List
 
 # A minimal example to illustrate typechecking.
 
-class EndOfStream(Exception): pass
-class EndOfTokens(Exception): pass
-class TokenError(Exception): pass
-
+class EndOfStream(Exception):
+    pass
 
 @dataclass
 class Stream:
@@ -28,38 +26,25 @@ class Stream:
         assert self.pos > 0
         self.pos = self.pos - 1
 
+# Define the token types.
 
-# Token Classes
 @dataclass
 class Int:
     value: int
-    def __init__(self, value, *args) -> None:
-        self.value = int(value)
-
-@dataclass
-class Float:
-    value: float
-    def __init__(self, value, *args) -> None:
-        self.value = float(value)
-
-@dataclass
-class Frac:
-    value: Fraction
-    def __init__(self, value, *args) -> None:
-        self.value = Fraction(value)
+    def __init__(self, *args) -> None:
+        self.value = int(*args)
 
 @dataclass
 class String:
     value: str
-    def __init__(self, value, *args) -> None:
-        self.value = str(value)
+    def __init__(self, *args) -> None:
+        self.value = str(*args)
 
 @dataclass
 class Bool:
     value: bool
-    def __init__(self, value, *args) -> None:
-        self.value = bool(value)
-
+    def __init__(self, *args) -> None:
+        self.value = bool(*args)
 
 @dataclass
 class Keyword:
@@ -70,32 +55,35 @@ class Identifier:
     word: str
 
 @dataclass
-class Operator:
-    op: str
-
-@dataclass
-class Symbol:
-    sym: str
-
-@dataclass
 class UnknownWord:
     word: str
 
 @dataclass
+class Operator:
+    op: str
+
+@dataclass
+class Float:
+    value: float
+    def __init__(self, *args) -> None:
+        self.value = float(*args)
+@dataclass
+class Symbol:
+    sym: str
+@dataclass
 class end_of_all_tokens(Exception):
     e: str
 
+Token = Int | Bool | Keyword | Identifier | Operator | Float
 
+class EndOfTokens(Exception): 
+    pass
 
-Token = Int | Float | Frac | String | Bool | Keyword | Identifier | Operator | UnknownWord | Symbol | end_of_all_tokens
-
-keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    concat     push pop len insert count index at update ".split()
+keywords = "Int String Float Bool let in if then else elif endif fun of is endfun print for endfor while returns do endwhile concat var push concat pop delete len insert count".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
-whitespace = ["\t","\n"," "]
-
-
+whitespace = " \t \n".split() + [' ']
 
 def word_to_token(word):
     if word in keywords:
@@ -126,10 +114,15 @@ def word_to_token(word):
 
 
 
+class TokenError(Exception):
+    pass
+
 @dataclass
 class Lexer:
     stream: Stream
     save: Token = None
+    line_number: int = 1
+    
 
     def from_stream(s):
         return Lexer(s)
@@ -138,19 +131,19 @@ class Lexer:
         try:
             match self.stream.next_char():
                 case ',':
-                    return Symbol(',')
+                    return Symbol(','), self.line_number
                 case ';':
-                    return Symbol(';')
+                    return Symbol(';'), self.line_number
                 case '.':
-                    return Symbol('.')
+                    return Symbol('.'), self.line_number
                 case '(':
-                    return Symbol('(')
+                    return Symbol('('), self.line_number
                 case '[':
-                    return Symbol('[')
+                    return Symbol('['), self.line_number
                 case ')':
-                    return Symbol(')')
+                    return Symbol(')'), self.line_number
                 case ']':
-                    return Symbol(']')
+                    return Symbol(']'), self.line_number
                 
                 case c if c in symbolic_operators: 
                     s = c
@@ -162,10 +155,10 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 # print(Operator(s))
-                                return Operator(s)
+                                return Operator(s), self.line_number
                         except EndOfStream:
                             # print(Operator(s))
-                            return Operator(s)
+                            return Operator(s), self.line_number
                 case c if c.isalpha() or c=='_':
                     s = c
                     while True:
@@ -176,10 +169,10 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 # print(word_to_token(s))
-                                return word_to_token(s)
+                                return word_to_token(s), self.line_number
                         except EndOfStream:
                             # print(word_to_token(s))
-                            return word_to_token(s)
+                            return word_to_token(s), self.line_number
                 case c if c.isdigit():
                     n = int(c)
                     decimal_point = False
@@ -189,7 +182,6 @@ class Lexer:
                             # print(c)
                             if ((c.isdigit()) and (decimal_point == False)):
                                 n = n*10 + int(c)
-                            # currently not handling the error of double decimal point.
                             elif ((c.isdigit()) and (decimal_point == True)):
                                 n = n+int(c)*factor
                                 factor = 0.1*factor
@@ -199,13 +191,13 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 if (decimal_point):                                    
-                                    return Float(n)
+                                    return Float(n), self.line_number
                                 else:
-                                    return Int(n)
+                                    return Int(n), self.line_number
                         except EndOfStream:
                             if(decimal_point):
-                                return Float(n)
-                            return Int(n)
+                                return Float(n), self.line_number
+                            return Int(n), self.line_number
                 case c if c =='"':
                     s = c
                     c = self.stream.next_char()
@@ -213,21 +205,27 @@ class Lexer:
                         s = s+c
                         c = self.stream.next_char()
                     s = s+c
-                    return String(s[1:-1])
+                    return String(s[1:-1]), self.line_number
+                case c if c =='\n':
+                    self.line_number = self.line_number + 1
+                    return self.next_token()
                 case c if c in whitespace:
                     return self.next_token()
                 case c if c=='#':
                     s = c
                     c = self.stream.next_char()
                     while(c!='#'):
+                        if(c=='\n'):
+                            self.line_number = self.line_number+1
                         c = self.stream.next_char()
                     return None
                 case _:
                     pass
+        
                 
         except EndOfStream:
+           self.line_number+=1
            raise EndOfTokens
-
 
     def peek_token(self) -> Token:
         if self.save is not None:
@@ -252,36 +250,23 @@ class Lexer:
             return self.next_token()
         except EndOfTokens:
             raise StopIteration
-
-
-
-
+        
 def print_tokens(code: str):
-    # strs = code.split(';')
-    # l= []
-    # for i in range(len(strs)):
-    #     code = strs[i]
-    #     if(i!=len(strs)-1):
-    #         code = code+';'
-        stream = Stream.from_string(code)
-        lexer = Lexer(stream)
-        tokens = []
-        try:
-            while True:
-                token = lexer.next_token()
-                # if(token==None):
-                #     continue
-                tokens.append(token)
-                # print(token)
-        except EndOfTokens:
-            pass
-    #     l.append(tokens)
-    # l[i].append(end_of_all_tokens("end_of_tokens"))
-    # return l
-        return tokens
+    stream = Stream.from_string(code)
+    lexer = Lexer(stream)
+    tokens = []
+    line_numbers = []
+    try:
+        while True:
+            token= lexer.next_token()
+            if(token==None):
+                continue
+            tokens.append(token[0])
+            line_numbers.append(token[1])
+    except EndOfTokens:
+        pass
+    return tokens, line_numbers
 
-
-
-
-# ans = print_tokens("a+b = 2;3+3=6")
-# print(ans)
+# ans1,ans2 = print_tokens('12"hello"+34')
+# print(ans1)
+# print(ans2)
