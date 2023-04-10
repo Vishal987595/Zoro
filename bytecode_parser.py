@@ -155,6 +155,47 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
             parse_(left)
             parse_(right)
             code.emit(Operator('>>'))
+            
+        case LogOp("and", left, right):
+            label = LABEL()
+            parse_(left)
+            code.emit(DUP())
+            code.emit(JMP_IF_FALSE(label))
+            code.emit(POP())
+            parse_(right)
+            code.emit_label(label)
+        case LogOp("or", left, right):
+            label = LABEL()
+            parse_(left)
+            code.emit(DUP())
+            code.emit(JMP_IF_TRUE(label))
+            code.emit(POP())
+            parse_(right)
+            code.emit_label(label)
+        case LogOp("xor", left, right):
+            parse_(LogOp('or', LogOp('and', left, UnOp('not', right)), LogOp('and', UnOp('not', left), right)))
+        case LogOp("nand", left, right):
+            parse_(LogOp("and", left, right))
+            code.emit(Operator('not'))
+        case LogOp("nor", left, right):
+            parse_(LogOp("or", left, right))
+            code.emit(Operator('not'))
+        case LogOp("xnor", left, right):
+            parse_(LogOp("xor", left, right))
+            code.emit(Operator('not'))
+        case If(con, seq):
+            endlab = LABEL()
+            l = len(con)
+            for i in range(l):
+                falselab=LABEL()
+                parse_(con[i])
+                code.emit(JMP_IF_FALSE(falselab))
+                parse_(seq[i])
+                code.emit(JMP(endlab))
+                code.emit_label(falselab)
+            if len(seq) > l:
+                parse_(seq[l])
+            code.emit_label(endlab)
         
 def pprint(l):
     c = 0
