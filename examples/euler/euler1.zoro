@@ -1,0 +1,10 @@
+var sum <- 0;
+var i <- 0;
+var _n <- 1000;
+while i<_n do
+    if i%3 == 0 or i%5 == 0 then
+        sum <- sum + i;
+    endif;
+    i <- i + 1;
+endwhile;
+print sum;

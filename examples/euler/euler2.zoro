@@ -1,0 +1,15 @@
+var sum<-0;
+var f0 <- 1;
+var f1 <- 2;
+var t <- 0;
+
+print " ";
+while f1<=4000000 do
+    if f1%2==0 then
+        sum <- sum + f1;
+    endif;
+    t <- f1;
+    f1 <- f0 + f1;
+    f0 <- t;
+endwhile;
+print sum;

@@ -24,9 +24,3 @@ var s <- greet of " Rishi";
 
 print s;
 
-
-
-
-
-
-

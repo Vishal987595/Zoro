@@ -5,21 +5,22 @@ fun isPrime of n is
         if (n%i == 0) then 
             a <- False; 
         endif; 
-        i <- i + 1; 
-        print a; 
+        i <- i + 1;  
     endwhile; 
-    returns a
+    returns a;
 endfun; 
 
 var p <- 2; 
-print p;
-var cnt <- 0; 
+var cnt <- 1; 
 var j <- 2; 
-while (cnt <= 10001) do 
-    if (isPrime of j;) then 
+var prime_check <- True;
+while (cnt <= 101) do
+    prime_check <- isPrime of j;
+    if (prime_check) then 
         cnt <- cnt + 1; 
         p<- j; 
     endif; 
     j <- j + 1; 
 endwhile; 
 print p; 
+

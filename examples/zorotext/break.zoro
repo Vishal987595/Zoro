@@ -8,5 +8,3 @@ while a<20 do
 	endif;
 endwhile;
 
-
-

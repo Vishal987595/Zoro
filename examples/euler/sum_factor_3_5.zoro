@@ -1,8 +1,8 @@
-fun factor_sum of n, p is;
+fun factor_sum of n, p is
     var m <- n//p;
     var total_sum <- m + 1;
     total_sum <- m*total_sum*p;
-    total_sum <- total_sum/2;
+    total_sum <- total_sum//2;
     returns total_sum;  
 endfun;
 

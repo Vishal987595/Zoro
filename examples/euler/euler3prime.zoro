@@ -7,20 +7,21 @@ fun isPrime of n is
         endif; 
         i <- i + 1; 
     endwhile; 
-    returns a 
+    returns a;
 endfun; 
 
-print isPrime of 13;; 
+print isPrime of 13;
 
-var k <- 45; 
-var j <- 2; 
+var _k <- 51; 
+var y <- 2; 
 var mp <- 2; 
-while (j <= k) do 
-    var p <- isPrime of j;; 
-    if (k%p == 0) then 
-        mp <- j; 
+var p <- True;
+while y <= _k do  
+    p <- isPrime of y;
+    if (_k%y == 0 and p) then 
+        mp <- y; 
     endif;
-    j <- j + 1; 
+    y <- y + 1; 
 endwhile; 
 
 print mp; 

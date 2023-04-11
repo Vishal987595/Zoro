@@ -1,12 +1,10 @@
 fun itr of num is
     if num>= 0 then
         print num;
-        itr of num-1;;
+        itr of num-1;
     endif;
-    returns
+    returns;
 endfun;
 
-itr of 10;;
-
-
+itr of 10;
 

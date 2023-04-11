@@ -5,9 +5,9 @@ fun odd of num is
 	elif num == 0 then
 		r <- False;
 	else
-		r <- even of num-1;;
+		r <- even of num-1;
 	endif;
-	returns r
+	returns r;
 endfun;
 
 fun even of num is
@@ -17,11 +17,10 @@ fun even of num is
 	elif num == 1 then
 		r <- False;
 	else
-		r <- odd of num-1;;
+		r <- odd of num-1;
 	endif;
-	returns r
+	returns r;
 endfun;
 
-print even of 98;;
-
+print even of 98;
 
