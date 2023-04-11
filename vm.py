@@ -155,11 +155,16 @@ class VM:
             
 
                 case HALT():
+                    if len(self.data) > 0:
+                        return self.data.pop()
                     return self.data.pop()
                   
 # ast = ZoroParser("<ZORO CODE HERE>").Parsed_AST
 # bytecode = parseAST(<AST HERE>)
+# print('-------------------------------------------')
 # myVM = VM()
 # myVM.load(bytecode)
+# pprint(bytecode.instructions)
+# print('-------------------------------------------')
 # print(myVM.run()) #Will print the popped top of the stack
 # print(myVM.data)  #Will print the rest of the elements (if any) in the stack

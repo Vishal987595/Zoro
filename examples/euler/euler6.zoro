@@ -1,0 +1,14 @@
+var N<-100;
+var s<-0;
+var p<-0;
+var i<-1;
+var temp<-0;
+while i<=100 do
+	s <- s + i;
+	temp <- i**2;
+	p <- p + temp;
+	i <- i + 1;
+endwhile;
+
+print N, s, p;
+print p-s;

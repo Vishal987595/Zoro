@@ -2,12 +2,11 @@
     print i;
 endfor;#
 
-#
+
 for i in range 1,10,2 do
 	print i;
-endfor;#
+endfor;
 
 
 var a <- range 1,10,2;
 print a;
-

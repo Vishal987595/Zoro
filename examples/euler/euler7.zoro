@@ -1,0 +1,32 @@
+fun isPrime of num is
+    var ans <- True;
+    var i<- 2;
+    while i<num do
+        if num%i==0 then
+            ans <- False;
+            i <- num;
+        else
+            i <- i + 1;
+        endif;
+    endwhile;
+    if num<2 then
+        ans <- False;
+    endif;
+    returns ans
+endfun;
+
+
+var prime_location <- 1001;
+var p <- 2; 
+var cnt <-1; 
+var k <- 2; 
+var prime_check <- False;
+while cnt <= prime_location do
+    prime_check <- isPrime of k;
+    if prime_check then 
+        cnt <- cnt + 1; 
+        p<- k; 
+    endif; 
+    k <- k + 1; 
+endwhile; 
+print prime_location, p; 

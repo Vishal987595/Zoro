@@ -21,28 +21,20 @@ fun fib2 of num is
 	endif;
 	returns a;
 endfun;
-#
+
 fun fib3 of num is
 	var a <- num;
 	if num<=1 then
 		a <- 1;
 	else
-		a <- fib3 of (num-1) + fib3 of (num-2);
+		a <- fib3 of (num-1); 
+		a <- a + fib3 of (num-2);  
 	endif;
 	returns a;
 endfun;
-#
 
-#print fib3 of (5);#
+
+print fib3 of 7;
 #print fib3 of (6);#
-print fib of (7);
-
-
-
-
-
-
-
-
-
+print fib of 7;
 

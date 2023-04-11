@@ -1,5 +1,7 @@
 from dataTypeDeclaration import *
 from evalAST import *
+from bytecode_parser import *
+from vm import *
 import math
 
 def test_datatypes():
@@ -211,6 +213,81 @@ def test_immutable():
     e = Sequence(seq=[e1, e3, e2, e3])
     evalAST(e)
 
+def test_bytecode_pprint():
+    bytecode = parseAST(
+        LogOp(operator='or',
+                left=LogOp(operator='xor',
+                    left=Bool(value=True),
+                    right=LogOp(operator='and',
+                                left=Bool(value=False),
+                                right=Bool(value=True))),
+        right=LogOp(operator='nor',
+                    left=LogOp(operator='xnor',
+                                left=Bool(value=False),
+                                right=Bool(value=True)),
+                    right=LogOp(operator='nand',
+                                left=Bool(value=False),
+                                right=Bool(value=True))))
+    )
+    print('-------------------------------------------')
+    pprint(bytecode.instructions)
+
+def test_bytecode_ops():
+    ast = LogOp(operator='or',
+        left=LogOp(operator='xor',
+                    left=Bool(value=True),
+                    right=LogOp(operator='and',
+                                left=Bool(value=False),
+                                right=Bool(value=True))),
+        right=LogOp(operator='nor',
+                    left=LogOp(operator='xnor',
+                                left=Bool(value=False),
+                                right=Bool(value=True)),
+                    right=LogOp(operator='nand',
+                                left=Bool(value=False),
+                                right=Bool(value=True))))
+    bytecode = parseAST(ast)
+    myVM = VM()
+    myVM.load(bytecode)
+    assert myVM.run() == True
+    ast = MathOp(operator='-',
+       left=MathOp(operator='+', left=Int(value=1), right=Int(value=2)),
+       right=MathOp(operator='%',
+                    left=MathOp(operator='//',
+                                left=MathOp(operator='/',
+                                            left=MathOp(operator='*',
+                                                        left=Int(value=3),
+                                                        right=MathOp(operator='**',
+                                                                     left=Int(value=4),
+                                                                     right=Int(value=5))),
+                                            right=Int(value=6)),
+                                right=Int(value=7)),
+                    right=Int(value=8)))
+    bytecode = parseAST(ast)
+    myVM = VM()
+    myVM.load(bytecode)
+    assert myVM.run() == 1+2-3*4**5/6//7%8
+    ast=LogOp(operator='or',
+      left=LogOp(operator='and',
+                 left=CndOp(operator='>',
+                            left=Int(value=1),
+                            right=Int(value=2)),
+                 right=CndOp(operator='<',
+                             left=Int(value=3),
+                             right=Int(value=4))),
+      right=LogOp(operator='and',
+                  left=CndOp(operator='>=',
+                             left=Int(value=5),
+                             right=Int(value=6)),
+                  right=CndOp(operator='!=',
+                              left=Int(value=7),
+                              right=Int(value=8))))
+    bytecode = parseAST(ast)
+    myVM = VM()
+    myVM.load(bytecode)
+    assert myVM.run() == False
+
+
 def test():
     # test_datatypes() # Works fine, don't touch
     # test_let() # Works fine, don't touch
@@ -235,6 +312,8 @@ def test():
     # test_listops()
     # test_printdebug()
     # test_immutable()
-    dummy()
+    # test_bytecode_pprint()
+    test_bytecode_ops()
+    # dummy()
 
 test()
