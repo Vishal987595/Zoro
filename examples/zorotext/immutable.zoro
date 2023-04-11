@@ -1,0 +1,4 @@
+var _a <- 2;
+print _a;
+_a <- 3;
+print _a;

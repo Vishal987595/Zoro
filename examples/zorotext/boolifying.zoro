@@ -1,0 +1,44 @@
+var a <- 0;
+var b <- 1;
+var c <- "";
+var d <- "Hello";
+
+if a then
+	print "A";
+	print a;
+endif;
+
+if b then
+	print "B";
+	print b;
+endif;
+
+if not a then
+	print "C";
+	print a;
+endif;
+
+if not b then
+	print "D";
+	print b;
+endif;
+
+if c then
+	print "E";
+	print c;
+endif;
+
+if d then
+	print "F";
+	print d;
+endif;
+
+if not c then
+	print "G";
+	print c;
+endif;
+
+if not d then
+	print "H";
+	print d;
+endif;
