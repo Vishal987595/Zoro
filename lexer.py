@@ -130,6 +130,7 @@ def word_to_token(word):
 class Lexer:
     stream: Stream
     save: Token = None
+    line_number: int = 1
 
     def from_stream(s):
         return Lexer(s)
@@ -138,19 +139,19 @@ class Lexer:
         try:
             match self.stream.next_char():
                 case ',':
-                    return Symbol(',')
+                    return Symbol(','), self.line_number
                 case ';':
-                    return Symbol(';')
+                    return Symbol(';'), self.line_number
                 case '.':
-                    return Symbol('.')
+                    return Symbol('.'), self.line_number
                 case '(':
-                    return Symbol('(')
+                    return Symbol('('), self.line_number
                 case '[':
-                    return Symbol('[')
+                    return Symbol('['), self.line_number
                 case ')':
-                    return Symbol(')')
+                    return Symbol(')'), self.line_number
                 case ']':
-                    return Symbol(']')
+                    return Symbol(']'), self.line_number
                 
                 case c if c in symbolic_operators: 
                     s = c
@@ -162,10 +163,10 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 # print(Operator(s))
-                                return Operator(s)
+                                return Operator(s), self.line_number
                         except EndOfStream:
                             # print(Operator(s))
-                            return Operator(s)
+                            return Operator(s), self.line_number
                 case c if c.isalpha() or c=='_':
                     s = c
                     while True:
@@ -176,10 +177,10 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 # print(word_to_token(s))
-                                return word_to_token(s)
+                                return word_to_token(s), self.line_number
                         except EndOfStream:
                             # print(word_to_token(s))
-                            return word_to_token(s)
+                            return word_to_token(s), self.line_number
                 case c if c.isdigit():
                     n = int(c)
                     decimal_point = False
@@ -199,13 +200,13 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 if (decimal_point):                                    
-                                    return Float(n)
+                                    return Float(n), self.line_number
                                 else:
-                                    return Int(n)
+                                    return Int(n), self.line_number
                         except EndOfStream:
                             if(decimal_point):
-                                return Float(n)
-                            return Int(n)
+                                return Float(n), self.line_number
+                            return Int(n), self.line_number
                 case c if c =='"':
                     s = c
                     c = self.stream.next_char()
@@ -213,19 +214,25 @@ class Lexer:
                         s = s+c
                         c = self.stream.next_char()
                     s = s+c
-                    return String(s[1:-1])
+                    return String(s[1:-1]), self.line_number
+                case c if c =='\n':
+                    self.line_number = self.line_number + 1
+                    return self.next_token()
                 case c if c in whitespace:
                     return self.next_token()
                 case c if c=='#':
                     s = c
                     c = self.stream.next_char()
                     while(c!='#'):
+                        if(c=='\n'):
+                            self.line_number = self.line_number+1
                         c = self.stream.next_char()
                     return None
                 case _:
                     pass
                 
         except EndOfStream:
+            self.line_number+=1
            raise EndOfTokens
 
 
@@ -266,19 +273,21 @@ def print_tokens(code: str):
         stream = Stream.from_string(code)
         lexer = Lexer(stream)
         tokens = []
+        line_numbers = []
         try:
             while True:
                 token = lexer.next_token()
-                # if(token==None):
-                #     continue
-                tokens.append(token)
+                if(token==None):
+                    continue
+                tokens.append(token[0])
+                line_numbers.append(token[1])
                 # print(token)
         except EndOfTokens:
             pass
     #     l.append(tokens)
     # l[i].append(end_of_all_tokens("end_of_tokens"))
     # return l
-        return tokens
+        return tokens, line_numbers
 
 
 
