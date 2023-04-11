@@ -20,7 +20,7 @@ class Not_Enough_Closing_Brackets(Exception): pass # Add missing closing bracket
 class Inappropriate_Type_of_Token(Exception): pass # if(type(var)!=Token_Type)
 class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
 class Invalid_Character_Inside_Brackets(Exception): pass # Inside parse_brackets unreachable case
-
+class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
 
 #############################################################################################################################
 #############################################################################################################################
@@ -117,6 +117,7 @@ class ZoroParser:
             self.Curr_Token_Index += 1
             return self.advance()
         else:
+            print(f"Expected : {expected_token}   , but got : {current_token}  //")
             raise UnExpected_Token
             self.comp_err("Invalid Syntax",f"I think you should spend your remaining life remembering the syntax of Zoro!", self.Line_Numbers[self.Curr_Token_Index])
             quit()

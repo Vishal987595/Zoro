@@ -1,0 +1,12 @@
+var a<-0; 
+while a<20 do
+	if a>10 then 
+		break; 
+	else 
+		print a;
+		a<-a+1; 
+	endif;
+endwhile;
+
+
+

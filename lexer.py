@@ -89,7 +89,7 @@ class end_of_all_tokens(Exception):
 
 Token = Int | Float | Frac | String | Bool | Keyword | Identifier | Operator | UnknownWord | Symbol | end_of_all_tokens
 
-keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    concat     push pop len insert count index at update ".split()
+keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    concat     push pop len insert count index at update  range".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
@@ -233,7 +233,7 @@ class Lexer:
                 
         except EndOfStream:
             self.line_number+=1
-           raise EndOfTokens
+            raise EndOfTokens
 
 
     def peek_token(self) -> Token:

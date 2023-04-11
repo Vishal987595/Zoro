@@ -88,6 +88,6 @@ def check_types(node, var_types: Dict[str, str]):
         check_types(node.seq[1], var_types)
         return 'void'
 
-if __name__ == '__main__':
-    ast = Sequence(seq=[If(con=[CndOp(operator='>', left=Variable(name='c'), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Int(value=2))]), Sequence(seq=[AssignOp(operator='->', left=Variable(name='c'), right=Variable(name='d'))])])])
-    check_types(ast, {})
+# if __name__ == '__main__':
+#     ast = Sequence(seq=[If(con=[CndOp(operator='>', left=Variable(name='c'), right=Int(value=0))], seq=[Sequence(seq=[AssignOp(operator='<-', left=Variable(name='b'), right=Int(value=2))]), Sequence(seq=[AssignOp(operator='->', left=Variable(name='c'), right=Variable(name='d'))])])])
+#     check_types(ast, {})

@@ -1,0 +1,13 @@
+fun myfun of a,b,c is 
+	if(a+b<c) then  
+		a<-b+c;  
+		returns c;  
+	elif (a-b<(c+b)) then 
+		returns b; 
+	else 
+		returns a; 
+	endif;    
+endfun; 
+
+print myfun of 10,2,3;
+

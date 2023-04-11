@@ -5,10 +5,11 @@ fun recursive of num is
     else
        print num;
        b <- num -1;
-       recursive of b;;
+       recursive of b;
     endif;
-    returns b
+    returns b;
 endfun;
 
-recursive of 10;;
+recursive of 10;
+
 

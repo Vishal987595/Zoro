@@ -1,7 +1,7 @@
 from Zoro_parser import *
 from dataTypeDeclaration import *
 from evalAST import *
-# from static_typecheck import *
+from static_typecheck import *
 import sys
 
 if len(sys.argv) != 2:
@@ -15,6 +15,8 @@ with open(file_path, 'r') as file:
 ans_to_parser,line_numbers = print_tokens(file_contents)
 
 ans_to_eval = ZoroParser(file_contents).Parsed_AST
+
+check_types(ans_to_eval, {})
 
 evalAST(ans_to_eval)
 

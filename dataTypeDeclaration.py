@@ -202,13 +202,17 @@ class Function:
 class Returns:
     value: 'AST'
 
+@dataclass
+class Break:
+    pass
+
 
 
 
 ###############################################################################################################################################
 
 
-AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Returns | FuncDec | FuncCall | If | While | For | List_ | Range | Print | Sequence    |    Variable | Identifier | Keyword
+AST = Int | Float | Bool | String | Frac | Null | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | UpdateOp | StringOp | ListOp    |    Returns | FuncDec | FuncCall | If | While | For | List_ | Range | Print | Sequence | Break   |    Variable | Identifier | Keyword
 
 Token = Int | Float | Bool | String | Frac | Symbol    |    Operator | BinOp | MathOp | CndOp | UnOp | BitOp | AssignOp | StringOp     |     If | Print
 

@@ -1,5 +1,5 @@
 fun greet of name is
-    returns "hello" + name
+    returns "hello" + name;
 endfun;
 
 fun series of num is
@@ -16,13 +16,14 @@ fun series2 of num1, num2 is
     endwhile;
 endfun;
 
-series of 10;;
+series of 10;
 
-series2 of 5, 10;;
+series2 of 5, 10;
 
-var s <- greet of " Rishi";;
+var s <- greet of " Rishi";
 
 print s;
+
 
 
 
