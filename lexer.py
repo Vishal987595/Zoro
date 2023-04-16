@@ -1,7 +1,7 @@
-from fractions import Fraction
 import re
 from dataclasses import dataclass
 from typing import List
+from dataTypeDeclaration import *
 
 # A minimal example to illustrate typechecking.
 
@@ -28,7 +28,7 @@ class Stream:
         assert self.pos > 0
         self.pos = self.pos - 1
 
-
+"""
 # Token Classes
 @dataclass
 class Int:
@@ -59,7 +59,7 @@ class Bool:
     value: bool
     def __init__(self, value, *args) -> None:
         self.value = bool(value)
-
+"""
 
 @dataclass
 class Keyword:
@@ -292,5 +292,4 @@ def print_tokens(code: str):
 
 
 
-# ans = print_tokens("a+b = 2;3+3=6")
-# print(ans)
+# for i in ( print_tokens(" var Int Float <- 2 a ; ") ): print(i)
