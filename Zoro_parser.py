@@ -1,3 +1,4 @@
+import numpy as np
 from pprint import pprint
 from dataclasses import dataclass
 from dataTypeDeclaration import *
@@ -21,6 +22,8 @@ class Inappropriate_Type_of_Token(Exception): pass # if(type(var)!=Token_Type)
 class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
 class Invalid_Character_Inside_Brackets(Exception): pass # Inside parse_brackets unreachable case
 class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
+class Not_A_Basic_Datatype(Exception): pass # After "var", only Int,Float etc are allowed
+class Inappropriate_No_of_Eles(Exception): pass # Noof eles in array does not meet declared
 
 #############################################################################################################################
 #############################################################################################################################
@@ -86,6 +89,9 @@ class ZoroParser:
         self.Curr_Token_Index = 0
 
         self.inside_fun_def = False
+        self.array_init_flag = False
+        self.array_init_type = None
+        self.array_init_length = None
         self.Parsed_AST = self.parse_Program()
 
         for i in self.Parsed_AST.seq: pprint(i); 
@@ -142,9 +148,7 @@ class ZoroParser:
             self.comp_err("Invalid Syntax",f"Your mind, logic and the token '{identifier}' you used, are all the same, at the wrong place!", self.Line_Numbers[self.Curr_Token_Index])
             quit()
         
-        """ # TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  CHECK WHY IMPLEMENTED THIS IF """
         if(name in keywords):
-            print("\nHERE NAME IN KWDS : "); self.debug_print(); 
             return self.retreat()
             # raise Invalid_Syntax_VAR_KW
             # self.comp_err("Invalid_Syntax_VAR_KW","THIS_NEEDS_TO_BE_FILLED_IN_LATER", self.Line_Numbers[self.Curr_Token_Index])
@@ -407,22 +411,70 @@ class ZoroParser:
                         case _:
                             break
                 return left
-    def parse_assis_upds(self):
+    def parse_assis_upds(self):     #TODO
         assign_flag = False
+        num = None
+        dtype = None                # SHOULD BE NULL(None)
 
         if(self.next_token()==Keyword("var")):
             self.consume_token(Keyword("var"))
             assign_flag = True
+            self.array_init_flag = True
+
+            match self.next_token():
+                case Keyword("Int"):
+                    self.consume_token(Keyword("Int"))
+                    dtype = Int(0)
+                case Keyword("Float"):
+                    self.consume_token(Keyword("Float"))
+                    dtype = Float(0.0)
+                case Keyword("Frac"):
+                    self.consume_token(Keyword("Frac"))
+                    dtype = Frac(0/1)
+                case Keyword("String"):
+                    self.consume_token(Keyword("String"))
+                    dtype = String("")
+                case Keyword("Bool"):
+                    self.consume_token(Keyword("Bool"))
+                    dtype = Bool(False)
+                case Keyword("Null"):
+                    self.consume_token(Keyword("Null"))
+                    dtype = Null(None)
+                case Identifier(word):
+                    self.array_init_flag = False
+                    self.array_init_type = None
+                case _:
+                    self.array_init_flag = False
+                    self.array_init_type = None
+                    raise Not_A_Basic_Datatype
+                    self.comp_err("Not_A_Basic_Datatype","You know (even if you don't) that you can only write basic dtypes, why are you writing your intelligence, which is invalid here?", self.Line_Numbers[self.Curr_Token_Index])
+                    quit()
+            
+            self.array_init_type = dtype
         
         if(assign_flag==True):
-            left = self.parse_lor()
+            # left = self.parse_lor()
+            left = self.parse_name(name_flag=0)
             if(type(left)!=Variable): 
                 raise Cannot_Assign_to_an_Expr
                 self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
+            
+            if(self.next_token()==Symbol("[")):
+                self.consume_token(Symbol("["))
+                num = self.next_token()
+                if(type(num)!=Int):
+                    raise Inappropriate_Type_of_Token
+                    self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
+                    quit()
+                self.advance()
+                self.array_init_length = num.value
+                self.consume_token(Symbol("]"))
+
             self.consume_token(Operator("<-"))
             right = self.parse_lor()
-            return AssignOp("<-", left, right)
+            self.array_init_length = None
+            return AssignOp("<-", left, right, dtype)
 
         elif(assign_flag==False):
             left = self.parse_lor()
@@ -442,15 +494,58 @@ class ZoroParser:
                 if(self.next_token()==Keyword("var")):
                     self.consume_token(Keyword("var"))
                     assign_flag = True
-
+                    self.array_init_flag = True
+                    
+                    match self.next_token():
+                        case Keyword("Int"):
+                            self.consume_token(Keyword("Int"))
+                            dtype = Int(0)
+                        case Keyword("Float"):
+                            self.consume_token(Keyword("Float"))
+                            dtype = Float(0.0)
+                        case Keyword("Frac"):
+                            self.consume_token(Keyword("Frac"))
+                            dtype = Frac(0/1)
+                        case Keyword("String"):
+                            self.consume_token(Keyword("String"))
+                            dtype = String("")
+                        case Keyword("Bool"):
+                            self.consume_token(Keyword("Bool"))
+                            dtype = Bool(False)
+                        case Keyword("Null"):
+                            self.consume_token(Keyword("Null"))
+                            dtype = Null(None)
+                        case Identifier(word):
+                            self.array_init_flag = False
+                            self.array_init_type = None
+                        case _:
+                            self.array_init_flag = False
+                            self.array_init_type = None
+                            raise Not_A_Basic_Datatype
+                            self.comp_err("Not_A_Basic_Datatype","You know (even if you don't) that you can only write basic dtypes, why are you writing your intelligence, which is invalid here?", self.Line_Numbers[self.Curr_Token_Index])
+                            quit()
+                    
+                    self.array_init_type = dtype
+                
                 right = self.parse_lor()
                 if(type(right)!=Variable): 
                     raise Cannot_Assign_to_an_Expr
                     self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
+
+                if(self.next_token()==Symbol("[")):
+                    self.consume_token(Symbol("["))
+                    num = self.next_token()
+                    if(type(num)!=Int):
+                        raise Inappropriate_Type_of_Token
+                        self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
+                        quit()
+                    self.advance()
+                    self.array_init_length = num.value
+                    self.consume_token(Symbol("]"))
                 
                 if(assign_flag==True):
-                    return AssignOp("->", left, right)
+                    return AssignOp("->", left, right, dtype)
                 elif(assign_flag==False):
                     return UpdateOp("->", left, right)
             
@@ -477,7 +572,7 @@ class ZoroParser:
             case (Symbol("(")): return self.parse_bracket(); 
             case (Symbol(")")): return None; 
             case _:
-                expr_only = self.parse_Base(); self.debug_print(); 
+                expr_only = self.parse_Base(); #self.debug_print(); 
                 if(real_expr_flag==True):
                     self.consume_token(Symbol(";")); 
                 return expr_only
@@ -486,6 +581,12 @@ class ZoroParser:
         final_instrs=[]; self.brkt_stk_obj = Brkt_Stk_Cls(); 
         while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
+        
+        assert self.inside_fun_def == False
+        assert self.array_init_flag == False
+        assert self.array_init_type == None
+        assert self.array_init_length == None
+
         return Sequence(final_instrs)
 
 
@@ -537,21 +638,79 @@ class ZoroParser:
         self.consume_token(Symbol("["))
         args = []
 
-        arg = self.parse_Expr(real_expr_flag=False)
-        args.append(arg)
-        while True:
-            match self.next_token():
-                case (Symbol("(")):
-                    return self.parse_bracket()
-                case Symbol("]"):
-                    break
-                case _:
-                    self.consume_token(Symbol(","))
-                    arg = self.parse_Expr(real_expr_flag=False)
-                    args.append(arg)
-        
+        if(self.next_token()!=Symbol("]")):
+            if(self.array_init_flag==True):     # Parse an array
+                
+                len_args = 0
+                arg = self.parse_Expr(real_expr_flag=False)
+                if(self.array_init_type!=None and type(arg)!=type(self.array_init_type)):
+                    raise Inappropriate_Type_of_Token
+                    self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
+                    quit()
+                args.append(arg)
+                len_args += 1
+
+                while True:
+                    match self.next_token():
+                        case (Symbol("(")):
+                            return self.parse_bracket()
+                        case Symbol("]"):
+                            break
+                        case _:
+                            self.consume_token(Symbol(","))
+                            arg = self.parse_Expr(real_expr_flag=False)
+                            if(self.array_init_type!=None and type(arg)!=type(self.array_init_type)):
+                                raise Inappropriate_Type_of_Token
+                                self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
+                                quit()
+                            args.append(arg)
+                            len_args += 1
+                
+                diff_args_len = self.array_init_length - len_args
+                if(diff_args_len<0):
+                    raise Inappropriate_No_of_Eles
+                    self.comp_err("Inappropriate_No_of_Eles","Abey. Declare length kuch aur hai and inserted length kuch aur. Kya kar rha hai bina dimaag lagaye?", self.Line_Numbers[self.Curr_Token_Index])
+                    quit()
+                elif(diff_args_len>0):
+                    match self.array_init_type:
+                        case Int(value):
+                            args += [Int(0)] * (diff_args_len)
+                        case Float(value):
+                            args += [Float(0.0)] * (diff_args_len)
+                        case Frac(value):
+                            args += [Frac(0/1)] * (diff_args_len)
+                        case String(value):
+                            args += [String("")] * (diff_args_len)
+                        case Bool(value):
+                            args += [Bool(False)] * (diff_args_len)
+                        case Null(value):
+                            args += [Null(None)] * (diff_args_len)
+                        case _:
+                            print("Invalid")
+                
+                self.array_init_flag = False
+                self.array_init_type = None
+
+            else:   # Parse a list
+                arg = self.parse_Expr(real_expr_flag=False)
+                args.append(arg)
+                while True:
+                    match self.next_token():
+                        case (Symbol("(")):
+                            return self.parse_bracket()
+                        case Symbol("]"):
+                            break
+                        case _:
+                            self.consume_token(Symbol(","))
+                            arg = self.parse_Expr(real_expr_flag=False)
+                            args.append(arg)
+            
         self.consume_token(Symbol("]"))
-        if(self.next_token()==Symbol(".")): 
+
+        if(self.array_init_flag==True):
+            args=np.array(args,dtype=type(self.array_init_type))
+        
+        if(self.next_token()==Symbol(".")):
             r1,r2,r3 = self.parse_list_fx()
             return ListOp(List_(args) , r1,r2,r3)
 
@@ -912,7 +1071,9 @@ def test_parse():
         # (ZoroParser("this_vAr1_is_var ;"))
         # (ZoroParser("____this_vAr1_is_var ;"))
         pass
-    if(1):      # parse_Assi_Upd
+    if(1):      # Assi Upd
+        # (ZoroParser("var Int a <- 2 ;"))
+        # (ZoroParser("1 -> var Float b ;"))
         # (ZoroParser("var _a <- 2 ;"))
         # (ZoroParser("1 -> var _b ;"))
         # (ZoroParser("_a <- 2 ;"))
@@ -960,6 +1121,9 @@ def test_parse():
     if(1):      # print statement
         # (ZoroParser("print f of a1,a2,a3 ; "))
         pass
+    if(1):      # List
+        # (ZoroParser("var a <- [] ; "))
+        pass
     if(1):      # Brackets                  ##TODO
         # (ZoroParser("()"))
         # (ZoroParser("(((())))"))
@@ -995,6 +1159,11 @@ def test_parse():
         # (ZoroParser(" for i in range 3,11,2 do a<-1; endfor; "))
         # (ZoroParser(" for i in range 5,10 do a<-1; endfor; "))
         pass
+    if(1):      # Arrays
+        # (ZoroParser("var Int a[5] <- [2,1,4] ;"))
+        # (ZoroParser("var Float a[5] <- [2.0,1.0,4.0] ;"))
+        # (ZoroParser(""" var String c[5] <- ["1", "2", "3"]; print c;  var l <- [1, "2", 3.0];  print l; """))
+        pass
     
     if(1):      # APNE PROGRAMS 1 : OLD_VERSION
         # ZoroParser("fun fib of n is  a <- 0;  if n > 1;   then n1 <- n - 1;  b <- fib of n1;;;  n2 <- n - 2;  c <- fib of n2;;;  a <- b + c;  else a <- n;  endif;  returns a;  endfun;  print fib of 5;;;;")
@@ -1027,6 +1196,7 @@ def test_parse():
         # (ZoroParser("var a <- b <- 5 ; "))
         # (ZoroParser("var a <- var b <- 5 ; "))
         # (ZoroParser("var a <- (var b <- 5) ; "))  ##TODO : This shouldn't parse, but thanks to brackets!
+        # (ZoroParser("var Int a[5] <- [2,1,4.0] ;"))
         pass
     if(1):                                          ##TODO
         # (ZoroParser("if c>0 then b<-2; elif k<k then l>5; returns b; endif ;"))     # fun_def & returns statements
