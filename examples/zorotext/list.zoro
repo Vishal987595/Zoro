@@ -1,4 +1,4 @@
-var a <- [14,15,16,17,18,19,20, "lp"]; 
+var a <- [14,15,16,17,18,19,20]; 
 print a; 
 var b<-a.len; 
 print b; 
@@ -17,4 +17,7 @@ print a.at 1;
 a.update 96 1;
 print a.at 1;
 print a;
-
+#
+var e <- [];
+print e;
+#

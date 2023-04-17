@@ -100,6 +100,7 @@ class AssignOp:
     operator: str
     left: 'AST'
     right: 'AST'
+    dtype: 'AST' = None
 
 @dataclass
 class UpdateOp:

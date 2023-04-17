@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import subprocess
+from tkinter import filedialog
 
 compiler = Tk()
 compiler.geometry("800x600")
@@ -64,6 +65,17 @@ def set_file_path(path):
     global file_path
     file_path = path
 
+def new_file():
+    # Implement the logic to create a new file here
+    file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")],
+                                            title="Create New File")
+    if file_path:
+        # If a valid file path is selected, create a new file
+        with open(file_path, "w") as file:
+            file.write("")  # Write an empty string to create an empty file
+        print("New file created:", file_path)
+
 def open_file():
     path = askopenfilename(filetypes=[('Custom Files', '*.zoro')])
     with open(path, 'r') as file:
@@ -109,10 +121,14 @@ def change_theme():
 def save_file(event):
     save_as()
 
+def exit():
+    compiler.quit()
+
 
 menu_bar = Menu(compiler)
 
 file_menu = Menu(menu_bar, tearoff=0)
+file_menu.add_command(label='New', command=new_file)
 file_menu.add_command(label='Open', command=open_file)
 file_menu.add_command(label='Save', command=save_as)
 file_menu.add_command(label='Save As', command=save_as)

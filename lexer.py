@@ -1,3 +1,4 @@
+from fractions import Fraction
 import re
 from dataclasses import dataclass
 from typing import List
@@ -28,38 +29,38 @@ class Stream:
         assert self.pos > 0
         self.pos = self.pos - 1
 
-"""
+
 # Token Classes
-@dataclass
-class Int:
-    value: int
-    def __init__(self, value, *args) -> None:
-        self.value = int(value)
+# @dataclass
+# class Int:
+#     value: int
+#     def __init__(self, value, *args) -> None:
+#         self.value = int(value)
 
-@dataclass
-class Float:
-    value: float
-    def __init__(self, value, *args) -> None:
-        self.value = float(value)
+# @dataclass
+# class Float:
+#     value: float
+#     def __init__(self, value, *args) -> None:
+#         self.value = float(value)
 
-@dataclass
-class Frac:
-    value: Fraction
-    def __init__(self, value, *args) -> None:
-        self.value = Fraction(value)
+# @dataclass
+# class Frac:
+#     value: Fraction
+#     def __init__(self, value, *args) -> None:
+#         self.value = Fraction(value)
 
-@dataclass
-class String:
-    value: str
-    def __init__(self, value, *args) -> None:
-        self.value = str(value)
+# @dataclass
+# class String:
+#     value: str
+#     def __init__(self, value, *args) -> None:
+#         self.value = str(value)
 
-@dataclass
-class Bool:
-    value: bool
-    def __init__(self, value, *args) -> None:
-        self.value = bool(value)
-"""
+# @dataclass
+# class Bool:
+#     value: bool
+#     def __init__(self, value, *args) -> None:
+#         self.value = bool(value)
+
 
 @dataclass
 class Keyword:
@@ -292,4 +293,5 @@ def print_tokens(code: str):
 
 
 
-# for i in ( print_tokens(" var Int Float <- 2 a ; ") ): print(i)
+# ans = print_tokens("a+b = 2;3+3=6")
+# print(ans)
