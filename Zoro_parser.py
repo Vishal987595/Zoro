@@ -620,7 +620,7 @@ class ZoroParser:
                         arg = self.parse_Expr(real_expr_flag=False)
                         args.append(arg)
 
-        self.consume_token(Symbol(";")); 
+#         self.consume_token(Symbol(";")); 
         return FuncCall(fn_name, (args))
 
     def parse_fun_def(self):
