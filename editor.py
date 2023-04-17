@@ -89,7 +89,7 @@ def run():
         text = Label(save_prompt, text='Please save your code')
         text.pack()
         return
-    command = f'python3 zoro.py {file_path}'
+    command = f'/usr/bin/python3 zoro.py {file_path}'
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
     code_output.insert('1.0', output)
