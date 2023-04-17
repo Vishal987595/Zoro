@@ -81,8 +81,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return (-1) * evalAST_(right)
         case UnOp("~", right):
             return ~( evalAST_(right) )
-        case UnOp("not", right):
-            return not evalAST_(right)
         
         case BitOp("&", left, right):
             return evalAST_(left) & evalAST_(right)
@@ -98,6 +96,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ##################
 
+        case LogOp("not", right):
+            return not evalAST_(right)
         case LogOp("and", left, right):
             return evalAST_(left) and evalAST_(right)
         case LogOp("or", left, right):
@@ -123,7 +123,10 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         case AssignOp("<-",left, right):
             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
+                # print("TTTTTTTTTTTTT", right)
                 right = evalAST_(right)
+                # print("YYYYYYYYYYYYY", right)
+                # print("YYYYYYYYYYYYY", type(right))
                 if(isinstance(right, int)):
                     right = Int(value=right)
                 elif(isinstance(right, float)):
@@ -164,8 +167,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             else:
                 #Raise error here
                 # print(f"Patthar ki lakeer hai \"{left.name}\", Janaab, badlegi nahi")
-                print(f"\"{left.name}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
-                raise Exception("Immutable variable")
+                print(f"\"{left.name[1:]}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
                 # return envlocal.get(left.name)
         case UpdateOp("->",left, right):
             if(type(left) != Int and type(left) != Float and type(left) != Frac and type(left) != Bool and type(left) != String and type(left) != Null and type(left) != List_):
@@ -183,8 +185,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 return envlocal.get(right.name)
             else:
                 # raise error here
-                print(f"\"{right.name}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
-                raise Exception("Immutable variable")
+                print(f"\"{right.name[1:]}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
                 # return envlocal.get(right.name)
         
 
@@ -221,8 +222,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 val = evalAST_(i)
                 if(type(val) == Returns):
                     break
-                if(val == Keyword(word="break")):
-                    break
             return val
         
         case Returns(value):
@@ -256,10 +255,23 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             if type(list) == Variable:
                 a = evalAST_(a)
                 a = List_(items=a)
-
-            a.items.append(item)
+            if type(item) == Int:
+                a.items.append(Int(evalAST_(item)))
+            elif type(item) == Float:
+                a.items.append(Float(evalAST_(item)))
+            elif type(item) == Frac:
+                a.items.append(Frac(evalAST_(item)))
+            elif type(item) == Bool:
+                a.items.append(Bool(evalAST_(item)))
+            elif type(item) == String:
+                a.items.append(String(evalAST_(item)))
+            elif type(item) == Variable:
+                x = evalAST_(item)
+                if type(x) == int:
+                    a.items.append(Int(evalAST_(item)))
+                # Add other cases
             envlocal.update(list.name, a)
-            return evalAST_(item)
+            return evalAST_(a)
         case ListOp(list, "pop", item, index):
             a = list
             if type(list) == Variable:
@@ -310,12 +322,12 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         ###################################################### Keywords Constructs ######################################################
 
-        case FuncDec(name, params, seq):
+        case FuncDec(name, params, seq, ret):
             name = evalAST_(name)
             if not envlocal.find(name):
-                envlocal.add(name, {'params': params, 'seq': seq})
+                envlocal.add(name, {'params': params, 'seq': seq, 'ret': ret})
             else:
-                envlocal.update(name, {'params': params, 'seq': seq})
+                envlocal.update(name, {'params': params, 'seq': seq, 'ret': ret})
             return envlocal.get(name)
 
         case FuncCall(name, args):
@@ -324,7 +336,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 envlocal.enter_scope()
                 vars = envlocal.get(name)['params']
                 seq = envlocal.get(name)['seq']
-                # ret = envlocal.get(name)['ret']
+                ret = envlocal.get(name)['ret']
                 for i in range(len(vars)):
                     right = args[i]
                     if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
@@ -336,7 +348,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                         elif(isinstance(right, bool)):
                             right = Bool(value=right)
                         elif(isinstance(right, str)):
-                            right = String(value=right)
+                            right = String(value=right)  
                     # if not envlocal.find(vars[i].name):
                         
                     #     envlocal.add(vars[i].name, right)
@@ -344,10 +356,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     #     envlocal.update(vars[i].name, right)
                     envlocal.add(vars[i].name, right)
                 e = evalAST_(seq)
-                r = None
-                if type(e) == Returns:
-                    r = evalAST_(e.value)
-                # r = evalAST_(ret)
+                r = evalAST_(ret)
                 envlocal.exit_scope()
                 return r
         # case FuncCall(name, args):
@@ -369,9 +378,17 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         #                     right = Bool(value=right)
         #                 elif(isinstance(right, str)):
         #                     right = String(value=right)  
+        #             # if not envlocal.find(vars[i].name):
+                        
+        #             #     envlocal.add(vars[i].name, right)
+        #             # else:
+        #             #     envlocal.update(vars[i].name, right)
         #             envlocal.add(vars[i].name, right)
         #         e = evalAST_(seq)
-        #         r = evalAST_(ret)
+        #         r = None
+        #         if type(e) == Returns:
+        #             r = evalAST_(e.value)
+        #         # r = evalAST_(ret)
         #         envlocal.exit_scope()
         #         return r
         
@@ -404,10 +421,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             val = None
             while(evalAST_(cnd)):
                 val = evalAST_(seq)
-                if val == Keyword(word="break"):
-                    break
             envlocal.exit_scope()
-            return None
+            return val
         
         case For(var, iter, seq):
             envlocal.enter_scope()
@@ -431,13 +446,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                         item = String(value=item)  
                 envlocal.update(var.name, item)
                 result = evalAST_(seq)
-                if result == Keyword(word="break"):
-                    break
             envlocal.exit_scope()
-            return None
-        
-        case Keyword(word):
-            return Keyword(word)
+            return result
         
         case Range(num1, num2, jmp):
             num1 = evalAST_(num1)
