@@ -11,16 +11,13 @@ Name_regex = "^[_a-zA-z][a-zA-Z0-9_]*$"
 class Invalid_Syntax_VAR_KW(Exception): pass # VarN cant be KW name
 class Invalid_Variable_Name(Exception): pass # doesnt satisfy regex
 class UnExpected_Token(Exception): pass # The construct is inapproprite
-class Expected_Params_Between_OF_and_IS(Exception): pass # since u've used "of" KW, must pass atleast one param
+class Expected_ParamsArgs_After_OF(Exception): pass # since u've used "of" KW, must pass atleast one param
 class Cannot_Assign_to_an_Expr(Exception): pass # Assi must be done to a location in memory
 class Expected_A_Semicolon(Exception): pass # Missing Semicolon to end the stmt
 class Invalid_Bracket_Character(Exception): pass # The encountered character cannot start a bracket type 
 class Incorrect_Bracket_Sequence(Exception): pass # Paranthesis pairs are not matching
 class Not_Enough_Closing_Brackets(Exception): pass # Add missing closing brackets properly
 class Inappropriate_Type_of_Token(Exception): pass # if(type(var)!=Token_Type)
-class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
-class Invalid_Character_Inside_Brackets(Exception): pass # Inside parse_brackets unreachable case
-class Returns_Not_Allowed_Here(Exception): pass # Do not allow 'returns' ouside fun_def
 
 #############################################################################################################################
 #############################################################################################################################
@@ -41,28 +38,20 @@ class Brkt_Stk_Cls:
                     self.stack.pop(-1)
                 else: 
                     raise Incorrect_Bracket_Sequence
-                    self.comp_err("Incorrect_Bracket_Sequence","Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
             case Symbol("]"):
                 if(self.stack[-1]==Symbol("[")): 
                     self.stack.pop(-1)
                 else: 
                     raise Incorrect_Bracket_Sequence
-                    self.comp_err("Incorrect_Bracket_Sequence","Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
             case Symbol("}"):
                 if(self.stack[-1]==Symbol("{")): 
                     self.stack.pop(-1)
                 else: 
                     raise Incorrect_Bracket_Sequence
-                    self.comp_err("Incorrect_Bracket_Sequence","Remove the Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
 
     def check_empty(self):
         if(len(self.stack)>0): 
             raise Not_Enough_Closing_Brackets
-            self.comp_err("Not_Enough_Closing_Brackets","Please add some closing brackets to match the leading ones.", self.Line_Numbers[self.Curr_Token_Index])
-            quit()
 
 
 # A class for End of File / End of Tokens detection - EOF/EOT Object-Class
@@ -76,28 +65,23 @@ class ZoroParser:
 
     def __init__(self, Program_Stream):
 
-        self.Token_Seq, self.Line_Numbers = print_tokens(Program_Stream); 
+        self.Token_Seq = print_tokens(Program_Stream); 
         self.Token_Seq.append(EOF)
-        print("\n\nTokens from Lexer", self.Token_Seq,"\n")
+        # print("\n\nTokens from Lexer", self.Token_Seq,"\n") # UNCOMMENT ONLY IF THE LEXER BECOMES SENTIENT AND POSES THREAT TO HUMANITY
 
         self.n = len(self.Token_Seq)
         self.nn = self.n-1
         self.pos = 0
-        self.Curr_Token_Index = 0
-
-        self.inside_fun_def = False
         self.Parsed_AST = self.parse_Program()
 
-        for i in self.Parsed_AST.seq: pprint(i); 
+        # for i in self.Parsed_AST.seq: pprint(i); #REFER TO SENTIENT LEXER COMMENT FOR INSTRUCTIONS
     def advance(self):                          # Moves the pointer to the immidiate next token
-        print("advancing", self.next_token()); 
+        # print("advancing", self.next_token()); # UNCOMMENT ONLY IF DORMAMU WILL ENGULF THE MULTIVERSE IF NOT DONE SO
         self.pos += 1
-        self.Curr_Token_Index += 1
         return
     def retreat(self):                          # Moves the pointer to the immidiate previous token
-        print("retreating", self.next_token()); 
+        # print("retreating", self.next_token()); # BECAUSE DR. STRANGE SAID SO
         self.pos-=1
-        self.Curr_Token_Index -= 1
         return
     def next_token(self):                       # Returns : First Upcoming Not-consumed token
         if(self.pos>=self.nn): 
@@ -111,19 +95,14 @@ class ZoroParser:
         else: 
             return self.Token_Seq[self.pos-1]
         # Peeking at the beginning should return the first token
-    def consume_token(self, expected_token):    # Consumes the next_token if it is the expected one
+    def consume_token(self,expected_token):     # Consumes the next_token if it is the expected one
         current_token = self.next_token()
         if(current_token==expected_token): 
-            self.Curr_Token_Index += 1
             return self.advance()
-        else:
+        else: 
             print(f"Expected : {expected_token}   , but got : {current_token}  //")
             raise UnExpected_Token
-            self.comp_err("Invalid Syntax",f"I think you should spend your remaining life remembering the syntax of Zoro!", self.Line_Numbers[self.Curr_Token_Index])
-            quit()
-    def comp_err(self,cate,msg,line):
-        print(f"\nCOMPILE TIME ERROR ENCOUNTERED : In line number {line} : as follows :")
-        print(cate,"::",msg,"\n")
+    
 
 
     #############################################################################################################################
@@ -136,40 +115,31 @@ class ZoroParser:
         
         try: 
             name = identifier.word; 
-        except:
-            print("\nRAISED IN PARSE NAME : ",identifier,"DOESN'T'VE WORD ATTR\n\n"); 
+        except: 
+            print("\nraise identifier.word --> ",identifier,"\n\n");
             raise UnExpected_Token; 
-            self.comp_err("Invalid Syntax",f"Your mind, logic and the token '{identifier}' you used, are all the same, at the wrong place!", self.Line_Numbers[self.Curr_Token_Index])
-            quit()
         
-        """ # TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  CHECK WHY IMPLEMENTED THIS IF """
         if(name in keywords):
-            print("\nHERE NAME IN KWDS : "); self.debug_print(); 
-            return self.retreat()
             # raise Invalid_Syntax_VAR_KW
-            # self.comp_err("Invalid_Syntax_VAR_KW","THIS_NEEDS_TO_BE_FILLED_IN_LATER", self.Line_Numbers[self.Curr_Token_Index])
-            # quit()
-        
+            return self.retreat(); 
         elif(re.match(Name_regex,name) == None):
             raise Invalid_Variable_Name
-            self.comp_err("Invalid_Variable_Name",f"The varibale you named '{name}' is, just like you, invalid!", self.Line_Numbers[self.Curr_Token_Index])
-            quit()
-        
+            # return self.retreat(); 
         else:
             if(name_flag==0):
-                self.advance()
+                self.advance(); 
                 if(self.next_token()==Keyword("of")):
-                    self.retreat()
-                    return self.parse_fun_call()
+                    self.retreat(); 
+                    return self.parse_fun_call(); 
                 else:
                     if(self.next_token()==Symbol(".")):
                         r1,r2,r3 = self.parse_list_fx()
                         return ListOp(Variable(name) , r1,r2,r3)
                     else:
-                        return Variable(name)
+                        return Variable(name); 
             elif(name_flag==1):
-                self.advance()
-                return Function(name)
+                self.advance(); 
+                return Function(name); 
 
 
     def parse_atom(self):               # Parses Basic DTypes
@@ -387,8 +357,6 @@ class ZoroParser:
         return left
     def parse_lor(self):
         match self.next_token():
-            case (Keyword("range")):
-                return self.parse_range()
             case (Symbol("(")):
                 return self.parse_bracket()
             case (Symbol("[")):
@@ -418,8 +386,6 @@ class ZoroParser:
             left = self.parse_lor()
             if(type(left)!=Variable): 
                 raise Cannot_Assign_to_an_Expr
-                self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
-                quit()
             self.consume_token(Operator("<-"))
             right = self.parse_lor()
             return AssignOp("<-", left, right)
@@ -430,8 +396,6 @@ class ZoroParser:
             if(self.next_token()==Operator("<-")):
                 if(type(left)!=Variable): 
                     raise Cannot_Assign_to_an_Expr
-                    self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 self.consume_token(Operator("<-"))
                 right = self.parse_lor()
                 return UpdateOp("<-", left, right)
@@ -446,8 +410,6 @@ class ZoroParser:
                 right = self.parse_lor()
                 if(type(right)!=Variable): 
                     raise Cannot_Assign_to_an_Expr
-                    self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 
                 if(assign_flag==True):
                     return AssignOp("->", left, right)
@@ -472,19 +434,20 @@ class ZoroParser:
             case Keyword("while"): return self.parse_while(); 
             case Keyword("print"): return self.parse_print(); 
             case Keyword("range"): return self.parse_range(); 
-            case Keyword("returns"): return self.parse_returns(); 
             case (Symbol("[")): return self.parse_list(); 
             case (Symbol("(")): return self.parse_bracket(); 
             case (Symbol(")")): return None; 
             case _:
-                expr_only = self.parse_Base(); self.debug_print(); 
+                expr_only = self.parse_Base(); 
+                # self.debug_print(); # REFER TO SENTINEL ISLAND COMMENT
                 if(real_expr_flag==True):
                     self.consume_token(Symbol(";")); 
                 return expr_only
 
     def parse_Program(self):    # Program refers to the sequence of instuctions, must followed by an EOF token! 
         final_instrs=[]; self.brkt_stk_obj = Brkt_Stk_Cls(); 
-        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
+        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); 
+        # print("\n\n",Sequence(final_instrs),"\n\n") # UNCOMMENT IF GONE WRONG SOMEWHERE
         self.brkt_stk_obj.check_empty()
         return Sequence(final_instrs)
 
@@ -501,15 +464,13 @@ class ZoroParser:
                 expr = self.parse_Expr(real_expr_flag=False); sub_seq.append(expr); 
                 while(True):
                     match self.next_token():
-                        case Symbol(")"):
+                        case Symbol(')'):
                             break
                         case Symbol(","):
                             self.consume_token(Symbol(","))
                             expr = self.parse_Expr(real_expr_flag=False); sub_seq.append(expr); 
                         case _ :
-                            raise Invalid_Character_Inside_Brackets
-                            self.comp_err("Invalid_Character_Inside_Brackets","", self.Line_Numbers[self.Curr_Token_Index])
-                            quit()
+                            print("INSIDE WHILE INVALID CASE")
                 self.consume_token(Symbol(")")); self.brkt_stk_obj.pop(Symbol(")")); #print("Consumed CLOSING BRACKET"); print("sub_seq",sub_seq); 
 
                 if(len(sub_seq)==1): 
@@ -518,20 +479,15 @@ class ZoroParser:
                     return Sequence(sub_seq); 
             case _: 
                 raise Invalid_Bracket_Character
-                self.comp_err("Invalid_Bracket_Character","Bhai (not sorry if you aren't)! You created a new bracter character. Well Done! Indeed! Just one thing : Go and write it in your own language, Not Here!", self.Line_Numbers[self.Curr_Token_Index])
-                quit()
 
     def parse_range(self):
         self.consume_token(Keyword("range")); 
         r1 = self.parse_Expr(real_expr_flag=False); 
         self.consume_token(Symbol(",")); 
         r2 = self.parse_Expr(real_expr_flag=False); 
-        if(self.next_token()==Symbol(",")):
-            self.consume_token(Symbol(",")); 
-            r3 = self.parse_Expr(real_expr_flag=False); 
-        else:
-            r3 = Int(value=1)
-        return List_([Int(i) for i in list(range(r1.value, r2.value, r3.value))])
+        self.consume_token(Symbol(",")); 
+        r3 = self.parse_Expr(real_expr_flag=False); 
+        return Range(r1,r2,r3); 
 
     def parse_list(self):
         self.consume_token(Symbol("["))
@@ -571,8 +527,6 @@ class ZoroParser:
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
                     raise Inappropriate_Type_of_Token
-                    self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 return "pop", Null(None), index
             case Keyword("insert"):
                 self.consume_token(Keyword("insert"))
@@ -580,8 +534,6 @@ class ZoroParser:
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
                     raise Inappropriate_Type_of_Token
-                    self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 return "insert", item, index
             case Keyword("update"):
                 self.consume_token(Keyword("update"))
@@ -589,8 +541,6 @@ class ZoroParser:
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
                     raise Inappropriate_Type_of_Token
-                    self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 return "update", item, index
             case Keyword("index"):
                 self.consume_token(Keyword("index"))
@@ -603,8 +553,6 @@ class ZoroParser:
                 return "count", self.parse_Expr(real_expr_flag=False), Null(None)
             case _:
                 raise UnExpected_Token
-                self.comp_err("Invalid Syntax","Pata nhi konse naye functions bina banaye use karta rehta hai.", self.Line_Numbers[self.Curr_Token_Index])
-                quit()
 
     def parse_String_fx(self):
         self.consume_token(Symbol("."))
@@ -617,21 +565,17 @@ class ZoroParser:
                 arg = self.parse_Expr(real_expr_flag=False)
                 if(type(arg)!=String):
                     raise Inappropriate_Type_of_Token
-                    self.comp_err("Inappropriate_Type_of_Token","String ko String ke saath concatnate karte hai, kam-akal. Pata nhi kya sikha itne saalo mein.", self.Line_Numbers[self.Curr_Token_Index])
-                    quit()
                 return "concat", arg
-            case Keyword("locate"):
-                self.consume_token(Keyword("locate"))
+            case Keyword("index"):
+                self.consume_token(Keyword("index"))
                 arg = self.parse_Expr(real_expr_flag=False)
-                return "locate", arg
-            case Keyword("count_char"):
-                self.consume_token(Keyword("count_char"))
+                return "index", arg
+            case Keyword("count"):
+                self.consume_token(Keyword("count"))
                 arg = self.parse_Expr(real_expr_flag=False)
-                return "count_char", arg
+                return "count", arg
             case _:
                 raise UnExpected_Token
-                self.comp_err("Invalid Syntax","Pata nhi konse naye functions bina banaye use karta rehta hai.", self.Line_Numbers[self.Curr_Token_Index])
-                quit()
 
 
 
@@ -672,34 +616,17 @@ class ZoroParser:
                     case (Symbol(";")):
                         break
                     case _:
-                        self.consume_token(Symbol(","))
+                        if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
                         arg = self.parse_Expr(real_expr_flag=False)
                         args.append(arg)
 
-        # self.consume_token(Symbol(";")); 
+        self.consume_token(Symbol(";")); 
         return FuncCall(fn_name, (args))
 
-    def parse_returns(self):
-        if(self.inside_fun_def==False):
-            raise Returns_Not_Allowed_Here
-            self.comp_err("Returns_Not_Allowed_Here","What an imagination you have, to use 'returns' keyword outside of a function-definition. Hats off genius!", self.Line_Numbers[self.Curr_Token_Index])
-            quit()
-        
-        self.consume_token(Keyword("returns"))
-
-        if(self.next_token()!=Symbol(";")):
-            returnable = self.parse_Expr(real_expr_flag=False)
-        else:
-            returnable = Null(None)
-        
-        self.consume_token(Symbol(";"))
-        return Returns(returnable)
-
     def parse_fun_def(self):
-        assert self.inside_fun_def == False
-        self.inside_fun_def = True
         params = []
         body = []
+        returnable = Null(None)
 
         self.consume_token(Keyword("fun"))
         fn_name = self.parse_name(name_flag=1)
@@ -708,9 +635,7 @@ class ZoroParser:
             self.consume_token(Keyword("of"))
             
             if(self.next_token()==Keyword("is")): 
-                raise Expected_Params_Between_OF_and_IS
-                self.comp_err("Expected_Params_Between_OF_and_IS","Kya socha, function-definition me 'is' and 'of' k bich me parameters me apne aap daal dunga?!", self.Line_Numbers[self.Curr_Token_Index])
-                quit()
+                raise Expected_ParamsArgs_After_OF
             else:
                 param = self.parse_name(name_flag=0)
                 params.append(param)
@@ -721,7 +646,7 @@ class ZoroParser:
                         case Keyword("is"):
                             break
                         case _:
-                            self.consume_token(Symbol(","))
+                            if(self.next_token()==Symbol(",")): self.consume_token(Symbol(","))
                             param = self.parse_name(name_flag=0)
                             params.append(param)
         
@@ -731,18 +656,25 @@ class ZoroParser:
             match self.next_token():
                 case (Symbol("(")):
                     return self.parse_bracket()
+                case Keyword("returns"):
+                    break
                 case Keyword("endfun"):
                     break
                 case _:
                     expr = self.parse_Expr()
                     body.append(expr)
+ 
+        if(self.next_token()==Keyword("returns")):
+            self.consume_token(Keyword("returns"))
+
+            if(self.next_token()!=Symbol(";")):
+                returnable = self.parse_Expr(real_expr_flag=False)
+            self.consume_token(Symbol(";"))
         
         self.consume_token(Keyword("endfun"))
         self.consume_token(Symbol(";"))
 
-        assert self.inside_fun_def == True
-        self.inside_fun_def = False
-        return FuncDec(fn_name, params, Sequence(body))
+        return FuncDec(fn_name, params, Sequence(body), returnable)
 
     def parse_if(self, inloop=False):
         conds=[]
@@ -764,10 +696,10 @@ class ZoroParser:
                     break
                 case Keyword("endif"):
                     break
-                case Keyword("break"):
-                    curr_seq.append(Keyword("break"))
-                    self.consume_token(Keyword("break"))
-                    self.consume_token(Symbol(";"))
+                case Keyword('break'):
+                    curr_seq.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
                     expr = self.parse_Expr()
                     curr_seq.append(expr)
@@ -799,10 +731,10 @@ class ZoroParser:
                                     break
                                 case Keyword("else"):
                                     break
-                                case Keyword("break"):
-                                    curr_seq.append(Keyword("break"))
-                                    self.consume_token(Keyword("break"))
-                                    self.consume_token(Symbol(";"))
+                                case Keyword('break'):
+                                    curr_seq.append(Keyword('break'))
+                                    self.consume_token(Keyword('break'))
+                                    self.consume_token(Symbol(';'))
                                 case _:
                                     expr = self.parse_Expr()
                                     curr_seq.append(expr)
@@ -818,10 +750,10 @@ class ZoroParser:
                         return self.parse_bracket()
                     case Keyword("endif"):
                         break
-                    case Keyword("break"):
-                        curr_seq.append(Keyword("break"))
-                        self.consume_token(Keyword("break"))
-                        self.consume_token(Symbol(";"))
+                    case Keyword('break'):
+                        curr_seq.append(Keyword('break'))
+                        self.consume_token(Keyword('break'))
+                        self.consume_token(Symbol(';'))
                     case _:
                         expr = self.parse_Expr()
                         curr_seq.append(expr)
@@ -844,10 +776,10 @@ class ZoroParser:
                     return self.parse_bracket()
                 case Keyword("endwhile"):
                     break
-                case Keyword("break"):
-                    body.append(Keyword("break"))
-                    self.consume_token(Keyword("break"))
-                    self.consume_token(Symbol(";"))
+                case Keyword('break'):
+                    body.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
                     expr = self.parse_Expr(inloop=True)
                     body.append(expr)
@@ -865,8 +797,6 @@ class ZoroParser:
         
         if(self.next_token()==Symbol("[")):
             iterable = self.parse_list()
-        elif(self.next_token()==Keyword("range")):
-            iterable = self.parse_range()
         else:
             iterable = self.parse_name(name_flag=0)
         
@@ -878,10 +808,10 @@ class ZoroParser:
                     return self.parse_bracket()
                 case Keyword("endfor"):
                     break
-                case Keyword("break"):
-                    body.append(Keyword("break"))
-                    self.consume_token(Keyword("break"))
-                    self.consume_token(Symbol(";"))
+                case Keyword('break'):
+                    body.append(Keyword('break'))
+                    self.consume_token(Keyword('break'))
+                    self.consume_token(Symbol(';'))
                 case _:
                     expr = self.parse_Expr(inloop=True)
                     body.append(expr)
@@ -890,7 +820,7 @@ class ZoroParser:
         self.consume_token(Symbol(";"))
         return For(var,iterable,Sequence(body, inloop=True))
 
-    def debug_print(self): print(f"(Pos , Next_Token)     =     ({self.pos} , {self.next_token()})")
+    # def debug_print(self): print(f"(Pos , Next_Token)     =     ({self.pos} , {self.next_token()})") # UNCOMMENT ONLY IF THE SENTIENT LEXER MAKES AN ARMY TO NORTH SENTINEL ISLANDS TO RETRIEVE THE SECRETS TO MAKE THE PARSER SENTIENT TOO
 
 
 
@@ -900,7 +830,7 @@ class ZoroParser:
 
 
 def test_parse():
-    print("\n")
+    # print("\n") # LORD VISHNU WILL COME AMONGST THE MORTALS AS KALKI TO UNCOMMENT THIS, TILL THEN, DON'T TOUCH IT, OR MR. BEAN WILL COME AND TICKLE YOU
 
     """ Valid Programs """
     if(1):      # Basic Datatypes
@@ -938,9 +868,12 @@ def test_parse():
     if(1):      # while & for - loops statements
         # (ZoroParser("while c>=0 do a<-2; b<-5; endwhile ;"))
         # (ZoroParser("for i in list_name do k<-2; a<-a+1; endfor ;"))
-        # (ZoroParser("for i in [ 2 , 6 , alpha ] do k<-2;a<-a+1; endfor ;"))
+        # (ZoroParser("for i in [ 2 , 6 , alpha ] do k<-2;a<-a+1; endfor ;"))      
+        # (ZoroParser("while a > 0 do if a>5 then break; else a <- a+1; endif; endwhile;")) ##Uncomment this line to see the AST
+        # ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        # (ZoroParser("var l <- [1, 2, 3]; print l.at 2;"))
         pass
-    if(1):      # fun_def & returns statements
+    if(1):      # fun_def statement
         # (ZoroParser("fun myfun is a<-2; endfun ;"))
         # (ZoroParser("fun myfun is returns; endfun ;"))
         # (ZoroParser("fun myfun is returns 3; endfun ;"))
@@ -949,25 +882,24 @@ def test_parse():
         # (ZoroParser("fun myfun of a,b is a<-2; endfun ;"))
         # (ZoroParser("fun myfun of a,b is a<-2; returns ; endfun ;"))
         # (ZoroParser("fun myfun of a,b is a<-2; returns 3; endfun ;"))
-        # (ZoroParser("fun myfun of a,b,c is if(a+b<c) then  a<-b+c;  returns c;  elif (a-b<(c+b)) then returns b; else returns a; endif;  returns a+(b+c);  endfun;"))
         pass
-    if(1):      # fun_call statement        ##TODO
+    if(1):      # fun_call statement
         # (ZoroParser("myfun of a1,a2,a3 ;"))
         # (ZoroParser("var my_var <- myfun of a1,a2,a3 ; "))
         # (ZoroParser("print myfun of a1,a2,a3 ; "))
-        # (ZoroParser("myfun of a1, my_other_fun of a2 , a3 ; "))   ##TODO : Dangling argument!
+        # (ZoroParser("myfun of a1, my_other_fun of a2 , a3 ; "))   ######### TO DOOOOOOOOO (Dangling argument!)
         pass
     if(1):      # print statement
         # (ZoroParser("print f of a1,a2,a3 ; "))
         pass
-    if(1):      # Brackets                  ##TODO
+    if(1):      # Brackets
         # (ZoroParser("()"))
         # (ZoroParser("(((())))"))
 
         # (ZoroParser(" if (1+2>(3)) then 5+(6 * 8 or 5); else d<-5; endif; "))
         # (ZoroParser(" 2 * (3+5 or 9) xor 5 ** 6 + 4 * ~ (i +- 5 ^ 8) ; "))
-        # (ZoroParser("(1+2)*a;"))    ##TODO : Should parse operator after an expr
-        # (ZoroParser("(1)+(a);"))    ##TODO : Should parse operator after an expr
+        # (ZoroParser("(1+2)*a;"))    ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        # (ZoroParser("(1)+(a);"))    ######### TO DOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
         pass
     if(1):      # ListOps
         # (ZoroParser("a.len;"))
@@ -982,21 +914,14 @@ def test_parse():
     if(1):      # StringOps
         # (ZoroParser(' "My_str" . len ; '))
         # (ZoroParser(' "MY_str" . concat "UR_str" ; '))
-        # # (ZoroParser(' "My_str" . locate 2 ; '))
-        # # (ZoroParser(' "My_str" . count_char _ ; '))
-        # # (ZoroParser(' "My_str" . count_char m ; '))
+        # (ZoroParser(' "My_str" . index 2 ; '))
+        # (ZoroParser(' "My_str" . count _ ; '))
+        # (ZoroParser(' "My_str" . count m ; '))
         pass
-    if(1):      # BREAK statement
-        # (ZoroParser("var a<-2; var i<-0; while a>0 do if a>5 then break; else a<-a+1; i<-i+1; endif; endwhile; print a;"))
-        pass
-    if(1):      # range
-        # (ZoroParser(" a <- range 3,2,5 ; "))
-        # (ZoroParser(" a <- range 3,2 ; "))
-        # (ZoroParser(" for i in range 3,11,2 do a<-1; endfor; "))
-        # (ZoroParser(" for i in range 5,10 do a<-1; endfor; "))
+    if(1):      # BREAK statement := TO BE ADDED LATER
         pass
     
-    if(1):      # APNE PROGRAMS 1 : OLD_VERSION
+    if(1):  # APNE PROGRAMS : Old Version
         # ZoroParser("fun fib of n is  a <- 0;  if n > 1;   then n1 <- n - 1;  b <- fib of n1;;;  n2 <- n - 2;  c <- fib of n2;;;  a <- b + c;  else a <- n;  endif;  returns a;  endfun;  print fib of 5;;;;")
         # ZoroParser(" fun f of n is if n>1; then b<-f of n-1;;; c<-b*n; else c<-1; endif; returns c; endfun;   print f of 4;;;; ")
         # ZoroParser("sum <- 0;  i <- 0;  while i<1000; do      if     i%3 == 0 or i%5 == 0;    then          sum <- sum + i;      endif;      i <- i + 1; print i; sum; ; endwhile;  print sum;;")
@@ -1006,52 +931,25 @@ def test_parse():
         # ZoroParser("m1 <- 1000//3; s1 <- m1+1; s1 <- 3*s1*m1//2;  m2 <- 1000//5; s2 <- m2+1; s2 <- 5*s2*m2//2;  m3 <- 1000//15; s3 <- m3+1; s3 <- 15*s3*m3//2;  ans <- s1 + s2 - s3; print ans; ;")
         # ZoroParser("fun fib of n is a<-0; if n>1; then a<- ((fib of (n-1;)) + (fib of n-2;)) ; else a<-n; endif; returns a; endfun; print fib of 5; ")
         # ZoroParser(" list_name <- [1; 2; 5;] ; for i in list_name do k<-2; endfor; ")
+        # ZoroParser("(a<-2;)")
         pass
-    if(1):      # APNE PROGRAMS 2 : OLD_VERSION : EULER 1 3 7
+    if(1):  # APNE PROGRAMS 2 : Old Version : EULER 1 3 7
         # (ZoroParser("sum <- 0; i <- 0; while i<10 do if i%3 == 0 or i%5 == 0 then sum <- sum + i; endif; i <- i + 1; endwhile; print sum;  "))
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; endwhile; returns a endfun; print isPrime of 13;; k <- 45; j <- 2; mp <- 2; while j <= k do p <- isPrime of j;; if k%p == 0 then mp <- j; endif; j <- j + 1; endwhile; print mp;"))
         # (ZoroParser("fun isPrime of n is var a <- True; var i <- 2; while i<n and a == True do if n%i == 0 then a <- False; endif; i <- i + 1; print a; endwhile; returns a endfun; p <- 2; cnt <- 0; j <- 2; while cnt <= 10001 do if isPrime of j; then cnt <- cnt + 1; p<- j; endif; j <- j + 1; endwhile; print p; "))
         pass
-    
-    """ Invalid Programs """ """ For Parser Only """
+
+    """ Invalid Programs """
     if(1):
         # (ZoroParser(";"))
         # (ZoroParser("#"))
         # (ZoroParser("__#__"))
         # (ZoroParser("_this_85_#_65_ad_"))
         # (ZoroParser('_a.n'))
-        # (ZoroParser(' 59.54 ^ invalid"This is abra kadabra string !  lOl ;) "    Dont%Do\\This '))
-        pass
-    if(1):                                          ##TODO
-        # (ZoroParser("var a <- 5 -> b ; "))
-        # (ZoroParser("var a <- b <- 5 ; "))
-        # (ZoroParser("var a <- var b <- 5 ; "))
-        # (ZoroParser("var a <- (var b <- 5) ; "))  ##TODO : This shouldn't parse, but thanks to brackets!
-        pass
-    if(1):                                          ##TODO
-        # (ZoroParser("if c>0 then b<-2; elif k<k then l>5; returns b; endif ;"))     # fun_def & returns statements
-        # (ZoroParser(" f of a b c; "))   # fun_call statement
-        # (ZoroParser(" f of   is my_bad; endfun; "))   # fun_call statement
-        # (ZoroParser(" print a,b c; "))    # print
+        # (ZoroParser(' 59.54 ^ invalid"This is abra kadabra string !  lOl ;) "    Dont%This '))
         pass
     
-    if(1):            ##TODO ADD_INVALID_TESTCASES_BY_CATEGORY
-        # (ZoroParser(""))    # Arithmetics
-        # (ZoroParser(""))    # Arithmetics
-        # (ZoroParser(""))    # Arithmetics
-        # (ZoroParser(""))    # If
-        # (ZoroParser(""))    # While
-        # (ZoroParser(""))    # For
-        pass
-    if(1):            ##TODO ADD_INVALID_TESTCASES_BY_CATEGORY
-        # (ZoroParser(""))    # Brackets
-        # (ZoroParser(""))    # Brackets
-        # (ZoroParser(""))    # ListOps
-        # (ZoroParser(""))    # ListOps
-        # (ZoroParser(""))    # StringOps
-        # (ZoroParser(""))    # StringOps
-        pass
-    print("\n")
+    # print("\n") # UNCOMMENT WHEN POPATLAL GETS MARRIED
 test_parse()
 
 #############################################################################################################################
