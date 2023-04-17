@@ -15,9 +15,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
     def evalAST_(program):
         return evalAST(program, envlocal)
     
-    def varevalAST_(program):
-        return evalAST(program, envlocal)
-    
     match program:
         
 
@@ -42,10 +39,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
 
         case MathOp("+", left, right):
-            # print("left", type(left))
-            # print("leftvalue", left.value)
-            # print("right", type(right))
-            # print("rightvalue", evalAST_(right))
             return evalAST_(left) + evalAST_(right)
         case MathOp("-", left, right):
             return evalAST_(left) - evalAST_(right)
@@ -61,10 +54,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) ** evalAST_(right)
         
         case CndOp(">", left, right):
-            # if type(left) == Variable:
-            #     left = evalAST_(left)
-            # if type(right) == Variable:
-            #     right = evalAST_(right)
             return evalAST_(left) > evalAST_(right)
         case CndOp("<", left, right):
             return evalAST_(left) < evalAST_(right)
@@ -121,7 +110,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         ####################################################################################################### 
 
 
-        case AssignOp("<-",left, right):
+        case AssignOp("<-",left, right, dtype):
             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
                 right = evalAST_(right)
                 if(isinstance(right, int)):
@@ -132,9 +121,9 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     right = Bool(value=right)
                 elif(isinstance(right, str)):
                     right = String(value=right)   
-            envlocal.add(left.name, right)
-            return envlocal.get(left.name)
-        case AssignOp("->",left, right):
+            envlocal.add(left.name, right, dtype)
+            return envlocal.get(left.name)[0]
+        case AssignOp("->",left, right, dtype):
             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
                 right = evalAST_(right)
                 if(isinstance(right, int)):
@@ -145,8 +134,8 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     right = Bool(value=right)
                 elif(isinstance(right, str)):
                     right = String(value=right)   
-            envlocal.add(right.name, right)
-            return envlocal.get(right.name)
+            envlocal.add(left.name, right, dtype)
+            return envlocal.get(right.name)[0]
         case UpdateOp("<-",left, right):
             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
                 right = evalAST_(right)
@@ -157,10 +146,15 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 elif(isinstance(right, bool)):
                     right = Bool(value=right)
                 elif(isinstance(right, str)):
-                    right = String(value=right)   
+                    right = String(value=right)
+                print(type(right))  
+            if (envlocal.get(left.name)[1] != None) and (type(envlocal.get(left.name)[1]) != type(right)):
+                print("TYPE", type(right), "ENV", envlocal.get(left.name)[1])
+                print(f"\"{left.name}\" ka type {envlocal.get(left.name)[1]} hai, {type(right)} type ka value assign karne ki koshish kar rahe ho")
+                raise Exception("Type mismatch")
             if left.name[0] != '_':
                 envlocal.update(left.name, right)
-                return envlocal.get(left.name)
+                return envlocal.get(left.name)[0]
             else:
                 #Raise error here
                 # print(f"Patthar ki lakeer hai \"{left.name}\", Janaab, badlegi nahi")
@@ -178,9 +172,12 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     left = Bool(value=left)
                 elif(isinstance(left, str)):
                     left = String(value=left)
+            if (envlocal.get(right.name)[1] != None) and type(envlocal.get(right.name)[1]) != type(left):
+                print(f"\"{right.name}\" ka type {envlocal.get(right.name)[1]} hai, {type(left)} type ka value assign karne ki koshish kar rahe ho")
+                raise Exception("Type mismatch")
             if right.name[0] != '_':
                 envlocal.update(right.name, left)
-                return envlocal.get(right.name)
+                return envlocal.get(right.name)[0]
             else:
                 # raise error here
                 print(f"\"{right.name}\" sunke mutable samjhe the kya? Immutable hai apun, badlega nai saala")
@@ -202,11 +199,11 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         case Put(Variable(name), e):
             envlocal.add(name, evalAST_(e))
-            return envlocal.get(name)
+            return envlocal.get(name)[0]
         case Get(Variable(name)):
-            return envlocal.get(name)
+            return envlocal.get(name)[0]
         case Variable(name):
-            return evalAST_(envlocal.get(name))
+            return evalAST_(envlocal.get(name)[0])
         case Let(Variable(name), e1, e2):
             v1 = evalAST_(e1)
             envlocal.enter_scope()
@@ -241,8 +238,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         #######################################################################################################################################
 
         case List_(items):
-            # for i in range(len(items)):
-            #     items[i] = evalAST_(items[i])
             return items
         case ListOp(list, "len"):
             a = list
@@ -257,7 +252,20 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                 a = evalAST_(a)
                 a = List_(items=a)
 
-            a.items.append(item)
+            if type(item) == Variable:
+                x = evalAST_(item)
+                match type(x):
+                    case int(value):
+                        a.items.append(Int(evalAST_(item)))
+                    case float(value):
+                        a.items.append(Float(evalAST_(item)))
+                    case bool(value):
+                        a.items.append(Bool(evalAST_(item)))
+                    case str(value):
+                        a.items.append(String(evalAST_(item)))
+                    case _:
+                        print("WTH")
+                    
             envlocal.update(list.name, a)
             return evalAST_(item)
         case ListOp(list, "pop", item, index):
@@ -313,17 +321,17 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case FuncDec(name, params, seq):
             name = evalAST_(name)
             if not envlocal.find(name):
-                envlocal.add(name, {'params': params, 'seq': seq})
+                envlocal.add(name, {'params': params, 'seq': seq}, None)
             else:
                 envlocal.update(name, {'params': params, 'seq': seq})
-            return envlocal.get(name)
+            return envlocal.get(name)[0]
 
         case FuncCall(name, args):
             name = evalAST_(name)
             if envlocal.find(name):
                 envlocal.enter_scope()
-                vars = envlocal.get(name)['params']
-                seq = envlocal.get(name)['seq']
+                vars = envlocal.get(name)[0]['params']
+                seq = envlocal.get(name)[0]['seq']
                 # ret = envlocal.get(name)['ret']
                 for i in range(len(vars)):
                     right = args[i]
@@ -337,43 +345,13 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                             right = Bool(value=right)
                         elif(isinstance(right, str)):
                             right = String(value=right)
-                    # if not envlocal.find(vars[i].name):
-                        
-                    #     envlocal.add(vars[i].name, right)
-                    # else:
-                    #     envlocal.update(vars[i].name, right)
-                    envlocal.add(vars[i].name, right)
+                    envlocal.add(vars[i].name, right, None)
                 e = evalAST_(seq)
                 r = None
                 if type(e) == Returns:
                     r = evalAST_(e.value)
-                # r = evalAST_(ret)
                 envlocal.exit_scope()
                 return r
-        # case FuncCall(name, args):
-        #     name = evalAST_(name)
-        #     if envlocal.find(name):
-        #         envlocal.enter_scope()
-        #         vars = envlocal.get(name)['params']
-        #         seq = envlocal.get(name)['seq']
-        #         ret = envlocal.get(name)['ret']
-        #         for i in range(len(vars)):
-        #             right = args[i]
-        #             if(type(right) != Int and type(right) != Float and type(right) != Frac and type(right) != Bool and type(right) != String and type(right) != Null and type(right) != List_):
-        #                 right = evalAST_(right)
-        #                 if(isinstance(right, int)):
-        #                     right = Int(value=right)
-        #                 elif(isinstance(right, float)):
-        #                     right = Float(value=right)
-        #                 elif(isinstance(right, bool)):
-        #                     right = Bool(value=right)
-        #                 elif(isinstance(right, str)):
-        #                     right = String(value=right)  
-        #             envlocal.add(vars[i].name, right)
-        #         e = evalAST_(seq)
-        #         r = evalAST_(ret)
-        #         envlocal.exit_scope()
-        #         return r
         
         case Function(name):
             return name
@@ -412,7 +390,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case For(var, iter, seq):
             envlocal.enter_scope()
             if(not envlocal.find(var.name)):
-                envlocal.add(var.name, iter)
+                envlocal.add(var.name, iter, None)
             else:
                 envlocal.update(var.name, iter)
             result = None
@@ -462,10 +440,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
 
         case Print(contents):
             for c in contents:
-                # if(type(c)==Variable):
-                #     c = evalAST_(c)
                 c = copy.copy(evalAST_(c))
-                # print("TYPEEEEEEE",type(c))
                 if(isinstance(c, type([]))):
                     for i in range(len(c)):
                         c[i] = evalAST_(c[i])

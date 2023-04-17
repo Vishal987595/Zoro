@@ -14,9 +14,13 @@ class Environment:
         assert self.envs
         self.envs.pop()
 
-    def add(self, name, value):
+    # def add(self, name, value):
+    #     assert name not in self.envs[-1]
+    #     self.envs[-1][name] = value
+
+    def add(self, name, value, dtype = None):
         assert name not in self.envs[-1]
-        self.envs[-1][name] = value
+        self.envs[-1][name] = [value, dtype]
 
     def get(self, name):
         for env in reversed(self.envs):
@@ -27,7 +31,7 @@ class Environment:
     def update(self, name, value):
         for env in reversed(self.envs):
             if name in env:
-                env[name] = value
+                env[name][0] = value
                 return
         raise KeyError()
     
