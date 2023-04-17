@@ -1,5 +1,12 @@
+from typing import Dict
+from lexer import *
 from dataTypeDeclaration import *
-from Zoro_parser import ZoroParser
+from Zoro_parser import *
+
+
+class VariableNotFoundError(Exception):
+    def __init__(self, name):
+        super().__init__(f"\'{name}\' is there, but only in your imagination.")
 
 # If a new instruction is defined, add a dataclass, class name should be in all caps
 @dataclass
@@ -34,9 +41,35 @@ class JMP:
 class HALT:
     pass
 
+@dataclass
+class LOAD:
+    localname: str
+
+@dataclass
+class STORE:
+    localname: str
+    newvar: bool = False
+
+@dataclass
+class STOREFUN:
+    name: str
+    addr: int
+
+@dataclass
+class CALLFUN:
+    name: str
+
+@dataclass
+class RETURN:
+    pass
+
+@dataclass
+class PRINT:
+    pass
+
 
 #If you define a new instruction, add it here
-Instructions = PUSH | POP | DUP | JMP_IF_FALSE | JMP_IF_TRUE | JMP | HALT | Operator
+Instructions = PUSH | POP | DUP | JMP_IF_FALSE | JMP_IF_TRUE | JMP | HALT | Operator | LOAD | STORE | RETURN | STOREFUN | CALLFUN | PRINT
 
 
 class ByteCode:
@@ -55,9 +88,32 @@ class ByteCode:
         label.label = len(self.instructions)
 
 class Frame:
-    locals: List[Value] = [None]*32
-    retaddr: int = -1
-    dynLink: 'Frame' = None
+    locals: Dict[str, Value]
+    retaddr: int
+    dynLink: 'Frame'
+
+    def __init__(self, retaddr=-1, dynlink=None):
+        self.locals = {}
+        self.retaddr = retaddr
+        self.dynLink = dynlink
+
+    def find(self, name):
+        if name in self.locals:
+            return self.locals[name]
+        elif self.dynLink != None:
+            return self.dynLink.find(name)
+        raise VariableNotFoundError(name)
+
+    def add(self, name, value):
+        self.locals[name] = value
+    
+    def update(self, name, value):
+        if name in self.locals:
+            self.locals[name] = value
+            return
+        elif self.dynLink != None:
+            self.dynLink.update(name, value)
+        raise VariableNotFoundError(name)
 
 l = []
 currFrame = Frame()
@@ -70,6 +126,33 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
         parseAST_(ast, code)
 
     match ast:
+        case Frac(value):
+            code.emit(PUSH(value))
+        case Int(value):
+            code.emit(PUSH(value))
+        case Float(value):
+            code.emit(PUSH(value))
+        case Bool(value):
+            code.emit(PUSH(value))
+        case String(value):
+            code.emit(PUSH(value))
+
+        case Variable(name):
+            code.emit(LOAD(name))
+
+        case AssignOp('<-', left, right):
+            parse_(right)
+            code.emit(STORE(left.name, True))
+        case AssignOp('->', left, right):
+            parse_(left)
+            code.emit(STORE(right.name, True))
+
+        case UpdateOp('<-', left, right):
+            parse_(right)
+            code.emit(STORE(left.name, False))
+        case UpdateOp('->', left, right):
+            parse_(left)
+            code.emit(STORE(right.name, False))
 
         case MathOp("+", left, right):
             parse_(left)
@@ -155,7 +238,7 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
             parse_(left)
             parse_(right)
             code.emit(Operator('>>'))
-            
+        
         case LogOp("and", left, right):
             label = LABEL()
             parse_(left)
@@ -183,11 +266,15 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
         case LogOp("xnor", left, right):
             parse_(LogOp("xor", left, right))
             code.emit(Operator('not'))
+
+        case Print(contents):
+            for c in contents:
+                parse_(c)
+                code.emit(PRINT())
+
         case Sequence(seq):
             for s in seq:
                 parse_(s)
-                code.emit(POP())
-            code.instructions.pop()
 
         case If(con, seq):
             endlab = LABEL()
@@ -206,17 +293,68 @@ def parseAST_(ast: AST, code: ByteCode, ) -> None:
         case While(cnd, seq):
             looplab = LABEL()
             endlab = LABEL()
-            parse_(cnd)
-            code.emit(JMP_IF_FALSE(endlab))
             code.emit_label(looplab)
-            parse_(seq)
             parse_(cnd)
             code.emit(JMP_IF_FALSE(endlab))
-            code.emit(POP())
+            parse_(seq)
             code.emit(JMP(looplab))
             code.emit_label(endlab)
 
-        
+        case FuncDec(name, params, body, returns):
+            funlab = LABEL()
+            beginlab = LABEL()
+            code.emit_label(funlab)
+            code.emit(STOREFUN(name.name, funlab.label+2))
+            code.emit(JMP(beginlab))
+            code.emit_label(funlab)
+            for p in reversed(params):
+                code.emit(STORE(p.name, True))
+            parse_(body)
+            parse_(returns)
+            code.emit(RETURN())
+            code.emit_label(beginlab)
+
+        case FuncCall(name, args):
+            for a in args:
+                parse_(a)
+            code.emit(CALLFUN(name.name))
+
+        case List_(items):
+            code.emit(PUSH([]))
+            for i in items:
+                parse_(i)
+                code.emit(Operator('push'))
+
+        case ListOp(lst, "push", item):
+            if type(lst) == List_:
+                parse_(lst)
+                parse_(item)
+                code.emit(Operator('push'))
+            if type(lst) == Variable:
+                code.emit(LOAD(lst.name))
+                parse_(item)
+                code.emit(Operator('push'))
+                code.emit(STORE(lst.name))
+        case ListOp(lst, "at", item, index):
+            if type(lst) == List_:
+                parse_(lst)
+            if type(lst) == Variable:
+                code.emit(LOAD(lst.name))
+            parse_(index)
+            code.emit(Operator('at'))
+        case ListOp(lst, "pop", item, index):
+            if type(lst) == List_:
+                parse_(lst)
+                parse_(item)
+                code.emit(Operator('pop'))
+            if type(lst) == Variable:
+                code.emit(LOAD(lst.name))
+                parse_(item)
+                code.emit(Operator('popvar'))
+                code.emit(STORE(lst.name))
+
+
+# Add the prettyprint case for the newly defined instruction here.
 def pprint(l):
     c = 0
     for i in l:
@@ -235,8 +373,20 @@ def pprint(l):
                 print(f"\t{c}\t: JMP_IF_FALSE\t{to.label}")
             case JMP_IF_TRUE(to):
                 print(f"\t{c}\t: JMP_IF_TRUE\t{to.label}")
-            case LABEL(label):
-                print(f"\t{c}\t: LABEL({label})")
+            case LOAD(name):
+                print(f"\t{c}\t: LOAD    \t{name}")
+            case STORE(name, True):
+                print(f"\t{c}\t: STORE    \t{name} \tDEFINED")
+            case STORE(name, False):
+                print(f"\t{c}\t: STORE    \t{name}")
+            case RETURN():
+                print(f"\t{c}\t: RETURN")
+            case STOREFUN(name, addr):
+                print(f"\t{c}\t: STOREFUN    \t{name} \tAT {addr}")
+            case CALLFUN(name):
+                print(f"\t{c}\t: CALLFUN    \t{name}")
+            case PRINT():
+                print(f"\t{c}\t: PRINT")
             case HALT():
                 print(f"\t{c}\t: HALT")
         c += 1
@@ -246,8 +396,19 @@ def parseAST(ast):
     parseAST_(ast, code)
     code.emit(HALT())
     return code
-  
-# ast = ZoroParser(<YOUR CODE HERE AS A STRING>).Parsed_AST
+
+
+# ans_to_parser, lines = print_tokens("fun f of a,b,c is var d <- a+b+c; returns d; endfun; var e <- f of 1,2,3;;")
+# ast = ZoroParser(ans_to_parser)
+# ast = ZoroParser("fun f of a,b,c is var d <- a+b+c; returns d; endfun; var e <- f of 1,2,3;;").Parsed_AST
+# ast = ZoroParser("1+2;").Parsed_AST
 # print(ast)
-# code = parseAST(<COPIED AST FROM THE TERMINAL HERE>) #For some reason, when the output of the parser is directly put here, the literal values ie int, bool, string, frac, float are ignored
-# pprint(code.instructions) #Pretty print
+# code = parseAST(Sequence(seq=[MathOp(operator='+', left=Int(value=1), right=Int(value=2))], inloop=False))
+# code = parseAST(ast)
+# print(code.instructions)
+# code = parseAST(Sequence(seq=[FuncDec(name=Function(name='f'), params=[Variable(name='a'), Variable(name='b'), Variable(name='c')], body=Sequence(seq=[AssignOp(operator='<-', left=Variable(name='d'), right=MathOp(operator='+', left=MathOp(operator='+', left=Variable(name='a'), right=Variable(name='b')), right=Variable(name='c')))], inloop=False), returns=Variable(name='d')), AssignOp(operator='<-', left=Variable(name='e'), right=FuncCall(name=Function(name='f'), args=[Int(value=1), Int(value=2), Int(value=3)]))], inloop=False))
+# pprint(code.instructions)
+# code = parseAST(Sequence(seq=[LogOp(operator='xnor', right=Int(value=1), left=Int(value=2))], inloop=False))
+
+# print(code.instructions)
+
