@@ -1,0 +1,12 @@
+fun fib of n is 
+  var f <- 0; 
+  if n == 0 or n == 1 
+  then 
+    f <- 1; 
+  else 
+    f <- fib of (n-1); + fib of (n-2);; 
+  endif; 
+  returns f; 
+endfun; 
+var a <- fib of 7;;
+print a;

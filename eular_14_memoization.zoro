@@ -1,0 +1,39 @@
+var mil <- 1000;
+var lst <- [1];
+var i <- 2;
+var maxl <- 1;
+var maxi <- 1;
+var temp <- 0;
+var j <- 0;
+
+while i <= mil
+do
+    if i%2 == 0
+    then
+        temp <- 1 + lst.at (i//2 - 1);
+        lst.push temp;
+    else
+        j <- 3*i + 1;
+        temp <- 1;
+        while j >= i
+        do
+            if j % 2 == 0
+            then
+                j <- j // 2;
+            else
+                j <- 3*j + 1;
+            endif;
+            temp <- temp + 1;
+        endwhile;
+        temp <- temp + lst.at (j - 1);
+        lst.push temp;
+    endif;
+    if temp > maxl
+    then
+        maxi <- i;
+        maxl <- temp;
+    endif;
+    i <- i+1;
+endwhile;
+print maxi;
+print maxl;
