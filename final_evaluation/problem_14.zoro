@@ -1,0 +1,22 @@
+var a <- [12, 23, 4, 12];
+var l <- a.len;
+var i <- 0;
+var j <- 0;
+var c <- 0;
+var p <- 0;
+var k <- 0; 
+
+while i<l do
+    j <- i + 1;
+    p <- a.at i;
+    while j<l do
+        k <- a.at j;
+        if p>k then
+            c <- c + 1;
+        endif;
+        j <- j + 1;   
+    endwhile;
+    i<-i+1;
+endwhile;
+
+print c;

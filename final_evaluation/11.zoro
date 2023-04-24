@@ -1,0 +1,34 @@
+var inp <- ["caatttt", "colbeyy", "zzzzzzz", "prakram"];
+var ln <- inp.at 0;
+ln <- ln.strlen;
+var n <- inp.len;
+var i <- 0;
+var ans <- 0;
+var j <- 0;
+var temp <- 0;
+var cnt <- 0;
+var temp2 <- 0;
+var k <- 0;
+while i<n do
+    temp <- inp.at i;
+    j <- i+1;
+    cnt <- 0;
+    while j<n do
+        temp2 <- inp.at j;
+        k <- 0;
+        while k<ln do
+            var a <- temp.slice k k;
+            var b <- temp2.slice k k;
+            if a != b then
+                cnt <- cnt +1;
+            endif;
+            k <- k+1;
+        endwhile;
+        if cnt > ans then
+            ans <- cnt; endif;
+        j <- j+1;
+        cnt <- 0;
+    endwhile;
+    i <- i+1;
+endwhile;
+print ans;

@@ -1,0 +1,19 @@
+var a <- "madam" ; 
+var ll <- a.strlen; 
+var ans <- []; 
+var i <- 0;
+while i<ll 
+do
+    ans.push a.at ll-i-1; 
+    i <- i+1;
+endwhile;
+var flag <- True;
+i <- 0;
+while i < ll and flag
+do
+    var x <- ans.at i;
+    var y <- a.slice i i;
+    flag <- x == y;
+    i <- i+1;
+endwhile;
+print flag;

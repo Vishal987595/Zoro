@@ -1,0 +1,33 @@
+var inp <- "parakramar";
+var n <- inp.len;
+var ans <- "";
+if n < 2 then
+    ans <- inp;
+endif;
+var max_palindrome <- "";
+var i <- 0;
+while i<n do
+    var l <- i;
+    var r <- i;
+    while  l>= 0 and r < n and (inp.slice l l) == (inp.slice r r) do
+        l <- l - 1;
+        r <- r + 1;
+    endwhile;
+    if max_palindrome.strlen < r-l-1 then
+        var rd <- r-1;
+        var ld <- l+1;
+        max_palindrome <- inp.slice ld rd;
+    endif;
+    l <- i;
+    r <- i+1;
+    while l>=0 and r<n and (inp.slice l l) == (inp.slice r r) do
+        l <- l-1;
+        r <- r+1;
+    endwhile;
+    if max_palindrome.strlen < (r-l-1) then
+        var rd <- r-1;
+        var ld <- l+1;
+        max_palindrome <- inp.slice ld rd; endif;
+    i <- i+1;
+endwhile;    
+print max_palindrome;

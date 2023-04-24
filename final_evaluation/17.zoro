@@ -1,0 +1,11 @@
+var a <- " Runnin from da' cons3qu3nc3 " ; 
+var ll <- a.strlen - 1; 
+var ans <- []; 
+var i <- 0;
+
+while i<ll 
+do
+    ans.push a.at ll-i; 
+    i <- i+1;
+endwhile; 
+print ans; 

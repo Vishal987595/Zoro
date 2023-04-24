@@ -1,0 +1,6 @@
+var n <- 5; 
+if n%2 == 0 then 
+  print "even"; 
+else 
+  print "odd"; 
+endif;

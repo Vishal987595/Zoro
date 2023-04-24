@@ -1,0 +1,19 @@
+var Int a <- 64 ; 
+var ans <- []; 
+var anss <- [] ; 
+
+while a!=0 do
+    var c<-a//2; 
+    var d<-a-2*c; 
+    a<-c; 
+    ans.push d; 
+endwhile; 
+
+var ll <- ans.len-1;
+var j<- 0; 
+while j<=ll do 
+anss.push ans.at ll-j; 
+j <- j+1;
+endwhile; 
+
+print anss; 
