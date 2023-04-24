@@ -1,0 +1,20 @@
+var numbers <- [1,2,3,4,5];
+var ans <- -1;
+if numbers.len < 2 then
+    ans <- -1;
+var largest <- -9999;
+var second_largest <- -9999;
+var length <- numbers.len;
+var i <- 0;
+while i<length do
+    num <- numbers.at i;
+    if num > largest then
+        second_largest <- largest;
+        largest <- num;
+    elif num > second_largest and num != largest then
+        second_largest <- num;
+    endif;
+    i <- i+1;
+endwhile;
+ans<-second_largest;
+print ans;

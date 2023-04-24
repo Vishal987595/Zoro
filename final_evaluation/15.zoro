@@ -1,0 +1,8 @@
+var inp <- 5;
+var ans <- 1;
+var i <- 2;
+while i <= inp do
+    ans <- ans*i;
+    i <- i + 1;
+endwhile;
+print ans;

@@ -1,0 +1,22 @@
+var a  <-  [-50,45,-6,24,35,-66,5,-16,1,-7,-2,4,18,25,-65,2] ; 
+var l  <-  a.len; 
+var i  <-  0; 
+var sum  <-  0; 
+var max  <-  0; 
+var maxi  <-  -1; 
+
+while i<l do
+    sum <- sum + a.at i; 
+    if max<sum then max <- sum; maxi <- i; endif; 
+    i <- i + 1; 
+endwhile; 
+
+sum <- max; i <- 0; 
+
+while i<maxi do
+    sum <- sum + a.at i; 
+    if max<sum then max <- sum; maxi <- i; endif; 
+    i <- i + 1; 
+endwhile; 
+
+print max; 
