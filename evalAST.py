@@ -84,9 +84,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case BitOp("<<", left, right):
             return evalAST_(left) << evalAST_(right)
         
-
-        ################## FOLLOWING BLOCK TO BE "CHECKED AND VERIFIED" BY "PRAKRAM AND JUHIL"  ##################
-
         case LogOp("and", left, right):
             return evalAST_(left) and evalAST_(right)
         case LogOp("or", left, right):
@@ -190,7 +187,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
             return evalAST_(left) + evalAST_(right)
         case StringOp("slice", [string, start, end]):
             return evalAST_(string)[evalAST_(start): evalAST_(end)+1]
-        case StringOp("len", string):
+        case StringOp("strlen", string):
             return len(evalAST_(string))
         
 
@@ -265,7 +262,7 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                         a.items.append(String(evalAST_(item)))
                     case _:
                         print("WTH")
-                    
+            
             envlocal.update(list.name, a)
             return evalAST_(item)
         case ListOp(list, "pop", item, index):
@@ -450,11 +447,3 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
         case other:
             print("writing AST is out of your scope!")
 
-
-
-
-# FuncCall : fib of n-1 #you should also allow fib of (n-1)
-# FuncCall: fib of n-1 + fib of n-2 # you should also allow fib of (n-1) + fib of (n-2)
-# add Returns
-# Optional Pass
-# Comments (single line and multi line)
