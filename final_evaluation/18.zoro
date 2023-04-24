@@ -1,0 +1,51 @@
+var a <- [ 3,6,5,8,4,1,5 ] ; 
+var n <- a.len ; 
+var flag <- False ; 
+var found <- False ; 
+var i <- n-1 ; 
+var j <- 0; 
+var k <- 0; 
+
+
+var iii <- 0;
+var jjjj <- 0;
+var kkkk <- 0;
+var kk <- 0;
+var jj <- 0;
+while iii<n do
+    while jjjj<n-iii-1 do
+        kkkk <- jjjj+1;
+        kk <- a.at kkkk;
+        jj <- a.at jjjj;
+        if jj > kk then
+            a.update jjjj kk;
+            a.update kkkk jj;
+        endif;
+        jjjj <- jjjj+1;
+    endwhile;
+    jjjj <- 0;
+    iii <- iii+1;
+endwhile;
+
+
+
+
+
+while i>=0 do
+    j <- 0; 
+    k <- i-1; 
+    while j < k do
+        if a.at i == (a.at j + a.at k) then
+            print "numbers are ", a.at i , a.at j , a.at k ;
+            flag<-True; found<-True; 
+            break; 
+        elif a.at i > (a.at j + a.at k) then
+            j <- j + 1; 
+        else
+            k <- k - 1; 
+        endif; 
+    endwhile; 
+    if  flag==True  then break; endif; 
+    i <- i - 1 ; 
+endwhile; 
+if found==False  then  print "No such triplet exists"; endif; 
