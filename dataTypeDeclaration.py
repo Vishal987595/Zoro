@@ -224,7 +224,7 @@ Value = Fraction | bool | int | float | str | None
 ###############################################################################################################################################
 
 
-keywords = " Int Float Frac Bool String    var   if then elif else endif    print    fun of is returns endfun   while do endwhile   for in endfor break  concat   len push pop insert count ".split()
+keywords = "  Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    strlen concat slice locate count_char    len push pop insert count index at update   range ".split()
 
 symbolic_operators = "  + - * / // % **    < <= => > == !=    >> <<    ~ & | ^     <- ->  ".split()
 
