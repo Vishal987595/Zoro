@@ -1,0 +1,10 @@
+var inlist <- [1, 2, 3, 4, 5];
+var sum <- 0;
+var i <- 0;
+var l <- inlist.len;
+while i < l
+do
+    sum <- sum + inlist.at i;
+    i <- i+1;
+endwhile;
+print sum;
