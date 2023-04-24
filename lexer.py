@@ -90,7 +90,7 @@ class end_of_all_tokens(Exception):
 
 Token = Int | Float | Frac | String | Bool | Keyword | Identifier | Operator | UnknownWord | Symbol | end_of_all_tokens
 
-keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    concat     push pop len insert count index at update  range".split()
+keywords = " Int Float Frac Bool String    var    if then elif else endif    print    fun of is returns endfun    while do endwhile  break    for in endfor    strlen concat slice locate count_char    len push pop insert count index at update   range".split()
 symbolic_operators = "+ - * / < > <= >= = ==  ! != ** % // ~ & | ^ -> <- << >>  ".split()
 word_operators = "and or not xor xnor nand nor concat from to".split()
 brackets = "[ ( ) ]".split()
@@ -291,7 +291,4 @@ def print_tokens(code: str):
         return tokens, line_numbers
 
 
-
-
-# ans = print_tokens("a+b = 2;3+3=6")
-# print(ans)
+# print(print_tokens("a+b = 2;3+3=6"))
