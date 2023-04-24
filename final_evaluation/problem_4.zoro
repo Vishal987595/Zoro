@@ -1,0 +1,28 @@
+var a <- "my language is Zoro";
+var l <- a.strlen;
+var space <- " ";
+var m <- a.slice 0 0;
+var i <- 0;
+var c <- 0;
+
+if m != space then
+    c <- 1;
+endif;
+
+while i<l do
+    m <- a.slice i i;
+    if m == space then
+        while i < l and m == space do
+            m <- a.slice i i;
+            i<-i+1;
+        endwhile;
+        if m != space then 
+            c <- c + 1;
+        endif;
+    endif;
+    i <- i + 1;
+endwhile;
+
+print c;
+
+# Vishal and Dhruv #

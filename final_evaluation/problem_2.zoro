@@ -1,0 +1,35 @@
+fun isvowel of a is
+    var ans <- False;
+    var l <- ["a", "e", "i", "o", "u"];
+    var b<-l.len; 
+    var i <- 0;
+    var j <- 0;
+    while j < b do 
+        i<- l.at j;
+        if a == i then 
+            ans <- True;
+        endif;
+        j <- j + 1;
+    endwhile;
+    returns ans;
+endfun;
+
+var d <- "abhaajkb , ,  dkfj d vsieou";
+var k <- 0;
+var p <- "jk";
+var c <- 0;
+var q <- 0;
+if d.strlen > 1 then
+    while k<d.strlen do
+        p <- d.slice k k;
+        q <- isvowel of p;
+        if q then 
+            c <- c + 1;
+        endif;
+        k <- k + 1;
+    endwhile;
+else 
+    c <- isvowel of d;
+endif;
+
+print c;
