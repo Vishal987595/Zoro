@@ -45,32 +45,32 @@ class Brkt_Stk_Cls:
                 if(self.stack[-1]==Symbol("(")): 
                     self.stack.pop(-1)
                 else: 
-                    raise Incorrect_Bracket_Sequence
+                    # raise Incorrect_Bracket_Sequence
                     self.comp_err("Incorrect_Bracket_Sequence","Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
             case Symbol("]"):
                 if(self.stack[-1]==Symbol("[")): 
                     self.stack.pop(-1)
                 else: 
-                    raise Incorrect_Bracket_Sequence
+                    # raise Incorrect_Bracket_Sequence
                     self.comp_err("Incorrect_Bracket_Sequence","Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
             case Symbol("}"):
                 if(self.stack[-1]==Symbol("{")): 
                     self.stack.pop(-1)
                 else: 
-                    raise Incorrect_Bracket_Sequence
+                    # raise Incorrect_Bracket_Sequence
                     self.comp_err("Incorrect_Bracket_Sequence","Remove the Brackets are too entagled as if they're your fingers!", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
 
     def check_empty(self):
         if(len(self.stack)>0): 
-            raise Not_Enough_Closing_Brackets
+            # raise Not_Enough_Closing_Brackets
             self.comp_err("Not_Enough_Closing_Brackets","Please add some closing brackets to match the leading ones.", self.Line_Numbers[self.Curr_Token_Index])
             quit()
     def check_not_empty(self):
         if(len(self.stack)==0): 
-            raise Not_Enough_Opening_Brackets
+            # raise Not_Enough_Opening_Brackets
             self.comp_err("Not_Enough_Opening_Brackets","Please add some opening brackets to match the trailing ones.", self.Line_Numbers[self.Curr_Token_Index])
             quit()
 
@@ -131,7 +131,7 @@ class ZoroParser:
             return self.advance()
         else:
             print(f"Parse Error : Expected : {expected_token} , but got : {current_token} //")
-            raise UnExpected_Token
+            # raise UnExpected_Token
             self.comp_err("Invalid Syntax",f"I think you should spend your remaining life remembering the syntax of Zoro!", self.Line_Numbers[self.Curr_Token_Index])
             quit()
     def comp_err(self,cate,msg,line):           # Prints the error to the user
@@ -150,8 +150,8 @@ class ZoroParser:
         try: 
             name = identifier.word; 
         except:
-            print("\nRAISED IN PARSE NAME : ",identifier,"DOESN'T'VE WORD ATTR\n\n"); 
-            raise UnExpected_Token; 
+            # print("\nRAISED IN PARSE NAME : ",identifier,"DOESN'T'VE WORD ATTR\n\n"); 
+            # raise UnExpected_Token; 
             self.comp_err("Invalid Syntax",f"Your mind, logic and the token '{identifier}' you used, are all the same, at the wrong place!", self.Line_Numbers[self.Curr_Token_Index])
             quit()
         
@@ -162,7 +162,7 @@ class ZoroParser:
             # quit()
         
         elif(re.match(Name_regex,name) == None):
-            raise Invalid_Variable_Name
+            # raise Invalid_Variable_Name
             self.comp_err("Invalid_Variable_Name",f"The varibale you named '{name}' is, just like you, invalid!", self.Line_Numbers[self.Curr_Token_Index])
             quit()
         
@@ -182,7 +182,7 @@ class ZoroParser:
                             r1,r2 = self.parse_String_fx()
                             return StringOp(r1,[Variable(name),r2])
                         else:
-                            raise UnExpected_Token
+                            # raise UnExpected_Token
                             self.comp_err("UnExpected_Token"," . [Dot] k baad apna dimaag mat laga, valid operator laga.", self.Line_Numbers[self.Curr_Token_Index])
                             quit()
                     else:
@@ -460,7 +460,7 @@ class ZoroParser:
                 case Identifier(word):
                     pass
                 case _:
-                    raise Not_A_Basic_Datatype
+                    # raise Not_A_Basic_Datatype
                     self.comp_err("Not_A_Basic_Datatype","You know (even if you don't) that you can only write basic dtypes, why are you writing your intelligence, which is invalid here?", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
         
@@ -468,7 +468,7 @@ class ZoroParser:
             # left = self.parse_lor(real_expr_flag)
             left = self.parse_name(name_flag=0)
             if(type(left)!=Variable): 
-                raise Cannot_Assign_to_an_Expr
+                # raise Cannot_Assign_to_an_Expr
                 self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
             
@@ -476,7 +476,7 @@ class ZoroParser:
                 self.consume_token(Symbol("["))
                 num = self.next_token()
                 if(not(type(num)==Int or type(num)==Variable or type(num)==Identifier)):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 self.advance()
@@ -499,7 +499,7 @@ class ZoroParser:
 
             if(self.next_token()==Operator("<-")):
                 if(type(left)!=Variable): 
-                    raise Cannot_Assign_to_an_Expr
+                    # raise Cannot_Assign_to_an_Expr
                     self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 self.consume_token(Operator("<-"))
@@ -535,14 +535,14 @@ class ZoroParser:
                         case Identifier(word):
                             pass
                         case _:
-                            raise Not_A_Basic_Datatype
+                            # raise Not_A_Basic_Datatype
                             self.comp_err("Not_A_Basic_Datatype","You know (even if you don't) that you can only write basic dtypes, why are you writing your intelligence, which is invalid here?", self.Line_Numbers[self.Curr_Token_Index])
                             quit()
                 
                 # right = self.parse_lor(real_expr_flag)
                 right = self.parse_name(name_flag=0)
                 if(type(right)!=Variable): 
-                    raise Cannot_Assign_to_an_Expr
+                    # raise Cannot_Assign_to_an_Expr
                     self.comp_err("Cannot_Assign_to_an_Expr","Shabash Beta! Expression me store karke bohot aage badhega.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
 
@@ -550,7 +550,7 @@ class ZoroParser:
                     self.consume_token(Symbol("["))
                     num = self.next_token()
                     if(type(num)!=Int):
-                        raise Inappropriate_Type_of_Token
+                        # raise Inappropriate_Type_of_Token
                         self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
                         quit()
                     self.advance()
@@ -626,7 +626,7 @@ class ZoroParser:
                             self.consume_token(Symbol(","))
                             expr = self.parse_Expr(real_expr_flag=False); sub_seq.append(expr); 
                         case _ :
-                            raise Invalid_Character_Inside_Brackets
+                            # raise Invalid_Character_Inside_Brackets
                             self.comp_err("Invalid_Character_Inside_Brackets","Why you must use something so offendin' as a separator?", self.Line_Numbers[self.Curr_Token_Index])
                             quit()
                 self.consume_token(Symbol(")")); self.brkt_stk_obj.pop(Symbol(")")); #print("Consumed CLOSING BRACKET"); print("sub_seq",sub_seq); 
@@ -636,7 +636,7 @@ class ZoroParser:
                 else: 
                     return Sequence(sub_seq); 
             case _: 
-                raise Invalid_Bracket_Character
+                # raise Invalid_Bracket_Character
                 self.comp_err("Invalid_Bracket_Character","Bhai (not sorry if you aren't)! You created a new bracter character. Well Done! Indeed! Just one thing : Go and write it in your own language, Not Here!", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
 
@@ -662,7 +662,7 @@ class ZoroParser:
                 len_args = 0
                 arg = self.parse_Expr(real_expr_flag=False)
                 if(self.array_init_type!=None and type(arg)!=type(self.array_init_type)):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 args.append(arg)
@@ -678,7 +678,7 @@ class ZoroParser:
                             self.consume_token(Symbol(","))
                             arg = self.parse_Expr(real_expr_flag=False)
                             if(self.array_init_type!=None and type(arg)!=type(self.array_init_type)):
-                                raise Inappropriate_Type_of_Token
+                                # raise Inappropriate_Type_of_Token
                                 self.comp_err("Inappropriate_Type_of_Token","Only Int is allowed as var[num]. ", self.Line_Numbers[self.Curr_Token_Index])
                                 quit()
                             args.append(arg)
@@ -686,7 +686,7 @@ class ZoroParser:
                 
                 diff_args_len = self.array_init_length - len_args
                 if(diff_args_len<0):
-                    raise Inappropriate_No_of_Eles
+                    # raise Inappropriate_No_of_Eles
                     self.comp_err("Inappropriate_No_of_Eles","Abey. Declare length kuch aur hai and inserted length kuch aur. Kya kar rha hai bina dimaag lagaye?", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 elif(diff_args_len>0):
@@ -747,7 +747,7 @@ class ZoroParser:
                 self.consume_token(Keyword("pop"))
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 return "pop", Null(None), index
@@ -756,7 +756,7 @@ class ZoroParser:
                 item = self.parse_Expr(real_expr_flag=False)
                 index = self.parse_Expr(real_expr_flag=False)
                 if(type(index) != Int):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 return "insert", item, index
@@ -765,7 +765,7 @@ class ZoroParser:
                 item = self.parse_Expr(real_expr_flag=False)
                 index = self.parse_Expr(real_expr_flag=False)
                 if(not(type(index)==Int or type(index)==Variable or type(index)==Identifier)):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 return "update", item, index
@@ -779,7 +779,7 @@ class ZoroParser:
                 self.consume_token(Keyword("count"))
                 return "count", self.parse_Expr(real_expr_flag=False), Null(None)
             case _:
-                raise UnExpected_Token
+                # raise UnExpected_Token
                 self.comp_err("Invalid Syntax","Pata nhi konse naye functions bina banaye use karta rehta hai.", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
 
@@ -792,7 +792,7 @@ class ZoroParser:
                 self.consume_token(Keyword("concat"))
                 arg = self.parse_Expr(real_expr_flag=False)
                 if(not(type(arg)==String or type(arg)==Variable)):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","String ko String ke saath concatnate karte hai, kam-akal. Pata nhi kya sikha itne saalo mein.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 return "concat", arg
@@ -802,7 +802,7 @@ class ZoroParser:
                 rl = self.parse_Expr(real_expr_flag=False)
                 
                 if(not( (type(ll)==Int or type(ll)==Variable) and (type(rl)==Int or type(rl)==Variable) )):
-                    raise Inappropriate_Type_of_Token
+                    # raise Inappropriate_Type_of_Token
                     self.comp_err("Inappropriate_Type_of_Token","Waah! Index ko Int hona chahiye ye bhi nhi pata tuze.", self.Line_Numbers[self.Curr_Token_Index])
                     quit()
                 return "slice", (ll, rl)
@@ -815,7 +815,7 @@ class ZoroParser:
                 arg = self.parse_Expr(real_expr_flag=False)
                 return "count_char", arg
             case _:
-                raise UnExpected_Token
+                # raise UnExpected_Token
                 self.comp_err("Invalid Syntax","Pata nhi konse naye functions bina banaye use karta rehta hai.", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
 
@@ -867,7 +867,7 @@ class ZoroParser:
 
     def parse_returns(self):
         if(self.inside_fun_def==False):
-            raise Returns_Not_Allowed_Here
+            # raise Returns_Not_Allowed_Here
             self.comp_err("Returns_Not_Allowed_Here","What an imagination you have, to use 'returns' keyword outside of a function-definition. Hats off genius!", self.Line_Numbers[self.Curr_Token_Index])
             quit()
         
@@ -894,7 +894,7 @@ class ZoroParser:
             self.consume_token(Keyword("of"))
             
             if(self.next_token()==Keyword("is")): 
-                raise Expected_Params_Between_OF_and_IS
+                # raise Expected_Params_Between_OF_and_IS
                 self.comp_err("Expected_Params_Between_OF_and_IS","Kya socha, function-definition me 'is' and 'of' k bich me parameters me apne aap daal dunga?!", self.Line_Numbers[self.Curr_Token_Index])
                 quit()
             else:

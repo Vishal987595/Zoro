@@ -153,8 +153,8 @@ view_menu.add_command(label='Theme', command=change_theme)
 menu_bar.add_cascade(label='View', menu=view_menu)
 
 run_bar = Menu(menu_bar, tearoff=0)
-run_bar.add_command(label='RunTreewalk', command=runtreewalk)
-run_bar.add_command(label='RunBytecode', command=runbytecode)
+# run_bar.add_command(label='RunTreewalk', command=runtreewalk)
+run_bar.add_command(label='Run', command=runbytecode)
 menu_bar.add_cascade(label='Run', menu=run_bar)
 
 compiler.config(menu=menu_bar)
@@ -181,7 +181,7 @@ editor.bind("<<Change>>", _on_change)
 editor.bind("<Configure>", _on_change)
 editor.bind("<Control-s>", save_file)
 editor.bind("<Control-b>", runbytecode)
-editor.bind("<Control-t>", runtreewalk)
+# editor.bind("<Control-t>", runtreewalk)
 editor.pack(side=TOP, fill=BOTH, expand=True)
 
 
