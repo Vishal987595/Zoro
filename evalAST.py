@@ -144,7 +144,6 @@ def evalAST(program: AST, envlocal: Environment = None) -> Value:
                     right = Bool(value=right)
                 elif(isinstance(right, str)):
                     right = String(value=right)
-                print(type(right))  
             if (envlocal.get(left.name)[1] != None) and (type(envlocal.get(left.name)[1]) != type(right)):
                 print("TYPE", type(right), "ENV", envlocal.get(left.name)[1])
                 print(f"\"{left.name}\" ka type {envlocal.get(left.name)[1]} hai, {type(right)} type ka value assign karne ki koshish kar rahe ho")

@@ -88,7 +88,7 @@ class ZoroParser:
 
         self.Token_Seq, self.Line_Numbers = print_tokens(Program_Stream); 
         self.Token_Seq.append(EOF)
-        print("\n\nTokens from Lexer", self.Token_Seq,"\n")
+        # print("\n\nTokens from Lexer", self.Token_Seq,"\n")
 
         self.n = len(self.Token_Seq)
         self.nn = self.n-1
@@ -101,14 +101,14 @@ class ZoroParser:
         self.array_init_length = None
         self.Parsed_AST = self.parse_Program()
 
-        for i in self.Parsed_AST.seq: pprint(i); 
+        # for i in self.Parsed_AST.seq: pprint(i); 
     def advance(self):                          # Moves the pointer to the immidiate next token
-        print("advancing", self.next_token()); 
+        # print("advancing", self.next_token()); 
         self.pos += 1
         self.Curr_Token_Index += 1
         return
     def retreat(self):                          # Moves the pointer to the immidiate previous token
-        print("retreating", self.next_token()); 
+        # print("retreating", self.next_token()); 
         self.pos-=1
         self.Curr_Token_Index -= 1
         return
@@ -577,7 +577,6 @@ class ZoroParser:
 
     def parse_Expr(self, real_expr_flag=True, inloop=False):
         # print("-> Inside PARSE_EXPR")
-        if(type(self.next_token())==EOF): return ; 
         match self.next_token():
             case Keyword("fun"): return self.parse_fun_def(); 
             case Keyword("if"): return self.parse_if(inloop=inloop); 
@@ -597,7 +596,8 @@ class ZoroParser:
 
     def parse_Program(self):    # Program refers to the sequence of instuctions, must followed by an EOF token! 
         final_instrs=[]; self.brkt_stk_obj = Brkt_Stk_Cls(); 
-        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); print("\n\n",Sequence(final_instrs),"\n\n")
+        while(self.next_token()!=EOF): final_instrs.append(self.parse_Expr()); 
+        # print("\n\n",Sequence(final_instrs),"\n\n")
         self.brkt_stk_obj.check_empty()
         
         assert self.inside_fun_def == False
@@ -1260,7 +1260,7 @@ def test_parse():       # Uncomment testcases one-by-one to test
         # (ZoroParser(""))    # StringOps
         pass
     print("\n")
-test_parse()
+# test_parse()
 
 #############################################################################################################################
 #############################################################################################################################

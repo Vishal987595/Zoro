@@ -19,5 +19,3 @@ ans_to_eval = ZoroParser(file_contents).Parsed_AST
 check_types(ans_to_eval, {})
 
 evalAST(ans_to_eval)
-
-

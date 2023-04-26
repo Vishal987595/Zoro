@@ -1,0 +1,29 @@
+var inlist <- [1, 2, 3, 4, 2, 3, 1, 2, 3, 3, 5, 4];
+var target <- 7;
+var i <- 0;
+var j <- 0;
+var l <- inlist.len;
+var a <- 0;
+var b <- 0;
+var fg <- False;
+while i < l and fg == False
+do
+    a <- inlist.at i;
+    j <- 0;
+    while j < l
+    do
+        b <- inlist.at j;
+        if a+b == target 
+        then 
+            fg <- True; 
+            break;
+        endif;
+        j <- j+1;
+    endwhile;
+    i <- i+1;
+endwhile;
+
+
+print a;
+print b;
+print target;

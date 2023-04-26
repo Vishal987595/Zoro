@@ -94,7 +94,7 @@ def save_as():
         file.write(code)
         set_file_path(path)
 
-def run():
+def runtreewalk():
     code_output.delete('1.0', END)
     if file_path == '':
         save_prompt = Toplevel()
@@ -102,6 +102,19 @@ def run():
         text.pack()
         return
     command = f'python3 zoro.py {file_path}'
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    output, error = process.communicate()
+    code_output.insert('1.0', output)
+    code_output.insert('1.0',  error)
+
+def runbytecode():
+    code_output.delete('1.0', END)
+    if file_path == '':
+        save_prompt = Toplevel()
+        text = Label(save_prompt, text='Please save your code')
+        text.pack()
+        return
+    command = f'python3 zoro2.py {file_path}'
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
     code_output.insert('1.0', output)
@@ -140,7 +153,8 @@ view_menu.add_command(label='Theme', command=change_theme)
 menu_bar.add_cascade(label='View', menu=view_menu)
 
 run_bar = Menu(menu_bar, tearoff=0)
-run_bar.add_command(label='Run', command=run)
+run_bar.add_command(label='RunTreewalk', command=runtreewalk)
+run_bar.add_command(label='RunBytecode', command=runbytecode)
 menu_bar.add_cascade(label='Run', menu=run_bar)
 
 compiler.config(menu=menu_bar)
@@ -166,7 +180,8 @@ def _on_change(event):
 editor.bind("<<Change>>", _on_change)
 editor.bind("<Configure>", _on_change)
 editor.bind("<Control-s>", save_file)
-editor.bind("<Control-r>", run)
+editor.bind("<Control-b>", runbytecode)
+editor.bind("<Control-t>", runtreewalk)
 editor.pack(side=TOP, fill=BOTH, expand=True)
 
 
